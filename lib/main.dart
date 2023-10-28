@@ -199,7 +199,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget unloadedInterface(BuildContext context) {
-    return const Align(
+    return Align(
       alignment: Alignment.center,
       child: Material(
         type: MaterialType.transparency,
@@ -207,11 +207,21 @@ class _MyHomePageState extends State<MyHomePage> {
           height: 200,
           width: 300,
           child: Center(
-            child: Text(
-              'Load a GIF!\n'
-              'Click on the button on the lower right.\n'
-              'or drag and drop a GIF into the window.',
-              textAlign: TextAlign.center,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Load a GIF!',
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+                const SizedBox(height: 5),
+                const Text(
+                  'Use the button on the lower right.\n'
+                  'Or drag and drop a GIF into the window.',
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
           ),
         ),
