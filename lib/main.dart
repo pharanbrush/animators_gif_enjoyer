@@ -288,9 +288,9 @@ class _MyHomePageState extends State<MyHomePage> {
         ValueListenableBuilder(
           valueListenable: isUsingFocusRange,
           builder: (_, isUseCustomRange, __) {
-            final double rangeSize = focusFrameRange.value.rangeSize;
+            final double frameCount = focusFrameRange.value.rangeSize + 1;
             final double rangeSeconds = frameDuration != null
-                ? (rangeSize * frameDuration!.inMilliseconds.toDouble() * 0.001)
+                ? (frameCount * frameDuration!.inMilliseconds.toDouble() * 0.001)
                 : -1;
 
             final String rangeSecondsString = rangeSeconds >= 0
@@ -319,7 +319,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   //   style: TextStyle(color: focusRangeColor),
                   // ),
                   Text(
-                    'Custom range: ${rangeSize.toInt()} frames. ~$rangeSecondsString',
+                    'Custom range: ${frameCount.toInt()} frames. ~$rangeSecondsString',
                     style: const TextStyle(color: focusRangeColor),
                   ),
                 ],
