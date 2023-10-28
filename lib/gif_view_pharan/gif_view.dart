@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 ///
-/// Created by
+/// Originally created by
 ///
 /// ─▄▀─▄▀
 /// ──▀──▀
@@ -31,7 +31,7 @@ class GifFrame {
 /// to [GifController.load].
 Future<List<GifFrame>> loadGifFrames({
   required ImageProvider provider,
-  int? frameRate,
+  int? customFrameRate,
   ValueChanged<Object?>? onError,
 }) async {
   List<GifFrame> frameList = [];
@@ -73,25 +73,6 @@ Future<List<GifFrame>> loadGifFrames({
         data = await fi.file.readAsBytes();
     }
 
-    // if (provider is NetworkImage) {
-    //   final Uri resolved = Uri.base.resolve(provider.url);
-    //   Map<String, String> headers = {};
-    //   provider.headers?.forEach((String name, String value) {
-    //     headers[name] = value;
-    //   });
-    //   final response = await http.get(resolved, headers: headers);
-    //   data = response.bodyBytes;
-    // } else if (provider is AssetImage) {
-    //   AssetBundleImageKey key =
-    //       await provider.obtainKey(const ImageConfiguration());
-    //   final d = await key.bundle.load(key.name);
-    //   data = d.buffer.asUint8List();
-    // } else if (provider is FileImage) {
-    //   data = await provider.file.readAsBytes();
-    // } else if (provider is MemoryImage) {
-    //   data = provider.bytes;
-    // }
-
     if (data == null) {
       return [];
     }
@@ -101,18 +82,28 @@ Future<List<GifFrame>> loadGifFrames({
       allowUpscaling: false,
     );
 
-    for (int i = 0; i < codec.frameCount; i++) {
-      FrameInfo frameInfo = await codec.getNextFrame();
-      Duration duration = frameInfo.duration;
-      if (frameRate != null) {
-        duration = Duration(milliseconds: (1000 / frameRate).ceil());
+    if (customFrameRate == null) {
+      for (int i = 0, n = codec.frameCount; i < n; i++) {
+        FrameInfo frameInfo = await codec.getNextFrame();
+        frameList.add(
+          GifFrame(
+            ImageInfo(image: frameInfo.image),
+            frameInfo.duration,
+          ),
+        );
       }
-      frameList.add(
-        GifFrame(
-          ImageInfo(image: frameInfo.image),
-          duration,
-        ),
-      );
+    } else {
+      final customFrameDuration =
+          Duration(milliseconds: (1000.0 / customFrameRate).ceil());
+      for (int i = 0, n = codec.frameCount; i < n; i++) {
+        FrameInfo frameInfo = await codec.getNextFrame();
+        frameList.add(
+          GifFrame(
+            ImageInfo(image: frameInfo.image),
+            customFrameDuration,
+          ),
+        );
+      }
     }
 
     // if (_providerIsCacheable(provider)) {
@@ -343,7 +334,7 @@ class GifViewState extends State<GifView> with TickerProviderStateMixin {
   FutureOr _loadImage({bool updateFrames = false}) async {
     final frames = await loadGifFrames(
       provider: widget.image,
-      frameRate: widget.frameRate,
+      customFrameRate: widget.frameRate,
       onError: widget.onError,
     );
     controller.load(frames, updateFrames: updateFrames);
