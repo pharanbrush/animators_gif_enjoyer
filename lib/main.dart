@@ -65,7 +65,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   late final GifController gifController;
-  FileImage? gifImageProvider;
+  ImageProvider? gifImageProvider;
   String filename = '';
 
   Duration? frameDuration = Duration.zero;
@@ -168,7 +168,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         Tooltip(
                           message: 'Open GIF file...',
                           child: IconButton.filled(
-                            onPressed: () => openNewImage(),
+                            onPressed: () => openNewFile(),
                             icon: const Icon(Icons.file_open_outlined),
                           ),
                         ),
@@ -223,8 +223,7 @@ class _MyHomePageState extends State<MyHomePage> {
               builder: (_, currentFrameValue, __) {
                 final bigStyle = Theme.of(context).textTheme.headlineMedium;
                 final bigStyleGray =
-                    bigStyle?.copyWith(color: const Color(0x55000000)) ??
-                        grayStyle;
+                    bigStyle?.copyWith(color: grayColor) ?? grayStyle;
 
                 final separator = Text(' - ', style: bigStyleGray);
 
@@ -301,7 +300,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return duration;
   }
 
-  void openNewImage() async {
+  void openNewFile() async {
     const typeGroup = XTypeGroup(
       label: 'GIFs',
       extensions: ['gif'],
@@ -311,9 +310,13 @@ class _MyHomePageState extends State<MyHomePage> {
     if (file == null) return;
 
     final gifImage = FileImage(File(file.path));
-    gifImageProvider = gifImage;
 
-    final frames = await loadGifFrames(provider: gifImage);
+    loadGifFromProvider(gifImage, file.name);
+  }
+
+  void loadGifFromProvider(ImageProvider provider, String sourceFilename) async {
+    final frames = await loadGifFrames(provider: provider);
+    gifImageProvider = provider;
     frameDuration = getFrameDuration(frames);
     gifController.load(frames);
     int lastFrame = frames.length - 1;
@@ -322,7 +325,7 @@ class _MyHomePageState extends State<MyHomePage> {
       focusFrameRange.value = RangeValues(0, lastFrame.toDouble());
       maxFrameIndex.value = lastFrame;
       currentFrame.value = 0;
-      filename = file.name;
+      filename = sourceFilename;
     });
   }
 }
