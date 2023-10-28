@@ -288,6 +288,15 @@ class _MyHomePageState extends State<MyHomePage> {
         ValueListenableBuilder(
           valueListenable: isUsingFocusRange,
           builder: (_, isUseCustomRange, __) {
+            final double rangeSize = focusFrameRange.value.rangeSize;
+            final double rangeSeconds = frameDuration != null
+                ? (rangeSize * frameDuration!.inMilliseconds.toDouble() * 0.001)
+                : -1;
+
+            final String rangeSecondsString = rangeSeconds >= 0
+                ? '${rangeSeconds.toStringAsFixed(2)} seconds'
+                : '';
+
             return Visibility(
               maintainInteractivity: false,
               maintainSemantics: false,
@@ -305,9 +314,13 @@ class _MyHomePageState extends State<MyHomePage> {
                         setDisplayedFrame(focusFrameRange.value.endInt),
                     onChangeTapUp: () => setDisplayedFrame(currentFrame.value),
                   ),
-                  const Text(
-                    'Custom frame range',
-                    style: TextStyle(color: focusRangeColor),
+                  // const Text(
+                  //   'Custom frame range',
+                  //   style: TextStyle(color: focusRangeColor),
+                  // ),
+                  Text(
+                    'Custom range: ${rangeSize.toInt()} frames. ~$rangeSecondsString',
+                    style: const TextStyle(color: focusRangeColor),
                   ),
                 ],
               ),
@@ -560,4 +573,6 @@ class ToggleFocusButton extends StatelessWidget {
 extension RangeValuesExtensions on RangeValues {
   int get endInt => end.toInt();
   int get startInt => start.toInt();
+
+  double get rangeSize => end - start;
 }
