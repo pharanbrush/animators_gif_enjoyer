@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
+import 'package:animators_gif_enjoyer/utils/value_notifier_extensions.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
@@ -89,7 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void toggleUseFocus() {
     setState(() {
-      isUsingFocusRange.value = !isUsingFocusRange.value;
+      isUsingFocusRange.toggle();
     });
   }
 
@@ -384,7 +385,6 @@ class ToggleFocusButton extends StatelessWidget {
       onPressed: handleToggle,
       child: Text(
         label,
-        //'${primarySliderRange.start.toInt()}',
         style: isFocusing ? customFocusStyle : grayStyle,
       ),
     );
