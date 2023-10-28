@@ -28,7 +28,8 @@ void main() async {
   runApp(const MyApp());
 }
 
-const grayStyle = TextStyle(color: Color(0x55000000));
+const grayColor = Color(0x55000000);
+const grayStyle = TextStyle(color: grayColor);
 const Color focusRangeColor = Colors.green;
 
 class MyApp extends StatelessWidget {
@@ -65,6 +66,8 @@ class _MyHomePageState extends State<MyHomePage> {
   FileImage? gifImageProvider;
   String filename = '';
 
+  Duration? frameDuration = Duration.zero;
+
   RangeValues get primarySliderRange => isUsingFocusRange.value
       ? focusFrameRange.value
       : RangeValues(0, maxFrameIndex.value.toDouble());
@@ -90,7 +93,27 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void toggleUseFocus() {
     setState(() {
+      clampFocusRange();
       isUsingFocusRange.toggle();
+    });
+  }
+
+  void clampFocusRange() {
+    final oldValue = focusFrameRange.value;
+    double minValue = oldValue.start;
+    minValue = minValue.clamp(0, maxFrameIndex.value.toDouble());
+
+    double maxValue = oldValue.end;
+    if (maxValue < minValue) maxValue = maxFrameIndex.value.toDouble();
+
+    focusFrameRange.value = RangeValues(minValue, maxValue);
+  }
+
+  void clampCurrentFrame() {
+    setState(() {
+      currentFrame.value = clampDouble(currentFrame.value.toDouble(),
+              focusFrameRange.value.start, focusFrameRange.value.end)
+          .toInt();
     });
   }
 
@@ -136,7 +159,13 @@ class _MyHomePageState extends State<MyHomePage> {
                     );
                   },
                 ),
-                const Text('Frame')
+                Text(
+                  'Frame',
+                  style: Theme.of(context)
+                      .textTheme
+                      .labelSmall
+                      ?.copyWith(color: grayColor),
+                )
               ],
             ),
             Padding(
@@ -221,32 +250,74 @@ class _MyHomePageState extends State<MyHomePage> {
                         onChangeTapUp: () =>
                             setDisplayedFrame(currentFrame.value),
                       ),
-                      const Text('Custom frame range'),
+                      const Text(
+                        'Custom frame range',
+                        style: TextStyle(color: focusRangeColor),
+                      ),
                     ],
                   ),
                 );
               },
             ),
-            const SizedBox(height: 75),
+            SizedBox(
+              child: Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Tooltip(
+                      message:
+                          'GIF frames are each encoded with intervals in 10 millisecond increments.\n'
+                          'This makes their actual framerate potentially variable,\n'
+                          'and often not precisely fitting common video framerates.',
+                      child: Text(
+                        frameDuration != null
+                            ? '${frameDuration!.inMilliseconds} milliseconds per frame. (~${(1000.0 / frameDuration!.inMilliseconds).toStringAsFixed(2)} fps)'
+                            : 'Variable frame durations',
+                        style: Theme.of(context)
+                            .textTheme
+                            .labelSmall
+                            ?.copyWith(color: grayColor),
+                      ),
+                    ),
+                    const Spacer(),
+                    Wrap(
+                      direction: Axis.horizontal,
+                      spacing: 8,
+                      children: [
+                        const Tooltip(
+                          message: 'Download GIF...',
+                          child: IconButton.filled(
+                            onPressed: null,
+                            icon: Icon(Icons.download),
+                          ),
+                        ),
+                        Tooltip(
+                          message: 'Open GIF file...',
+                          child: IconButton.filled(
+                            onPressed: () => openNewImage(),
+                            icon: const Icon(Icons.file_open_outlined),
+                          ),
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          openNewImage();
-        },
-        tooltip: 'Load GIF',
-        child: const Icon(Icons.file_open),
       ),
     );
   }
 
-  void clampCurrentFrame() {
-    setState(() {
-      currentFrame.value = clampDouble(currentFrame.value.toDouble(),
-              focusFrameRange.value.start, focusFrameRange.value.end)
-          .toInt();
-    });
+  Duration? getFrameDuration(List<GifFrame> frames) {
+    var duration = frames[0].duration;
+    for (var frame in frames) {
+      if (duration != frame.duration) return null;
+    }
+
+    return duration;
   }
 
   void openNewImage() async {
@@ -262,6 +333,7 @@ class _MyHomePageState extends State<MyHomePage> {
     gifImageProvider = gifImage;
 
     final frames = await loadGifFrames(provider: gifImage);
+    frameDuration = getFrameDuration(frames);
     gifController.load(frames);
     int lastFrame = frames.length - 1;
 
