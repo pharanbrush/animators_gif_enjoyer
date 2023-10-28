@@ -273,9 +273,9 @@ class _MyHomePageState extends State<MyHomePage> {
                     enabled: gifImageProvider != null,
                     onChange: () => clampCurrentFrame(),
                     onChangeRangeStart: () =>
-                        setDisplayedFrame(focusFrameRange.value.start.toInt()),
+                        setDisplayedFrame(focusFrameRange.value.startInt),
                     onChangeRangeEnd: () =>
-                        setDisplayedFrame(focusFrameRange.value.end.toInt()),
+                        setDisplayedFrame(focusFrameRange.value.endInt),
                     onChangeTapUp: () => setDisplayedFrame(currentFrame.value),
                   ),
                   const Text(
@@ -314,7 +314,8 @@ class _MyHomePageState extends State<MyHomePage> {
     loadGifFromProvider(gifImage, file.name);
   }
 
-  void loadGifFromProvider(ImageProvider provider, String sourceFilename) async {
+  void loadGifFromProvider(
+      ImageProvider provider, String sourceFilename) async {
     final frames = await loadGifFrames(provider: provider);
     gifImageProvider = provider;
     frameDuration = getFrameDuration(frames);
@@ -379,8 +380,8 @@ class FrameRangeSlider extends StatelessWidget {
                       values: currentStartEnd,
                       min: 0,
                       max: maxFrameIndex.value.toDouble(),
-                      labels: RangeLabels('${currentStartEnd.start.toInt()}',
-                          '${currentStartEnd.end.toInt()}'),
+                      labels: RangeLabels('${currentStartEnd.startInt}',
+                          '${currentStartEnd.endInt}'),
                       onChanged: enabled
                           ? (newValue) {
                               final oldValue = startEnd.value;
@@ -393,11 +394,9 @@ class FrameRangeSlider extends StatelessWidget {
 
                               onChange?.call();
 
-                              if (oldValue.start.toInt() !=
-                                  newValue.start.toInt()) {
+                              if (oldValue.startInt != newValue.startInt) {
                                 onChangeRangeStart?.call();
-                              } else if (oldValue.end.toInt() !=
-                                  newValue.end.toInt()) {
+                              } else if (oldValue.endInt != newValue.endInt) {
                                 onChangeRangeEnd?.call();
                               }
                             }
@@ -410,7 +409,7 @@ class FrameRangeSlider extends StatelessWidget {
               ),
             ),
           ),
-          Text('${maxFrameIndex.value.toInt()}', style: smallGrayStyle),
+          Text('${maxFrameIndex.value}', style: smallGrayStyle),
         ],
       ),
     );
@@ -441,7 +440,7 @@ class MainSlider extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         ToggleFocusButton(
-          label: '${primarySliderRange.start.toInt()}',
+          label: '${primarySliderRange.startInt}',
           handleToggle: () => toggleUseFocus(),
           isFocusing: isUsingFocusRange.value,
         ),
@@ -476,7 +475,6 @@ class MainSlider extends StatelessWidget {
                   label: '$currentFrameValue',
                   onChanged: (newValue) {
                     if (!enabled) return;
-                    //if (!isGifLoaded) return;
                     currentFrame.value = newValue.toInt();
                     gifController.seek(currentFrame.value);
                   },
@@ -486,7 +484,7 @@ class MainSlider extends StatelessWidget {
           },
         ),
         ToggleFocusButton(
-          label: '${primarySliderRange.end.toInt()}',
+          label: '${primarySliderRange.endInt}',
           handleToggle: () => toggleUseFocus(),
           isFocusing: isUsingFocusRange.value,
         ),
@@ -522,4 +520,9 @@ class ToggleFocusButton extends StatelessWidget {
       ),
     );
   }
+}
+
+extension RangeValuesExtensions on RangeValues {
+  int get endInt => end.toInt();
+  int get startInt => start.toInt();
 }
