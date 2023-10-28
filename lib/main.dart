@@ -129,11 +129,14 @@ class _MyHomePageState extends State<MyHomePage> {
       return 'No gif loaded';
     }
 
+    const browserDefault = 100;
+
     switch (frameDuration) {
       case null:
         return 'Variable frame durations';
-      case Duration.zero:
-        return 'Frame duration is zero. Browsers usually interpret this as 100 milliseconds.';
+      case <= const Duration(milliseconds: 10):
+        return '${frameDuration!.inMilliseconds} milliseconds per frame. '
+            'Browsers usually interpret this as $browserDefault milliseconds.';
       default:
         return '${frameDuration!.inMilliseconds} milliseconds per frame. '
             '(~${(1000.0 / frameDuration!.inMilliseconds).toStringAsFixed(2)} fps)';
