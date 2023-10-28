@@ -30,6 +30,8 @@ void main() async {
 
 const grayColor = Color(0x55000000);
 const grayStyle = TextStyle(color: grayColor);
+const double smallTextSize = 12;
+const smallGrayStyle = TextStyle(color: grayColor, fontSize: smallTextSize);
 const Color focusRangeColor = Colors.green;
 
 class MyApp extends StatelessWidget {
@@ -159,12 +161,9 @@ class _MyHomePageState extends State<MyHomePage> {
                     );
                   },
                 ),
-                Text(
+                const Text(
                   'Frame',
-                  style: Theme.of(context)
-                      .textTheme
-                      .labelSmall
-                      ?.copyWith(color: grayColor),
+                  style: smallGrayStyle,
                 )
               ],
             ),
@@ -274,10 +273,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         frameDuration != null
                             ? '${frameDuration!.inMilliseconds} milliseconds per frame. (~${(1000.0 / frameDuration!.inMilliseconds).toStringAsFixed(2)} fps)'
                             : 'Variable frame durations',
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelSmall
-                            ?.copyWith(color: grayColor),
+                        style: smallGrayStyle,
                       ),
                     ),
                     const Spacer(),
@@ -376,7 +372,7 @@ class FrameRangeSlider extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 30),
       child: Row(
         children: [
-          const Text('0', style: grayStyle),
+          const Text('0', style: smallGrayStyle),
           Expanded(
             child: Theme(
               data: focusTheme,
@@ -426,7 +422,7 @@ class FrameRangeSlider extends StatelessWidget {
               ),
             ),
           ),
-          Text('${maxFrameIndex.value.toInt()}', style: grayStyle),
+          Text('${maxFrameIndex.value.toInt()}', style: smallGrayStyle),
         ],
       ),
     );
@@ -447,7 +443,6 @@ class ToggleFocusButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const grayStyle = TextStyle(color: Color(0x55000000));
     const customFocusStyle = TextStyle(color: focusRangeColor);
 
     return TextButton(
