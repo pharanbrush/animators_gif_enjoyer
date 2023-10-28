@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
+import 'package:animators_gif_enjoyer/interface/shortcuts.dart';
 import 'package:animators_gif_enjoyer/utils/value_notifier_extensions.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
@@ -64,6 +65,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final FocusNode mainWindowFocus = FocusNode();
+
   late final GifController gifController;
   ImageProvider? gifImageProvider;
   String filename = '';
@@ -83,6 +86,12 @@ class _MyHomePageState extends State<MyHomePage> {
       ? focusFrameRange.value
       : RangeValues(0, maxFrameIndex.value.toDouble());
 
+  final Map<Type, Action<Intent>> shortcutActions = {};
+  late List<(Type, Object? Function(Intent))> shortcutIntentActions = [
+    (PreviousIntent, (_) => incrementFrame(-1)),
+    (NextIntent, (_) => incrementFrame(1)),
+  ];
+
   @override
   void initState() {
     gifController = GifController(
@@ -93,109 +102,73 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
   }
 
-  void toggleUseFocus() {
-    setState(() {
-      clampFocusRange();
-      isUsingFocusRange.toggle();
-    });
-  }
-
-  void clampFocusRange() {
-    final oldValue = focusFrameRange.value;
-    double minValue = oldValue.start;
-    minValue = minValue.clamp(0, maxFrameIndex.value.toDouble());
-
-    double maxValue = oldValue.end;
-    if (maxValue < minValue) maxValue = maxFrameIndex.value.toDouble();
-
-    focusFrameRange.value = RangeValues(minValue, maxValue);
-  }
-
-  void clampCurrentFrame() {
-    setState(() {
-      currentFrame.value = clampDouble(currentFrame.value.toDouble(),
-              focusFrameRange.value.start, focusFrameRange.value.end)
-          .toInt();
-    });
-  }
-
-  void setDisplayedFrame(int frame) {
-    gifController.seek(frame);
-    displayedFrame.value = gifController.currentFrame;
-  }
-
-  String getFramerateLabel() {
-    if (!isGifLoaded) {
-      return 'No gif loaded';
+  void incrementFrame(int incrementSign) {
+    if (incrementSign > 0) {
+      currentFrame.value += 1;
+    } else if (incrementSign < 0) {
+      currentFrame.value -= 1;
     }
 
-    const browserDefault = 100;
+    clampCurrentFrame();
 
-    switch (frameDuration) {
-      case null:
-        return 'Variable frame durations';
-      case <= const Duration(milliseconds: 10):
-        return '${frameDuration!.inMilliseconds} milliseconds per frame. '
-            'Browsers usually interpret this as $browserDefault milliseconds.';
-      default:
-        return '${frameDuration!.inMilliseconds} milliseconds per frame. '
-            '(~${(1000.0 / frameDuration!.inMilliseconds).toStringAsFixed(2)} fps)';
-    }
+    updateGifViewFrame();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Column(
-          children: [
-            Expanded(
-              child: isGifLoaded
-                  ? loadedInterface(context)
-                  : unloadedInterface(context),
-            ),
-            SizedBox(
-              child: Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Tooltip(
-                      message:
-                          'GIF frames are each encoded with intervals in 10 millisecond increments.\n'
-                          'This makes their actual framerate potentially variable,\n'
-                          'and often not precisely fitting common video framerates.',
-                      child: Text(
-                        getFramerateLabel(),
-                        style: smallGrayStyle,
-                      ),
-                    ),
-                    const Spacer(),
-                    Wrap(
-                      direction: Axis.horizontal,
-                      spacing: 8,
-                      children: [
-                        const Tooltip(
-                          message: 'Download GIF...',
-                          child: IconButton.filled(
-                            onPressed: null,
-                            icon: Icon(Icons.download),
-                          ),
-                        ),
-                        Tooltip(
-                          message: 'Open GIF file...',
-                          child: IconButton.filled(
-                            onPressed: () => openNewFile(),
-                            icon: const Icon(Icons.file_open_outlined),
-                          ),
-                        ),
-                      ],
-                    )
-                  ],
-                ),
+      body: shortcutsWrapper(
+        child: Center(
+          child: Column(
+            children: [
+              Expanded(
+                child: isGifLoaded
+                    ? loadedInterface(context)
+                    : unloadedInterface(context),
               ),
-            )
-          ],
+              SizedBox(
+                child: Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Tooltip(
+                        message:
+                            'GIF frames are each encoded with intervals in 10 millisecond increments.\n'
+                            'This makes their actual framerate potentially variable,\n'
+                            'and often not precisely fitting common video framerates.',
+                        child: Text(
+                          getFramerateLabel(),
+                          style: smallGrayStyle,
+                        ),
+                      ),
+                      const Spacer(),
+                      Wrap(
+                        direction: Axis.horizontal,
+                        spacing: 8,
+                        children: [
+                          const Tooltip(
+                            message: 'Download GIF...',
+                            child: IconButton.filled(
+                              onPressed: null,
+                              icon: Icon(Icons.download),
+                            ),
+                          ),
+                          Tooltip(
+                            message: 'Open GIF file...',
+                            child: IconButton.filled(
+                              onPressed: () => openNewFile(),
+                              icon: const Icon(Icons.file_open_outlined),
+                            ),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );
@@ -282,6 +255,7 @@ class _MyHomePageState extends State<MyHomePage> {
               currentFrame: currentFrame,
               gifController: gifController,
               enabled: isGifLoaded,
+              onChange: updateGifViewFrame,
             ),
           ),
         ),
@@ -331,7 +305,81 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Duration? getFrameDuration(List<GifFrame> frames) {
+  void updateGifViewFrame() {
+    gifController.seek(currentFrame.value);
+  }
+
+  Widget shortcutsWrapper({required Widget child}) {
+    if (shortcutActions.isEmpty) {
+      for (var (intentType, callback) in shortcutIntentActions) {
+        shortcutActions[intentType] = CallbackAction(onInvoke: callback);
+      }
+    }
+
+    return Shortcuts(
+      shortcuts: Phshortcuts.intentMap,
+      child: Actions(
+        actions: shortcutActions,
+        child: Focus(
+          focusNode: mainWindowFocus,
+          autofocus: true,
+          child: child,
+        ),
+      ),
+    );
+  }
+
+  void toggleUseFocus() {
+    setState(() {
+      clampFocusRange();
+      isUsingFocusRange.toggle();
+    });
+  }
+
+  void clampFocusRange() {
+    final oldValue = focusFrameRange.value;
+    double minValue = oldValue.start;
+    minValue = minValue.clamp(0, maxFrameIndex.value.toDouble());
+
+    double maxValue = oldValue.end;
+    if (maxValue < minValue) maxValue = maxFrameIndex.value.toDouble();
+
+    focusFrameRange.value = RangeValues(minValue, maxValue);
+  }
+
+  void clampCurrentFrame() {
+    setState(() {
+      currentFrame.value = clampDouble(currentFrame.value.toDouble(),
+              focusFrameRange.value.start, focusFrameRange.value.end)
+          .toInt();
+    });
+  }
+
+  void setDisplayedFrame(int frame) {
+    gifController.seek(frame);
+    displayedFrame.value = gifController.currentFrame;
+  }
+
+  String getFramerateLabel() {
+    if (!isGifLoaded) {
+      return 'No gif loaded';
+    }
+
+    const browserDefault = 100;
+
+    switch (frameDuration) {
+      case null:
+        return 'Variable frame durations';
+      case <= const Duration(milliseconds: 10):
+        return '${frameDuration!.inMilliseconds} milliseconds per frame. '
+            'Browsers usually interpret this as $browserDefault milliseconds.';
+      default:
+        return '${frameDuration!.inMilliseconds} milliseconds per frame. '
+            '(~${(1000.0 / frameDuration!.inMilliseconds).toStringAsFixed(2)} fps)';
+    }
+  }
+
+  static Duration? getFrameDuration(List<GifFrame> frames) {
     var duration = frames[0].duration;
     for (var frame in frames) {
       if (duration != frame.duration) return null;
@@ -467,6 +515,7 @@ class MainSlider extends StatelessWidget {
     required this.currentFrame,
     required this.gifController,
     required this.enabled,
+    required this.onChange,
   });
 
   final VoidCallback toggleUseFocus;
@@ -474,6 +523,7 @@ class MainSlider extends StatelessWidget {
   final ValueNotifier<bool> isUsingFocusRange;
   final ValueNotifier<int> currentFrame;
   final GifController gifController;
+  final VoidCallback onChange;
   final bool enabled;
 
   @override
@@ -518,7 +568,7 @@ class MainSlider extends StatelessWidget {
                   onChanged: (newValue) {
                     if (!enabled) return;
                     currentFrame.value = newValue.toInt();
-                    gifController.seek(currentFrame.value);
+                    onChange();
                   },
                 ),
               ),
