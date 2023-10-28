@@ -249,60 +249,13 @@ class _MyHomePageState extends State<MyHomePage> {
           padding: const EdgeInsets.all(8.0),
           child: SizedBox(
             width: double.infinity,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ToggleFocusButton(
-                  label: '${primarySliderRange.start.toInt()}',
-                  handleToggle: () => toggleUseFocus(),
-                  isFocusing: isUsingFocusRange.value,
-                ),
-                ValueListenableBuilder(
-                  valueListenable: currentFrame,
-                  builder: (_, currentFrameValue, __) {
-                    final sliderMin = primarySliderRange.start;
-                    final sliderMax = primarySliderRange.end;
-
-                    const int minFramesBeforeShrink = 7;
-                    const int reallyShortFrames = 4;
-                    const double maximumSpacePerFrame = 40;
-                    final limitedFrameCount = sliderMax - sliderMin;
-
-                    final double width = switch (limitedFrameCount) {
-                      (< reallyShortFrames) =>
-                        reallyShortFrames * maximumSpacePerFrame,
-                      (< minFramesBeforeShrink) =>
-                        limitedFrameCount * maximumSpacePerFrame,
-                      _ => minFramesBeforeShrink * maximumSpacePerFrame
-                    };
-
-                    return SliderTheme(
-                      data: const SliderThemeData(
-                        trackHeight: 10,
-                      ),
-                      child: SizedBox(
-                        width: width,
-                        child: Slider(
-                          min: sliderMin,
-                          max: sliderMax,
-                          value: currentFrameValue.toDouble(),
-                          label: '$currentFrameValue',
-                          onChanged: (newValue) {
-                            if (!isGifLoaded) return;
-                            currentFrame.value = newValue.toInt();
-                            gifController.seek(currentFrame.value);
-                          },
-                        ),
-                      ),
-                    );
-                  },
-                ),
-                ToggleFocusButton(
-                  label: '${primarySliderRange.end.toInt()}',
-                  handleToggle: () => toggleUseFocus(),
-                  isFocusing: isUsingFocusRange.value,
-                ),
-              ],
+            child: MainSlider(
+              toggleUseFocus: toggleUseFocus,
+              primarySliderRange: primarySliderRange,
+              isUsingFocusRange: isUsingFocusRange,
+              currentFrame: currentFrame,
+              gifController: gifController,
+              enabled: isGifLoaded,
             ),
           ),
         ),
@@ -457,6 +410,84 @@ class FrameRangeSlider extends StatelessWidget {
           Text('${maxFrameIndex.value.toInt()}', style: smallGrayStyle),
         ],
       ),
+    );
+  }
+}
+
+class MainSlider extends StatelessWidget {
+  const MainSlider({
+    super.key,
+    required this.toggleUseFocus,
+    required this.primarySliderRange,
+    required this.isUsingFocusRange,
+    required this.currentFrame,
+    required this.gifController,
+    required this.enabled,
+  });
+
+  final VoidCallback toggleUseFocus;
+  final RangeValues primarySliderRange;
+  final ValueNotifier<bool> isUsingFocusRange;
+  final ValueNotifier<int> currentFrame;
+  final GifController gifController;
+  final bool enabled;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        ToggleFocusButton(
+          label: '${primarySliderRange.start.toInt()}',
+          handleToggle: () => toggleUseFocus(),
+          isFocusing: isUsingFocusRange.value,
+        ),
+        ValueListenableBuilder(
+          valueListenable: currentFrame,
+          builder: (_, currentFrameValue, __) {
+            final sliderMin = primarySliderRange.start;
+            final sliderMax = primarySliderRange.end;
+
+            const int minFramesBeforeShrink = 7;
+            const int reallyShortFrames = 4;
+            const double maximumSpacePerFrame = 40;
+            final limitedFrameCount = sliderMax - sliderMin;
+
+            final double width = switch (limitedFrameCount) {
+              (< reallyShortFrames) => reallyShortFrames * maximumSpacePerFrame,
+              (< minFramesBeforeShrink) =>
+                limitedFrameCount * maximumSpacePerFrame,
+              _ => minFramesBeforeShrink * maximumSpacePerFrame
+            };
+
+            return SliderTheme(
+              data: const SliderThemeData(
+                trackHeight: 10,
+              ),
+              child: SizedBox(
+                width: width,
+                child: Slider(
+                  min: sliderMin,
+                  max: sliderMax,
+                  value: currentFrameValue.toDouble(),
+                  label: '$currentFrameValue',
+                  onChanged: (newValue) {
+                    if (!enabled) return;
+                    //if (!isGifLoaded) return;
+                    currentFrame.value = newValue.toInt();
+                    gifController.seek(currentFrame.value);
+                  },
+                ),
+              ),
+            );
+          },
+        ),
+        ToggleFocusButton(
+          label: '${primarySliderRange.end.toInt()}',
+          handleToggle: () => toggleUseFocus(),
+          isFocusing: isUsingFocusRange.value,
+        ),
+      ],
     );
   }
 }
