@@ -68,7 +68,7 @@ class _MyHomePageState extends State<MyHomePage> {
   ImageProvider? gifImageProvider;
   String filename = '';
 
-  Duration? frameDuration = Duration.zero;
+  Duration? frameDuration;
 
   final ValueNotifier<RangeValues> focusFrameRange =
       ValueNotifier(const RangeValues(0, 100));
@@ -124,6 +124,22 @@ class _MyHomePageState extends State<MyHomePage> {
     displayedFrame.value = gifController.currentFrame;
   }
 
+  String getFramerateLabel() {
+    if (!isGifLoaded) {
+      return 'No gif loaded';
+    }
+
+    switch (frameDuration) {
+      case null:
+        return 'Variable frame durations';
+      case Duration.zero:
+        return 'Frame duration is zero. Browsers usually interpret this as 100 milliseconds.';
+      default:
+        return '${frameDuration!.inMilliseconds} milliseconds per frame. '
+            '(~${(1000.0 / frameDuration!.inMilliseconds).toStringAsFixed(2)} fps)';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -147,9 +163,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           'This makes their actual framerate potentially variable,\n'
                           'and often not precisely fitting common video framerates.',
                       child: Text(
-                        frameDuration != null
-                            ? '${frameDuration!.inMilliseconds} milliseconds per frame. (~${(1000.0 / frameDuration!.inMilliseconds).toStringAsFixed(2)} fps)'
-                            : 'Variable frame durations',
+                        getFramerateLabel(),
                         style: smallGrayStyle,
                       ),
                     ),
