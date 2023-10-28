@@ -28,6 +28,7 @@ void main() async {
 }
 
 const grayStyle = TextStyle(color: Color(0x55000000));
+const Color focusRangeColor = Colors.green;
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -271,8 +272,6 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 }
-
-const Color focusRangeColor = Colors.green;
 
 class FrameRangeSlider extends StatelessWidget {
   const FrameRangeSlider({
