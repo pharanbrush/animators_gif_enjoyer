@@ -34,6 +34,7 @@ const grayStyle = TextStyle(color: grayColor);
 const double smallTextSize = 12;
 const smallGrayStyle = TextStyle(color: grayColor, fontSize: smallTextSize);
 const Color focusRangeColor = Colors.green;
+const Color interfaceColor = Colors.blue; //Colors.deepPurple
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -46,7 +47,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         scaffoldBackgroundColor: Colors.white,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
+          seedColor: interfaceColor,
         ),
         useMaterial3: true,
       ),
@@ -264,7 +265,9 @@ class _MyHomePageState extends State<MyHomePage> {
           builder: (_, isUseCustomRange, __) {
             final double frameCount = focusFrameRange.value.rangeSize + 1;
             final double rangeSeconds = frameDuration != null
-                ? (frameCount * frameDuration!.inMilliseconds.toDouble() * 0.001)
+                ? (frameCount *
+                    frameDuration!.inMilliseconds.toDouble() *
+                    0.001)
                 : -1;
 
             final String rangeSecondsString = rangeSeconds >= 0
