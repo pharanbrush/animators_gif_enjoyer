@@ -538,14 +538,20 @@ class ToggleFocusButton extends StatelessWidget {
   Widget build(BuildContext context) {
     const customFocusStyle = TextStyle(color: focusRangeColor);
 
-    return TextButton(
-      style: const ButtonStyle(
-        padding: MaterialStatePropertyAll(EdgeInsets.symmetric(horizontal: 0)),
-      ),
-      onPressed: handleToggle,
-      child: Text(
-        label,
-        style: isFocusing ? customFocusStyle : grayStyle,
+    return Tooltip(
+      message: isFocusing
+          ? 'Click to disable frame range'
+          : 'Click to use custom frame range',
+      child: TextButton(
+        style: const ButtonStyle(
+          padding:
+              MaterialStatePropertyAll(EdgeInsets.symmetric(horizontal: 0)),
+        ),
+        onPressed: handleToggle,
+        child: Text(
+          label,
+          style: isFocusing ? customFocusStyle : grayStyle,
+        ),
       ),
     );
   }
