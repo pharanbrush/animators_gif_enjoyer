@@ -49,7 +49,7 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: appName),
     );
   }
 }
@@ -70,10 +70,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Duration? frameDuration = Duration.zero;
 
-  RangeValues get primarySliderRange => isUsingFocusRange.value
-      ? focusFrameRange.value
-      : RangeValues(0, maxFrameIndex.value.toDouble());
-
   final ValueNotifier<RangeValues> focusFrameRange =
       ValueNotifier(const RangeValues(0, 100));
   final ValueNotifier<int> currentFrame = ValueNotifier(0);
@@ -82,6 +78,10 @@ class _MyHomePageState extends State<MyHomePage> {
   final ValueNotifier<bool> isUsingFocusRange = ValueNotifier(false);
 
   bool get isGifLoaded => gifImageProvider != null;
+
+  RangeValues get primarySliderRange => isUsingFocusRange.value
+      ? focusFrameRange.value
+      : RangeValues(0, maxFrameIndex.value.toDouble());
 
   @override
   void initState() {
@@ -351,6 +351,14 @@ class FrameRangeSlider extends StatelessWidget {
   final ValueNotifier<int> maxFrameIndex;
   final bool enabled;
 
+  static const mainSliderTheme = SliderThemeData(
+    trackHeight: 2,
+    thumbShape: RoundSliderThumbShape(
+      disabledThumbRadius: 3,
+      enabledThumbRadius: 4,
+    ),
+  );
+
   static final focusTheme = ThemeData(
     colorScheme: ColorScheme.fromSeed(seedColor: focusRangeColor),
   );
@@ -366,13 +374,7 @@ class FrameRangeSlider extends StatelessWidget {
             child: Theme(
               data: focusTheme,
               child: SliderTheme(
-                data: const SliderThemeData(
-                  trackHeight: 2,
-                  thumbShape: RoundSliderThumbShape(
-                    disabledThumbRadius: 3,
-                    enabledThumbRadius: 4,
-                  ),
-                ),
+                data: mainSliderTheme,
                 child: ValueListenableBuilder(
                   valueListenable: startEnd,
                   builder: (_, currentStartEnd, __) {
