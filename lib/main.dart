@@ -391,7 +391,7 @@ class _MyHomePageState extends State<MyHomePage> {
     if (!isGifLoaded) return;
     final image = gifController.currentFrameData.imageInfo.image;
     final suggestedName = "gifFrameg${gifController.currentFrame}.png";
-    phclipboard.copyImageToClipboard(image, suggestedName);
+    phclipboard.copyImageToClipboardAsPng(image, suggestedName);
   }
 
   void openNewFile() async {

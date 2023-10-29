@@ -1,8 +1,9 @@
 import 'dart:ui';
 
-import 'package:super_clipboard/super_clipboard.dart';
+import 'package:super_clipboard/super_clipboard.dart'
+    show DataWriterItem, ClipboardWriter, Formats;
 
-void copyImageToClipboard(Image image, String suggestedName) async {
+void copyImageToClipboardAsPng(Image image, String suggestedName) async {
   final byteData = await image.toByteData(format: ImageByteFormat.png);
   if (byteData == null) return;
 
