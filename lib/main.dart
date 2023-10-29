@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
 import 'package:animators_gif_enjoyer/interface/shortcuts.dart';
+import 'package:animators_gif_enjoyer/utils/download_file.dart';
 import 'package:animators_gif_enjoyer/utils/open_file.dart';
 import 'package:animators_gif_enjoyer/utils/phclipboard.dart' as phclipboard;
 import 'package:animators_gif_enjoyer/utils/value_notifier_extensions.dart';
@@ -81,6 +82,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final ValueNotifier<int> displayedFrame = ValueNotifier(0);
   final ValueNotifier<int> maxFrameIndex = ValueNotifier(100);
   final ValueNotifier<bool> isUsingFocusRange = ValueNotifier(false);
+  final ValueNotifier<bool> isGifDownloading = ValueNotifier(false);
 
   bool get isGifLoaded => gifImageProvider != null;
 
@@ -101,8 +103,15 @@ class _MyHomePageState extends State<MyHomePage> {
       autoPlay: false,
       loop: true,
     );
+    downloadGifUrlTextController = TextEditingController();
 
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    downloadGifUrlTextController.dispose();
+    super.dispose();
   }
 
   void incrementFrame(int incrementSign) {
@@ -125,9 +134,21 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Column(
             children: [
               Expanded(
-                child: isGifLoaded
-                    ? loadedInterface(context)
-                    : unloadedInterface(context),
+                child: ValueListenableBuilder(
+                  valueListenable: isGifDownloading,
+                  builder: (_, isCurrentlyDownloading, __) {
+                    if (isCurrentlyDownloading) {
+                      return const SizedBox.square(
+                        dimension: 150,
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+
+                    return isGifLoaded
+                        ? loadedInterface(context)
+                        : unloadedInterface(context);
+                  },
+                ),
               ),
               SizedBox(
                 child: Padding(
@@ -150,11 +171,15 @@ class _MyHomePageState extends State<MyHomePage> {
                         direction: Axis.horizontal,
                         spacing: 8,
                         children: [
-                          const Tooltip(
+                          // const IconButton.filled(
+                          //   onPressed: null,
+                          //   icon: Icon(Icons.play_arrow),
+                          // ),
+                          Tooltip(
                             message: 'Download GIF...',
                             child: IconButton.filled(
-                              onPressed: null,
-                              icon: Icon(Icons.download),
+                              onPressed: () => downloadNewFile(),
+                              icon: const Icon(Icons.download),
                             ),
                           ),
                           Tooltip(
@@ -402,20 +427,64 @@ class _MyHomePageState extends State<MyHomePage> {
     loadGifFromProvider(gifImage, name);
   }
 
+  late TextEditingController downloadGifUrlTextController;
+
+  void downloadGifSubmit(String? url) {
+    Navigator.of(context).pop(url);
+    downloadGifUrlTextController.text = '';
+  }
+
+  void downloadNewFile() async {
+    final url = await openGifDownloadDialog(
+      context: context,
+      controller: downloadGifUrlTextController,
+      handleSubmit: downloadGifSubmit,
+    );
+    if (url == null || url.isEmpty) return;
+
+    var provider = NetworkImage(url);
+    loadGifFromProvider(provider, url);
+  }
+
   void loadGifFromProvider(
       ImageProvider provider, String sourceFilename) async {
-    final frames = await loadGifFrames(provider: provider);
-    gifImageProvider = provider;
-    frameDuration = getFrameDuration(frames);
-    gifController.load(frames);
-    int lastFrame = frames.length - 1;
+    try {
+      isGifDownloading.value = true;
+      final frames = await loadGifFrames(provider: provider);
+      gifImageProvider = provider;
+      frameDuration = getFrameDuration(frames);
+      gifController.load(frames);
+      int lastFrame = frames.length - 1;
 
-    setState(() {
-      focusFrameRange.value = RangeValues(0, lastFrame.toDouble());
-      maxFrameIndex.value = lastFrame;
-      currentFrame.value = 0;
-      filename = sourceFilename;
-    });
+      setState(() {
+        focusFrameRange.value = RangeValues(0, lastFrame.toDouble());
+        maxFrameIndex.value = lastFrame;
+        currentFrame.value = 0;
+        filename = sourceFilename;
+        isGifDownloading.value = false;
+      });
+    } catch (e) {
+      showGifLoadFailedAlert(e.toString());
+      isGifDownloading.value = false;
+    }
+  }
+
+  void showGifLoadFailedAlert(String errorText) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog.adaptive(
+          title: const Text('GIF loading failed'),
+          content: Text(errorText),
+          actions: [
+            IconButton(
+              onPressed: () => Navigator.of(context).pop(),
+              icon: const Icon(Icons.check),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 
@@ -431,6 +500,21 @@ class GifViewContainer extends StatelessWidget {
   final GifController gifController;
   final VoidCallback copyImageHandler;
 
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onSecondaryTap: () => popUpContextualMenu(menu),
+      child: GifView(
+        loadingWidget: const CircularProgressIndicator(
+          semanticsLabel: 'Circular progress indicator',
+          color: Colors.blue,
+        ),
+        image: gifImageProvider!,
+        controller: gifController,
+      ),
+    );
+  }
+
   late final Menu menu = Menu(
     items: [
       MenuItem(
@@ -441,17 +525,6 @@ class GifViewContainer extends StatelessWidget {
       MenuItem(label: 'Bunger', disabled: true),
     ],
   );
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onSecondaryTap: () => popUpContextualMenu(menu),
-      child: GifView(
-        image: gifImageProvider!,
-        controller: gifController,
-      ),
-    );
-  }
 }
 
 class FrameRangeSlider extends StatelessWidget {
