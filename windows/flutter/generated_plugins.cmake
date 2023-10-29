@@ -3,8 +3,11 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  contextual_menu
   file_selector_windows
+  irondash_engine_context
   screen_retriever
+  super_native_extensions
   window_manager
 )
 
