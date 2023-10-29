@@ -519,10 +519,6 @@ class GifViewContainer extends StatelessWidget {
     return GestureDetector(
       onSecondaryTap: () => popUpContextualMenu(menu),
       child: GifView(
-        loadingWidget: const CircularProgressIndicator(
-          semanticsLabel: 'Circular progress indicator',
-          color: Colors.blue,
-        ),
         image: gifImageProvider!,
         controller: gifController,
       ),
