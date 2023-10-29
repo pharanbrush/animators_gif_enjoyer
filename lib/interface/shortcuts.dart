@@ -21,7 +21,9 @@ class Phshortcuts {
   static const restart = SingleActivator(LogicalKeyboardKey.keyR);
   static const openTimerMenu = SingleActivator(LogicalKeyboardKey.f2);
 
-  static const openFiles =
+  static const copy = SingleActivator(LogicalKeyboardKey.keyC, control: true);
+
+  static const openFile =
       SingleActivator(LogicalKeyboardKey.keyO, control: true);
   static const openFolder =
       SingleActivator(LogicalKeyboardKey.keyO, control: true, shift: true);
@@ -42,7 +44,7 @@ class Phshortcuts {
   static const returnHome = SingleActivator(LogicalKeyboardKey.escape);
 
   static const intentMap = <ShortcutActivator, Intent>{
-    Phshortcuts.openFiles: OpenFilesIntent(),
+    Phshortcuts.openFile: OpenFilesIntent(),
     Phshortcuts.openFolder: OpenFolderIntent(),
     Phshortcuts.previous: PreviousIntent(),
     Phshortcuts.next: NextIntent(),
@@ -64,7 +66,12 @@ class Phshortcuts {
     Phshortcuts.returnHome: ReturnHomeIntent(),
     Phshortcuts.revealInExplorer: RevealInExplorerIntent(),
     Phshortcuts.preferences: OpenPreferencesIntent(),
+    Phshortcuts.copy: CopyIntent(),
   };
+}
+
+class CopyIntent extends Intent {
+  const CopyIntent();
 }
 
 class ReturnHomeIntent extends Intent {
