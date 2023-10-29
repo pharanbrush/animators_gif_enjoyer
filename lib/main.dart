@@ -83,6 +83,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final ValueNotifier<int> maxFrameIndex = ValueNotifier(100);
   final ValueNotifier<bool> isUsingFocusRange = ValueNotifier(false);
   final ValueNotifier<bool> isGifDownloading = ValueNotifier(false);
+  final ValueNotifier<double> gifDownloadPercent = ValueNotifier(0.0);
 
   bool get isGifLoaded => gifImageProvider != null;
 
@@ -132,12 +133,18 @@ class _MyHomePageState extends State<MyHomePage> {
                   valueListenable: isGifDownloading,
                   builder: (_, isCurrentlyDownloading, __) {
                     if (isCurrentlyDownloading) {
-                      return const Center(
+                      return Center(
                         child: SizedBox.square(
                           dimension: 150,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 8,
-                            strokeCap: StrokeCap.round,
+                          child: ValueListenableBuilder(
+                            valueListenable: gifDownloadPercent,
+                            builder: (_, value, __) {
+                              return CircularProgressIndicator(
+                                value: value == 0 ? null : value,
+                                strokeWidth: 8,
+                                strokeCap: StrokeCap.round,
+                              );
+                            },
                           ),
                         ),
                       );
@@ -425,8 +432,16 @@ class _MyHomePageState extends State<MyHomePage> {
     String source,
   ) async {
     try {
-      isGifDownloading.value = true;
-      final frames = await loadGifFrames(provider: provider);
+      final isDownload = provider is NetworkImage;
+      isGifDownloading.value = isDownload;
+      final frames = await loadGifFrames(
+        provider: provider,
+        onProgressPercent: isDownload
+            ? (downloadPercent) {
+                gifDownloadPercent.value = downloadPercent;
+              }
+            : null,
+      );
       gifImageProvider = provider;
       frameDuration = getFrameDuration(frames);
       gifController.load(frames);

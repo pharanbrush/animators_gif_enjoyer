@@ -33,6 +33,7 @@ Future<List<GifFrame>> loadGifFrames({
   required ImageProvider provider,
   int? customFrameRate,
   ValueChanged<Object?>? onError,
+  ValueChanged<double>? onProgressPercent,
 }) async {
   List<GifFrame> frameList = [];
   try {
@@ -49,13 +50,40 @@ Future<List<GifFrame>> loadGifFrames({
     switch (provider) {
       case NetworkImage ni:
         {
-          final Uri resolved = Uri.base.resolve(ni.url);
+          final Uri resolvedUri = Uri.base.resolve(ni.url);
           Map<String, String> headers = {};
           ni.headers?.forEach((String name, String value) {
             headers[name] = value;
           });
-          final response = await http.get(resolved, headers: headers);
-          data = response.bodyBytes;
+
+          if (onProgressPercent != null) {
+            final streamedResponse =
+                await http.Client().send(http.Request('GET', resolvedUri));
+
+            final total = streamedResponse.contentLength ?? 0;
+            int received = 0;
+            final List<int> bytes = [];
+            bool isDownloadDone = false;
+            streamedResponse.stream.listen((value) {
+              bytes.addAll(value);
+              received += value.length;
+              if (total > 0) {
+                onProgressPercent(received.toDouble() / total.toDouble());
+              }
+            }).onDone(() {
+              isDownloadDone = true;
+            });
+
+            while (!isDownloadDone) {
+              await Future.delayed(const Duration(milliseconds: 100));
+            }
+            onProgressPercent(1);
+            
+            data = Uint8List.fromList(bytes);
+          } else {
+            final response = await http.get(resolvedUri, headers: headers);
+            data = response.bodyBytes;
+          }
         }
 
       case AssetImage ai:
@@ -466,7 +494,7 @@ class GifController extends ChangeNotifier {
     currentFrame = index;
     notifyListeners();
   }
-  
+
   void tryDisposeFrames() {
     if (_frames.isNotEmpty) {
       for (var f in _frames) {
