@@ -239,10 +239,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 );
               },
             ),
-            const Text(
-              'Frame',
-              style: smallGrayStyle,
-            )
+            const Text('frame', style: smallGrayStyle)
           ],
         ),
         Padding(
@@ -291,10 +288,6 @@ class _MyHomePageState extends State<MyHomePage> {
                         setDisplayedFrame(focusFrameRange.value.endInt),
                     onChangeTapUp: () => setDisplayedFrame(currentFrame.value),
                   ),
-                  // const Text(
-                  //   'Custom frame range',
-                  //   style: TextStyle(color: focusRangeColor),
-                  // ),
                   Text(
                     'Custom range: ${frameCount.toInt()} frames. ~$rangeSecondsString',
                     style: const TextStyle(color: focusRangeColor),
