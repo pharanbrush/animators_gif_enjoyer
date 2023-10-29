@@ -104,15 +104,8 @@ class _MyHomePageState extends State<MyHomePage> {
       autoPlay: false,
       loop: true,
     );
-    downloadGifUrlTextController = TextEditingController();
 
     super.initState();
-  }
-
-  @override
-  void dispose() {
-    downloadGifUrlTextController.dispose();
-    super.dispose();
   }
 
   void incrementFrame(int incrementSign) {
@@ -425,13 +418,6 @@ class _MyHomePageState extends State<MyHomePage> {
     if (gifImage == null || name == null) return;
 
     loadGifFromProvider(gifImage, name);
-  }
-
-  late TextEditingController downloadGifUrlTextController;
-
-  void downloadGifSubmit(String? url) {
-    Navigator.of(context).pop(url);
-    downloadGifUrlTextController.text = '';
   }
 
   void loadGifFromProvider(
