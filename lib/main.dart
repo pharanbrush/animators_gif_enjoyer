@@ -373,8 +373,10 @@ class _MyHomePageState extends State<MyHomePage> {
         return '${frameDuration!.inMilliseconds} milliseconds per frame. '
             'Browsers usually interpret this as $browserDefault milliseconds.';
       default:
-        return '${frameDuration!.inMilliseconds} milliseconds per frame. '
-            '(~${(1000.0 / frameDuration!.inMilliseconds).toStringAsFixed(2)} fps)';
+        final frameInterval = frameDuration!.inMilliseconds;
+        final fps = 1000.0 / frameInterval;
+        return '$frameInterval milliseconds per frame. '
+            '(~${fps.toStringAsFixed(2)} fps)';
     }
   }
 
