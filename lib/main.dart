@@ -139,9 +139,14 @@ class _MyHomePageState extends State<MyHomePage> {
                   valueListenable: isGifDownloading,
                   builder: (_, isCurrentlyDownloading, __) {
                     if (isCurrentlyDownloading) {
-                      return const SizedBox.square(
-                        dimension: 150,
-                        child: CircularProgressIndicator(),
+                      return const Center(
+                        child: SizedBox.square(
+                          dimension: 150,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 8,
+                            strokeCap: StrokeCap.round,
+                          ),
+                        ),
                       );
                     }
 
