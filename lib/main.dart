@@ -1,12 +1,11 @@
-import 'dart:io';
 import 'dart:ui';
 
 import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
 import 'package:animators_gif_enjoyer/interface/shortcuts.dart';
+import 'package:animators_gif_enjoyer/utils/open_file.dart';
 import 'package:animators_gif_enjoyer/utils/phclipboard.dart' as phclipboard;
 import 'package:animators_gif_enjoyer/utils/value_notifier_extensions.dart';
 import 'package:contextual_menu/contextual_menu.dart';
-import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -397,17 +396,10 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void openNewFile() async {
-    const typeGroup = XTypeGroup(
-      label: 'GIFs',
-      extensions: ['gif'],
-    );
+    var (gifImage, name) = await openGifImageFile();
+    if (gifImage == null || name == null) return;
 
-    final file = await openFile(acceptedTypeGroups: const [typeGroup]);
-    if (file == null) return;
-
-    final gifImage = FileImage(File(file.path));
-
-    loadGifFromProvider(gifImage, file.name);
+    loadGifFromProvider(gifImage, name);
   }
 
   void loadGifFromProvider(
