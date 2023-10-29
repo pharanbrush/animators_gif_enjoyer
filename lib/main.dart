@@ -380,7 +380,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   String getFramerateLabel() {
     if (!isGifLoaded) {
-      return 'No gif loaded';
+      return '';
     }
 
     const browserDefault = 100;
