@@ -466,8 +466,18 @@ class GifController extends ChangeNotifier {
     currentFrame = index;
     notifyListeners();
   }
+  
+  void tryDisposeFrames() {
+    if (_frames.isNotEmpty) {
+      for (var f in _frames) {
+        f.imageInfo.dispose();
+      }
+    }
+  }
 
   void load(List<GifFrame> frames, {bool updateFrames = false}) {
+    tryDisposeFrames();
+
     _frames = frames;
     currentFrame = 0;
     if (!updateFrames) {
