@@ -36,7 +36,7 @@ const grayStyle = TextStyle(color: grayColor);
 const double smallTextSize = 12;
 const smallGrayStyle = TextStyle(color: grayColor, fontSize: smallTextSize);
 const Color focusRangeColor = Colors.green;
-const Color interfaceColor = Colors.blue; //Colors.deepPurple
+const Color interfaceColor = Colors.deepPurple; //Colors.blue;
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
