@@ -3,7 +3,9 @@ import 'dart:ui';
 
 import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
 import 'package:animators_gif_enjoyer/interface/shortcuts.dart';
+import 'package:animators_gif_enjoyer/utils/phclipboard.dart' as phclipboard;
 import 'package:animators_gif_enjoyer/utils/value_notifier_extensions.dart';
+import 'package:contextual_menu/contextual_menu.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
@@ -91,6 +93,7 @@ class _MyHomePageState extends State<MyHomePage> {
   late List<(Type, Object? Function(Intent))> shortcutIntentActions = [
     (PreviousIntent, (_) => incrementFrame(-1)),
     (NextIntent, (_) => incrementFrame(1)),
+    (CopyIntent, (_) => tryCopyFrameToClipboard()),
   ];
 
   @override
@@ -210,13 +213,13 @@ class _MyHomePageState extends State<MyHomePage> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        if (isGifLoaded)
-          Expanded(
-            child: GifView(
-              image: gifImageProvider!,
-              controller: gifController,
-            ),
+        Expanded(
+          child: GifViewContainer(
+            gifImageProvider: gifImageProvider,
+            gifController: gifController,
+            copyImageHandler: () => tryCopyFrameToClipboard(),
           ),
+        ),
         Column(
           children: [
             ValueListenableBuilder(
@@ -261,7 +264,7 @@ class _MyHomePageState extends State<MyHomePage> {
           valueListenable: isUsingFocusRange,
           builder: (_, isUseCustomRange, __) {
             final double frameCount = focusFrameRange.value.rangeSize + 1;
-            final double rangeSeconds = frameDuration != null
+            final rangeSeconds = frameDuration != null
                 ? (frameCount *
                     frameDuration!.inMilliseconds.toDouble() *
                     0.001)
@@ -384,6 +387,13 @@ class _MyHomePageState extends State<MyHomePage> {
     return duration;
   }
 
+  void tryCopyFrameToClipboard() {
+    if (!isGifLoaded) return;
+    final image = gifController.currentFrameData.imageInfo.image;
+    final suggestedName = "gifFrameg${gifController.currentFrame}.png";
+    phclipboard.copyImageToClipboard(image, suggestedName);
+  }
+
   void openNewFile() async {
     const typeGroup = XTypeGroup(
       label: 'GIFs',
@@ -412,6 +422,41 @@ class _MyHomePageState extends State<MyHomePage> {
       currentFrame.value = 0;
       filename = sourceFilename;
     });
+  }
+}
+
+class GifViewContainer extends StatelessWidget {
+  GifViewContainer({
+    super.key,
+    required this.gifImageProvider,
+    required this.gifController,
+    required this.copyImageHandler,
+  });
+
+  final ImageProvider<Object>? gifImageProvider;
+  final GifController gifController;
+  final VoidCallback copyImageHandler;
+
+  late final Menu menu = Menu(
+    items: [
+      MenuItem(
+        label: 'Copy frame image',
+        onClick: (_) => copyImageHandler(),
+      ),
+      MenuItem.separator(),
+      MenuItem(label: 'Bunger', disabled: true),
+    ],
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onSecondaryTap: () => popUpContextualMenu(menu),
+      child: GifView(
+        image: gifImageProvider!,
+        controller: gifController,
+      ),
+    );
   }
 }
 
@@ -550,23 +595,23 @@ class MainSlider extends StatelessWidget {
               _ => minFramesBeforeShrink * maximumSpacePerFrame
             };
 
+            var slider = Slider(
+              min: sliderMin,
+              max: sliderMax,
+              value: currentFrameValue.toDouble(),
+              label: '$currentFrameValue',
+              onChanged: (newValue) {
+                if (!enabled) return;
+                currentFrame.value = newValue.toInt();
+                onChange();
+              },
+            );
+
             return SliderTheme(
-              data: const SliderThemeData(
-                trackHeight: 10,
-              ),
+              data: const SliderThemeData(trackHeight: 10),
               child: SizedBox(
                 width: width,
-                child: Slider(
-                  min: sliderMin,
-                  max: sliderMax,
-                  value: currentFrameValue.toDouble(),
-                  label: '$currentFrameValue',
-                  onChanged: (newValue) {
-                    if (!enabled) return;
-                    currentFrame.value = newValue.toInt();
-                    onChange();
-                  },
-                ),
+                child: slider,
               ),
             );
           },
