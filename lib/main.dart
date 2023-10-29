@@ -95,6 +95,7 @@ class _MyHomePageState extends State<MyHomePage> {
     (PreviousIntent, (_) => incrementFrame(-1)),
     (NextIntent, (_) => incrementFrame(1)),
     (CopyIntent, (_) => tryCopyFrameToClipboard()),
+    (PasteAndGoIntent, (_) => tryLoadClipboardPath()),
   ];
 
   @override
@@ -176,14 +177,8 @@ class _MyHomePageState extends State<MyHomePage> {
                           //   icon: Icon(Icons.play_arrow),
                           // ),
                           Tooltip(
-                            message: 'Download GIF...',
-                            child: IconButton.filled(
-                              onPressed: () => downloadNewFile(),
-                              icon: const Icon(Icons.download),
-                            ),
-                          ),
-                          Tooltip(
-                            message: 'Open GIF file...',
+                            message: 'Open GIF file...\n'
+                                'Or use ${Phshortcuts.shortcutString(Phshortcuts.pasteAndGo)} to paste a link to a GIF.',
                             child: IconButton.filled(
                               onPressed: () => openNewFile(),
                               icon: const Icon(Icons.file_open_outlined),
@@ -434,20 +429,10 @@ class _MyHomePageState extends State<MyHomePage> {
     downloadGifUrlTextController.text = '';
   }
 
-  void downloadNewFile() async {
-    final url = await openGifDownloadDialog(
-      context: context,
-      controller: downloadGifUrlTextController,
-      handleSubmit: downloadGifSubmit,
-    );
-    if (url == null || url.isEmpty) return;
-
-    var provider = NetworkImage(url);
-    loadGifFromProvider(provider, url);
-  }
-
   void loadGifFromProvider(
-      ImageProvider provider, String sourceFilename) async {
+    ImageProvider provider,
+    String sourceFilename,
+  ) async {
     try {
       isGifDownloading.value = true;
       final frames = await loadGifFrames(provider: provider);
@@ -462,6 +447,10 @@ class _MyHomePageState extends State<MyHomePage> {
         currentFrame.value = 0;
         filename = sourceFilename;
         isGifDownloading.value = false;
+
+        if (gifImageProvider is NetworkImage) {
+          popupMessage('Download complete');
+        }
       });
     } catch (e) {
       showGifLoadFailedAlert(e.toString());
@@ -470,20 +459,30 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void showGifLoadFailedAlert(String errorText) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog.adaptive(
-          title: const Text('GIF loading failed'),
-          content: Text(errorText),
-          actions: [
-            IconButton(
-              onPressed: () => Navigator.of(context).pop(),
-              icon: const Icon(Icons.check),
-            ),
-          ],
-        );
-      },
+    popupMessage(
+      'GIF loading failed\n'
+      '$errorText',
+    );
+  }
+
+  void tryLoadClipboardPath() async {
+    final clipboardString = await phclipboard.getStringFromClipboard();
+    if (clipboardString == null) return;
+
+    if (isUrlString(clipboardString)) {
+      var provider = NetworkImage(clipboardString);
+      loadGifFromProvider(provider, clipboardString);
+    } else {
+      popupMessage('Pasted text was not a proper URL:\n "$clipboardString"');
+    }
+  }
+
+  void popupMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        showCloseIcon: true,
+        content: Text(message),
+      ),
     );
   }
 }

@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class Phshortcuts {
+  static String shortcutString(SingleActivator shortcut) {
+    var keyString = shortcut.trigger.keyLabel;
+    return '${shortcut.control ? 'Ctrl+' : ''}${shortcut.shift ? 'Shift+' : ''}$keyString';
+  }
+
   static const previous = SingleActivator(LogicalKeyboardKey.arrowLeft);
   static const next = SingleActivator(LogicalKeyboardKey.arrowRight);
 
@@ -22,6 +27,11 @@ class Phshortcuts {
   static const openTimerMenu = SingleActivator(LogicalKeyboardKey.f2);
 
   static const copy = SingleActivator(LogicalKeyboardKey.keyC, control: true);
+  static const pasteAndGo = SingleActivator(
+    LogicalKeyboardKey.keyV,
+    control: true,
+    //shift: true,
+  );
 
   static const openFile =
       SingleActivator(LogicalKeyboardKey.keyO, control: true);
@@ -67,11 +77,16 @@ class Phshortcuts {
     Phshortcuts.revealInExplorer: RevealInExplorerIntent(),
     Phshortcuts.preferences: OpenPreferencesIntent(),
     Phshortcuts.copy: CopyIntent(),
+    Phshortcuts.pasteAndGo: PasteAndGoIntent(),
   };
 }
 
 class CopyIntent extends Intent {
   const CopyIntent();
+}
+
+class PasteAndGoIntent extends Intent {
+  const PasteAndGoIntent();
 }
 
 class ReturnHomeIntent extends Intent {

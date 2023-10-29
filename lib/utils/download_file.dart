@@ -1,31 +1,12 @@
-import 'package:flutter/material.dart';
+bool isUrlString(String? text) {
+  if (text == null || text.isEmpty) return false;
 
-Future<String?> openGifDownloadDialog({
-  required BuildContext context,
-  required TextEditingController controller,
-  required Function(String?) handleSubmit,
-}) {
-  return showDialog<String>(
-    context: context,
-    builder: (context) {
-      return AlertDialog.adaptive(
-        title: const Text('Download GIF'),
-        content: TextField(
-          autofocus: true,
-          decoration: const InputDecoration(hintText: 'Enter the GIF link'),
-          controller: controller,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => handleSubmit(null),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => handleSubmit(controller.text),
-            child: const Text('Ok'),
-          )
-        ],
-      );
-    },
-  );
+  try {
+    var uri = Uri.parse(text);
+    if (uri.host.isEmpty) return false;
+
+    return true;
+  } catch (e) {
+    return false;
+  }
 }
