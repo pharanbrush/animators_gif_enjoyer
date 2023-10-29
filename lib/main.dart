@@ -431,7 +431,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void loadGifFromProvider(
     ImageProvider provider,
-    String sourceFilename,
+    String source,
   ) async {
     try {
       isGifDownloading.value = true;
@@ -445,7 +445,7 @@ class _MyHomePageState extends State<MyHomePage> {
         focusFrameRange.value = RangeValues(0, lastFrame.toDouble());
         maxFrameIndex.value = lastFrame;
         currentFrame.value = 0;
-        filename = sourceFilename;
+        filename = source;
         isGifDownloading.value = false;
 
         if (gifImageProvider is NetworkImage) {
@@ -453,7 +453,22 @@ class _MyHomePageState extends State<MyHomePage> {
         }
       });
     } catch (e) {
-      showGifLoadFailedAlert(e.toString());
+      if (gifImageProvider is NetworkImage) {
+        try {
+          var uri = Uri.parse(source);
+          if (uri.host.contains('tenor') && !uri.path.endsWith('gif')) {
+            popupMessage(
+              'Cannot access : $source \n'
+              '(Tenor embed links currently do not work.)',
+            );
+          }
+        } catch (m) {
+          showGifLoadFailedAlert(e.toString());
+        }
+      } else {
+        showGifLoadFailedAlert(e.toString());
+      }
+
       isGifDownloading.value = false;
     }
   }
