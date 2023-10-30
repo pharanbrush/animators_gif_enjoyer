@@ -159,6 +159,7 @@ class MainSlider extends StatelessWidget {
           label: '${primarySliderRange.startInt}',
           handleToggle: () => toggleUseFocus(),
           isFocusing: isUsingFocusRange.value,
+          enabled: enabled,
         ),
         ValueListenableBuilder(
           valueListenable: currentFrame,
@@ -192,7 +193,13 @@ class MainSlider extends StatelessWidget {
             );
 
             return SliderTheme(
-              data: const SliderThemeData(trackHeight: 10),
+              data: SliderThemeData(
+                trackHeight: enabled ? 12 : 2,
+                thumbShape: const RoundSliderThumbShape(
+                  disabledThumbRadius: 0,
+                  elevation: 0,
+                ),
+              ),
               child: SizedBox(
                 width: width,
                 child: slider,
@@ -204,6 +211,7 @@ class MainSlider extends StatelessWidget {
           label: '${primarySliderRange.endInt}',
           handleToggle: () => toggleUseFocus(),
           isFocusing: isUsingFocusRange.value,
+          enabled: enabled,
         ),
       ],
     );
@@ -216,26 +224,30 @@ class ToggleFocusButton extends StatelessWidget {
     required this.label,
     required this.handleToggle,
     required this.isFocusing,
+    required this.enabled,
   });
 
   final String label;
   final VoidCallback handleToggle;
   final bool isFocusing;
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
     const customFocusStyle = TextStyle(color: focusRangeColor);
 
     return Tooltip(
-      message: isFocusing
-          ? 'Click to disable frame range'
-          : 'Click to use custom frame range',
+      message: !enabled
+          ? ''
+          : isFocusing
+              ? 'Click to disable frame range'
+              : 'Click to use custom frame range',
       child: TextButton(
         style: const ButtonStyle(
           padding:
               MaterialStatePropertyAll(EdgeInsets.symmetric(horizontal: 0)),
         ),
-        onPressed: handleToggle,
+        onPressed: enabled ? handleToggle : null,
         child: Text(
           label,
           style: isFocusing ? customFocusStyle : grayStyle,

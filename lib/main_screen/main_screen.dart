@@ -363,7 +363,10 @@ class _MyHomePageState extends State<MyHomePage>
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         separator,
-                        Text('$currentFrameValue', style: bigStyle),
+                        Text(
+                          '$currentFrameValue',
+                          style: isScrubMode.value ? bigStyle : bigStyleGray,
+                        ),
                         separator,
                       ],
                     );
@@ -510,8 +513,9 @@ class _MyHomePageState extends State<MyHomePage>
 
   void clampCurrentFrame() {
     setState(() {
+      final currentRange = primarySliderRange;
       currentFrame.value = clampDouble(currentFrame.value.toDouble(),
-              focusFrameRange.value.start, focusFrameRange.value.end)
+              currentRange.start, currentRange.end)
           .toInt();
     });
   }
