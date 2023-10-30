@@ -183,11 +183,12 @@ class MainSlider extends StatelessWidget {
               max: sliderMax,
               value: currentFrameValue.toDouble(),
               label: '$currentFrameValue',
-              onChanged: (newValue) {
-                if (!enabled) return;
-                currentFrame.value = newValue.toInt();
-                onChange();
-              },
+              onChanged: enabled
+                  ? (newValue) {
+                      currentFrame.value = newValue.toInt();
+                      onChange();
+                    }
+                  : null,
             );
 
             return SliderTheme(
