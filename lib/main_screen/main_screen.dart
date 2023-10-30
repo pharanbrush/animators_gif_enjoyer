@@ -450,7 +450,6 @@ class _MyHomePageState extends State<MyHomePage>
       final int last = range.end.toInt();
 
       gifAdvancer.play(
-        frames: gifController.frames,
         start: start,
         last: last,
         current: currentFrame.value,
@@ -578,7 +577,6 @@ class _MyHomePageState extends State<MyHomePage>
     for (var frame in frames) {
       if (duration != frame.duration) return null;
     }
-
     return duration;
   }
 
@@ -600,6 +598,10 @@ class _MyHomePageState extends State<MyHomePage>
     ImageProvider provider,
     String source,
   ) async {
+    if (!isScrubMode.value) {
+      togglePlayPause();
+    }
+
     try {
       final isDownload = provider is NetworkImage;
       isGifDownloading.value = isDownload;
@@ -614,6 +616,7 @@ class _MyHomePageState extends State<MyHomePage>
       gifImageProvider = provider;
       frameDuration = getFrameDuration(frames);
       gifController.load(frames);
+      gifAdvancer.setFrames(frames);
       int lastFrame = frames.length - 1;
 
       setState(() {

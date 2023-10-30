@@ -17,8 +17,6 @@ class GifFrameAdvancer {
   int _current = 0;
   List<GifFrame> _frames = [];
 
-  Duration getCurrentFrameDuration() => _frames[_current].duration;
-
   int getLastFrameIndex() => _frames.length - 1;
 
   void dispose() {
@@ -37,13 +35,10 @@ class GifFrameAdvancer {
   }
 
   void play({
-    required List<GifFrame> frames,
     int? start,
     int? last,
     int? current,
   }) {
-    setFrames(frames);
-
     int candidateStart = start ?? 0;
     int lastIndexInFrames = getLastFrameIndex();
     int candidateLast = last ?? lastIndexInFrames;
@@ -83,7 +78,7 @@ class GifFrameAdvancer {
 
     const maxFrameSkip = 2;
     for (var i = 0; i < maxFrameSkip; i++) {
-      final currentFrameDuration = getCurrentFrameDuration();
+      final currentFrameDuration = _frames[_current].duration;
       if (_accumulatedDuration >= currentFrameDuration) {
         _accumulatedDuration -= currentFrameDuration;
 
@@ -95,7 +90,6 @@ class GifFrameAdvancer {
         onFrame?.call(_current);
       }
     }
-
     _lastTime = currentTickerTime;
   }
 }
