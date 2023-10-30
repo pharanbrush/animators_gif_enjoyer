@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 /// ModalPanel encapsulates the stateful controls needed for a widget to be able to open and close.
 /// It is a modal that can block things behind it.
@@ -27,6 +28,8 @@ class ModalPanel {
   final Function()? onBeforeOpen;
   final Function()? onOpened;
   final Function()? onClosed;
+
+  void dispose() {}
 
   /// [ModalPanel] automatically adds a clickable scrim/underlay to make the underlying elements
   /// less prominent. [isUnderlayTransparent] makes the underlay invisible but still clickable.
@@ -161,5 +164,91 @@ class ModalDismissContext extends InheritedWidget {
   @override
   bool updateShouldNotify(ModalDismissContext oldWidget) {
     return true;
+  }
+}
+
+class ModalTextPanel extends ModalPanel {
+  ModalTextPanel({
+    required this.textPanelBuilder,
+    required this.onTextSubmitted,
+    this.closeOnSubmit = true,
+    super.key,
+    super.onBeforeOpen,
+    super.onOpened,
+    super.onClosed,
+    super.isUnderlayTransparent = false,
+    super.transitionBuilder = AnimatedSwitcher.defaultTransitionBuilder,
+  }) : super(builder: () => const SizedBox.shrink());
+
+  final FocusNode textFocusNode = FocusNode();
+  final TextEditingController textController = TextEditingController();
+  final Function(String value) onTextSubmitted;
+  final bool closeOnSubmit;
+
+  final Widget Function(
+    TextEditingController textController,
+    Function(String value) onTextFieldSubmitted,
+    VoidCallback onSubmitButtonPressed,
+  ) textPanelBuilder;
+
+  @override
+  Widget widget() {
+    return _ModalPanelWidget(
+      key: key,
+      isOpen: _isOpen,
+      close: close,
+      isUnderlayTransparent: isUnderlayTransparent,
+      transitionBuilder: transitionBuilder,
+      builder: () {
+        return Focus(
+          focusNode: textFocusNode,
+          autofocus: true,
+          onKey: (node, event) {
+            if (event.isKeyPressed(LogicalKeyboardKey.escape)) {
+              close();
+              return KeyEventResult.handled;
+            }
+            return KeyEventResult.ignored;
+          },
+          child: textPanelBuilder(
+            textController,
+            (value) {
+              onTextSubmitted(value);
+              if (closeOnSubmit) close();
+            },
+            textSubmit,
+          ),
+        );
+      },
+    );
+  }
+
+  void textSubmit() {
+    onTextSubmitted(textController.text);
+    if (closeOnSubmit) close();
+  }
+
+  void openWithText(String text) {
+    open();
+    textController.text = text;
+  }
+
+  @override
+  void open() {
+    textFocusNode.requestFocus();
+    super.open();
+  }
+
+  @override
+  void close() {
+    textController.text = '';
+    textFocusNode.unfocus();
+    super.close();
+  }
+
+  @override
+  void dispose() {
+    textController.dispose();
+    super.dispose();
   }
 }

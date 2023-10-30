@@ -9,7 +9,6 @@ import 'package:animators_gif_enjoyer/utils/phclipboard.dart' as phclipboard;
 import 'package:animators_gif_enjoyer/utils/value_notifier_extensions.dart';
 import 'package:contextual_menu/contextual_menu.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:window_manager/window_manager.dart';
 
 const appName = "Animator's GIF Enjoyer Deluxe";
@@ -77,9 +76,11 @@ class _MyHomePageState extends State<MyHomePage> {
   ImageProvider? gifImageProvider;
   String filename = '';
 
-  final FocusNode urlTextFocusNode = FocusNode();
-  final TextEditingController urlTextController = TextEditingController();
-  Widget bottomTextPanelWidget() {
+  Widget bottomTextPanelWidget(
+    TextEditingController textController,
+    Function(String) onTextFieldSubmitted,
+    VoidCallback onSubmitButtonPressed,
+  ) {
     return Stack(
       children: [
         Positioned(
@@ -98,36 +99,26 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Row(
                   children: [
                     Expanded(
-                      child: Focus(
-                        focusNode: urlTextFocusNode,
-                        autofocus: true,
-                        onKey: (node, event) {
-                          if (event.isKeyPressed(LogicalKeyboardKey.escape)) {
-                            textPanelDismiss();
-                            return KeyEventResult.handled;
-                          }
-
-                          return KeyEventResult.ignored;
-                        },
-                        child: TextField(
-                          controller: urlTextController,
-                          style: const TextStyle(fontSize: 13),
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(width: 0, style: BorderStyle.none),
-                            ),
+                      child: TextField(
+                        controller: textController,
+                        style: const TextStyle(fontSize: 13),
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(
+                            borderSide:
+                                BorderSide(width: 0, style: BorderStyle.none),
                           ),
-                          autocorrect: false,
-                          onSubmitted: (value) => textPanelSubmit(),
                         ),
+                        autocorrect: false,
+                        onSubmitted: onTextFieldSubmitted,
                       ),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(right: 10),
                       child: IconButton(
-                          onPressed: textPanelSubmit,
-                          icon: const Icon(Icons.send)),
+                        onPressed: onSubmitButtonPressed,
+                        icon: const Icon(Icons.send),
+                        tooltip: 'Download GIF from Link',
+                      ),
                     )
                   ],
                 ),
@@ -139,18 +130,6 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void textPanelSubmit() {
-    tryLoadGifFromUrl(urlTextController.text);
-    textPanelDismiss();
-  }
-
-  void textPanelDismiss() {
-    bottomTextPanel.close();
-    urlTextController.text = '';
-    urlTextFocusNode.unfocus();
-    mainWindowFocus.requestFocus();
-  }
-
   void closeAllPanels() {
     bottomTextPanel.close();
   }
@@ -158,19 +137,18 @@ class _MyHomePageState extends State<MyHomePage> {
   void textPanelOpenAndPaste() async {
     final pastedText = await phclipboard.getStringFromClipboard();
     if (pastedText != null) {
-      urlTextController.text = pastedText;
+      bottomTextPanel.openWithText(pastedText);
     }
-    bottomTextPanel.open();
   }
 
-  late final ModalPanel bottomTextPanel = ModalPanel(
-    onOpened: () {
-      urlTextFocusNode.requestFocus();
-    },
+  late final ModalTextPanel bottomTextPanel = ModalTextPanel(
     onClosed: () {
       mainWindowFocus.requestFocus();
     },
-    builder: bottomTextPanelWidget,
+    onTextSubmitted: (value) {
+      tryLoadGifFromUrl(value);
+    },
+    textPanelBuilder: bottomTextPanelWidget,
   );
 
   Duration? frameDuration;
