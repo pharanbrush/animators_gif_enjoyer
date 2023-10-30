@@ -150,7 +150,6 @@ class _MyHomePageState extends State<MyHomePage>
     gifAdvancer = GifFrameAdvancer(
       tickerProvider: this,
       onFrame: (frameIndex) {
-        print('frame $frameIndex');
         setCurrentFrame(frameIndex);
       },
     );
