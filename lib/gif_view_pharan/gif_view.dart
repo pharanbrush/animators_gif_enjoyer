@@ -388,6 +388,7 @@ class GifViewState extends State<GifView> with TickerProviderStateMixin {
 class GifController extends ChangeNotifier {
   List<GifFrame> _frames = [];
 
+  List<GifFrame> get frames => _frames;
   int get currentFrame => _currentFrame;
   set currentFrame(int newValue) {
     _currentFrame = newValue.clamp(0, frameCount);

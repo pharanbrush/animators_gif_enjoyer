@@ -7,6 +7,7 @@ import 'package:animators_gif_enjoyer/main_screen/main_screen_widgets.dart';
 import 'package:animators_gif_enjoyer/phlutter/image_drop_target.dart';
 import 'package:animators_gif_enjoyer/phlutter/modal_panel.dart';
 import 'package:animators_gif_enjoyer/utils/download_file.dart';
+import 'package:animators_gif_enjoyer/utils/gif_frame_advancer.dart';
 import 'package:animators_gif_enjoyer/utils/open_file.dart';
 import 'package:animators_gif_enjoyer/utils/phclipboard.dart' as phclipboard;
 import 'package:animators_gif_enjoyer/utils/value_notifier_extensions.dart';
@@ -44,8 +45,10 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage>
+    with SingleTickerProviderStateMixin {
   final FocusNode mainWindowFocus = FocusNode(canRequestFocus: true);
+  late GifFrameAdvancer gifAdvancer;
 
   late final GifController gifController;
   ImageProvider? gifImageProvider;
@@ -144,12 +147,31 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
+    gifAdvancer = GifFrameAdvancer(
+      tickerProvider: this,
+      onFrame: (frameIndex) {
+        print('frame $frameIndex');
+        setCurrentFrame(frameIndex);
+      },
+    );
     gifController = GifController(
       autoPlay: false,
       loop: true,
     );
 
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    gifAdvancer.dispose();
+    super.dispose();
+  }
+
+  void setCurrentFrame(int newFrame) {
+    currentFrame.value = newFrame;
+    clampCurrentFrame();
+    setDisplayedFrame(newFrame);
   }
 
   void incrementFrame(int incrementSign) {
@@ -255,7 +277,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   valueListenable: isScrubMode,
                   builder: (_, isPausedAndScrubbing, __) {
                     return IconButton(
-                      onPressed: () => isScrubMode.toggle(),
+                      onPressed: () => togglePlayPause(),
                       icon: Icon(
                         isPausedAndScrubbing ? Icons.play_arrow : Icons.pause,
                       ),
@@ -318,14 +340,12 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             Expanded(
               child: GestureDetector(
-                onTap: () => isScrubMode.toggle(),
-                child: isScrubMode.value
-                    ? GifViewContainer(
-                        gifImageProvider: gifImageProvider,
-                        gifController: gifController,
-                        copyImageHandler: () => tryCopyFrameToClipboard(),
-                      )
-                    : Image(image: gifImageProvider!),
+                onTap: () => togglePlayPause(),
+                child: GifViewContainer(
+                  gifImageProvider: gifImageProvider,
+                  gifController: gifController,
+                  copyImageHandler: () => tryCopyFrameToClipboard(),
+                ),
               ),
             ),
             Column(
@@ -419,6 +439,26 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void closeAllPanels() {
     bottomTextPanel.close();
+  }
+
+  void togglePlayPause() {
+    if (!isGifLoaded) return;
+
+    isScrubMode.toggle();
+    if (!isScrubMode.value) {
+      final range = primarySliderRange;
+      final int start = range.start.toInt();
+      final int last = range.end.toInt();
+
+      gifAdvancer.play(
+        frames: gifController.frames,
+        start: start,
+        last: last,
+        current: currentFrame.value,
+      );
+    } else {
+      gifAdvancer.pause();
+    }
   }
 
   void textPanelOpenAndPaste() async {
