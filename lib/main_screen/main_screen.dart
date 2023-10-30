@@ -401,7 +401,9 @@ class _MyHomePageState extends State<MyHomePage> {
                             setDisplayedFrame(currentFrame.value),
                       ),
                       Text(
-                        'Custom range: ${frameCount.toInt()} frames. ~$rangeSecondsString',
+                        isScrubMode.value
+                            ? 'Custom range: ${frameCount.toInt()} frames. ~$rangeSecondsString'
+                            : '',
                         style: const TextStyle(color: focusRangeColor),
                       ),
                     ],
