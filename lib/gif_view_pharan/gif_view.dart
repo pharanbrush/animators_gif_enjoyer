@@ -78,7 +78,7 @@ Future<List<GifFrame>> loadGifFrames({
               await Future.delayed(const Duration(milliseconds: 100));
             }
             onProgressPercent(1);
-            
+
             data = Uint8List.fromList(bytes);
           } else {
             final response = await http.get(resolvedUri, headers: headers);
@@ -313,7 +313,7 @@ class GifViewState extends State<GifView> with TickerProviderStateMixin {
       _loadingFadeAnimationController = AnimationController(
         vsync: this,
         duration:
-            widget.loadingFadeDuration ?? const Duration(milliseconds: 300),
+            widget.loadingFadeDuration ?? const Duration(milliseconds: 150),
       );
     }
     controller = widget.controller ?? GifController();
