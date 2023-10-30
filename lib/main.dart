@@ -10,8 +10,7 @@ void main() async {
 
   WindowOptions windowOptions = const WindowOptions(
     minimumSize: Size.square(460),
-    size: Size.square(500),
-    center: true,
+    size: Size(500, 540),
     title: appName,
   );
 
