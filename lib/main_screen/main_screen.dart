@@ -228,15 +228,16 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Tooltip(
-                  message:
-                      'GIF frames are each encoded with intervals in 10 millisecond increments.\n'
-                      'This makes their actual framerate potentially variable,\n'
-                      'and often not precisely fitting common video framerates.',
-                  child: Text(
-                    getFramerateLabel(),
-                    style: smallGrayStyle,
-                  ),
+                Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 4,
+                  children: [
+                    getFramerateTooltip(),
+                    Text(
+                      getFramerateLabel(),
+                      style: smallGrayStyle,
+                    ),
+                  ],
                 ),
                 const Spacer(),
                 Wrap(
@@ -457,24 +458,54 @@ class _MyHomePageState extends State<MyHomePage> {
     displayedFrame.value = gifController.currentFrame;
   }
 
+  static bool isFpsWhole(double fps) {
+    return fps.floorToDouble() == fps;
+  }
+
+  Widget getFramerateTooltip() {
+    if (!isGifLoaded) return const SizedBox.shrink();
+    if (frameDuration == null) return const SizedBox.shrink();
+
+    final frameMilliseconds = frameDuration!.inMilliseconds;
+    final fpsDouble = 1000.0 / frameMilliseconds;
+    if (frameMilliseconds > 0 && isFpsWhole(fpsDouble)) {
+      return const SizedBox.shrink();
+    }
+
+    String message =
+        'GIF frames are each encoded with intervals in 10 millisecond increments.\n'
+        'This makes their actual framerate potentially variable,\n'
+        'and often not precisely fitting common video framerates.';
+    if (frameMilliseconds <= 10) {
+      message = 'Browsers usually reinterpret delays\n'
+          'below 20 milliseconds as 100 milliseconds.';
+    }
+
+    return Tooltip(
+      message: message,
+      child: const Icon(
+        Icons.info_outline,
+        size: 13,
+        color: Color(0x33000000),
+      ),
+    );
+  }
+
   String getFramerateLabel() {
     if (!isGifLoaded) {
       return '';
     }
 
-    const browserDefault = 100;
-
     switch (frameDuration) {
       case null:
         return 'Variable frame durations';
       case <= const Duration(milliseconds: 10):
-        return '${frameDuration!.inMilliseconds} milliseconds per frame. '
-            'Browsers usually interpret this as $browserDefault milliseconds.';
+        return '${frameDuration!.inMilliseconds} milliseconds per frame.';
       default:
         final frameInterval = frameDuration!.inMilliseconds;
         final fps = 1000.0 / frameInterval;
-        return '$frameInterval milliseconds per frame. '
-            '(~${fps.toStringAsFixed(2)} fps)';
+        return '~${fps.toStringAsFixed(2)} fps '
+            '($frameInterval milliseconds per frame.) ';
     }
   }
 
