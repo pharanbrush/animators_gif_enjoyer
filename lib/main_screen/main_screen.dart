@@ -4,6 +4,7 @@ import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
 import 'package:animators_gif_enjoyer/interface/shortcuts.dart';
 import 'package:animators_gif_enjoyer/main.dart';
 import 'package:animators_gif_enjoyer/main_screen/main_screen_widgets.dart';
+import 'package:animators_gif_enjoyer/phlutter/image_drop_target.dart';
 import 'package:animators_gif_enjoyer/phlutter/modal_panel.dart';
 import 'package:animators_gif_enjoyer/utils/download_file.dart';
 import 'package:animators_gif_enjoyer/utils/open_file.dart';
@@ -169,9 +170,24 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             shortcutsWrapper(child: mainLayer(context)),
             bottomTextPanel.widget(),
+            fileDropTarget(context),
           ],
         ),
       ),
+    );
+  }
+
+  Widget fileDropTarget(BuildContext context) {
+    return ImageDropTarget(
+      dragImagesHandler: (details) {
+        if (details.files.isEmpty) return;
+        final file = details.files[0];
+        if (!file.name.endsWith('.gif')) {
+          popupMessage('Not a GIF');
+        }
+
+        tryLoadGifFromFilePath(file.path);
+      },
     );
   }
 
@@ -552,6 +568,11 @@ class _MyHomePageState extends State<MyHomePage> {
       clipboardString,
       errorMessage: 'Pasted text was not a proper URL:\n "$clipboardString"',
     );
+  }
+
+  void tryLoadGifFromFilePath(String path) {
+    if (path.isEmpty) return;
+    loadGifFromProvider(getFileImageFromPath(path), path);
   }
 
   void tryLoadGifFromUrl(String url, {String? errorMessage}) {

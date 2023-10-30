@@ -14,3 +14,7 @@ Future<(FileImage? gifImage, String? name)> openGifImageFile() async {
 
   return (FileImage(File(file.path)), file.name);
 }
+
+FileImage getFileImageFromPath(String path) {
+  return FileImage(File(path));
+}
