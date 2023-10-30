@@ -2,12 +2,14 @@ import 'dart:ui';
 
 import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
 import 'package:animators_gif_enjoyer/interface/shortcuts.dart';
+import 'package:animators_gif_enjoyer/phlutter/modal_panel.dart';
 import 'package:animators_gif_enjoyer/utils/download_file.dart';
 import 'package:animators_gif_enjoyer/utils/open_file.dart';
 import 'package:animators_gif_enjoyer/utils/phclipboard.dart' as phclipboard;
 import 'package:animators_gif_enjoyer/utils/value_notifier_extensions.dart';
 import 'package:contextual_menu/contextual_menu.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:window_manager/window_manager.dart';
 
 const appName = "Animator's GIF Enjoyer Deluxe";
@@ -50,6 +52,7 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.white,
         colorScheme: ColorScheme.fromSeed(
           seedColor: interfaceColor,
+          scrim: const Color(0xDDFFFFFF),
         ),
         useMaterial3: true,
       ),
@@ -68,11 +71,107 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final FocusNode mainWindowFocus = FocusNode();
+  final FocusNode mainWindowFocus = FocusNode(canRequestFocus: true);
 
   late final GifController gifController;
   ImageProvider? gifImageProvider;
   String filename = '';
+
+  final FocusNode urlTextFocusNode = FocusNode();
+  final TextEditingController urlTextController = TextEditingController();
+  Widget bottomTextPanelWidget() {
+    return Stack(
+      children: [
+        Positioned(
+          bottom: 0,
+          left: 0,
+          right: 0,
+          child: Material(
+            type: MaterialType.canvas,
+            elevation: 20,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              child: Material(
+                type: MaterialType.canvas,
+                color: Theme.of(context).colorScheme.surfaceVariant,
+                borderRadius: const BorderRadius.all(Radius.circular(8)),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Focus(
+                        focusNode: urlTextFocusNode,
+                        autofocus: true,
+                        onKey: (node, event) {
+                          if (event.isKeyPressed(LogicalKeyboardKey.escape)) {
+                            textPanelDismiss();
+                            return KeyEventResult.handled;
+                          }
+
+                          return KeyEventResult.ignored;
+                        },
+                        child: TextField(
+                          controller: urlTextController,
+                          style: const TextStyle(fontSize: 13),
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(
+                              borderSide:
+                                  BorderSide(width: 0, style: BorderStyle.none),
+                            ),
+                          ),
+                          autocorrect: false,
+                          onSubmitted: (value) => textPanelSubmit(),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 10),
+                      child: IconButton(
+                          onPressed: textPanelSubmit,
+                          icon: const Icon(Icons.send)),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void textPanelSubmit() {
+    tryLoadGifFromUrl(urlTextController.text);
+    textPanelDismiss();
+  }
+
+  void textPanelDismiss() {
+    bottomTextPanel.close();
+    urlTextController.text = '';
+    urlTextFocusNode.unfocus();
+    mainWindowFocus.requestFocus();
+  }
+
+  void closeAllPanels() {
+    bottomTextPanel.close();
+  }
+
+  void textPanelOpenAndPaste() async {
+    final pastedText = await phclipboard.getStringFromClipboard();
+    if (pastedText != null) {
+      urlTextController.text = pastedText;
+    }
+    bottomTextPanel.open();
+  }
+
+  late final ModalPanel bottomTextPanel = ModalPanel(
+    onOpened: () {
+      urlTextFocusNode.requestFocus();
+    },
+    onClosed: () {
+      mainWindowFocus.requestFocus();
+    },
+    builder: bottomTextPanelWidget,
+  );
 
   Duration? frameDuration;
 
@@ -96,7 +195,8 @@ class _MyHomePageState extends State<MyHomePage> {
     (PreviousIntent, (_) => incrementFrame(-1)),
     (NextIntent, (_) => incrementFrame(1)),
     (CopyIntent, (_) => tryCopyFrameToClipboard()),
-    (PasteAndGoIntent, (_) => tryLoadClipboardPath()),
+    (OpenTextMenu, (_) => bottomTextPanel.open()),
+    (PasteAndGoIntent, (_) => textPanelOpenAndPaste()),
   ];
 
   @override
@@ -124,81 +224,88 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: shortcutsWrapper(
-        child: Center(
-          child: Column(
-            children: [
-              Expanded(
-                child: ValueListenableBuilder(
-                  valueListenable: isGifDownloading,
-                  builder: (_, isCurrentlyDownloading, __) {
-                    if (isCurrentlyDownloading) {
-                      return Center(
-                        child: SizedBox.square(
-                          dimension: 150,
-                          child: ValueListenableBuilder(
-                            valueListenable: gifDownloadPercent,
-                            builder: (_, value, __) {
-                              return CircularProgressIndicator(
-                                value: value == 0 ? null : value,
-                                strokeWidth: 8,
-                                strokeCap: StrokeCap.round,
-                              );
-                            },
-                          ),
-                        ),
-                      );
-                    }
-
-                    return isGifLoaded
-                        ? loadedInterface(context)
-                        : unloadedInterface(context);
-                  },
-                ),
-              ),
-              SizedBox(
-                child: Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Tooltip(
-                        message:
-                            'GIF frames are each encoded with intervals in 10 millisecond increments.\n'
-                            'This makes their actual framerate potentially variable,\n'
-                            'and often not precisely fitting common video framerates.',
-                        child: Text(
-                          getFramerateLabel(),
-                          style: smallGrayStyle,
-                        ),
-                      ),
-                      const Spacer(),
-                      Wrap(
-                        direction: Axis.horizontal,
-                        spacing: 8,
-                        children: [
-                          // const IconButton.filled(
-                          //   onPressed: null,
-                          //   icon: Icon(Icons.play_arrow),
-                          // ),
-                          Tooltip(
-                            message: 'Open GIF file...\n'
-                                'Or use ${Phshortcuts.shortcutString(Phshortcuts.pasteAndGo)} to paste a link to a GIF.',
-                            child: IconButton.filled(
-                              onPressed: () => openNewFile(),
-                              icon: const Icon(Icons.file_open_outlined),
-                            ),
-                          ),
-                        ],
-                      )
-                    ],
-                  ),
-                ),
-              )
-            ],
-          ),
+      body: Center(
+        child: Stack(
+          children: [
+            shortcutsWrapper(child: mainLayer(context)),
+            bottomTextPanel.widget(),
+          ],
         ),
       ),
+    );
+  }
+
+  Widget mainLayer(BuildContext context) {
+    return Column(
+      children: [
+        Expanded(
+          child: ValueListenableBuilder(
+            valueListenable: isGifDownloading,
+            builder: (_, isCurrentlyDownloading, __) {
+              if (isCurrentlyDownloading) {
+                return Center(
+                  child: SizedBox.square(
+                    dimension: 150,
+                    child: ValueListenableBuilder(
+                      valueListenable: gifDownloadPercent,
+                      builder: (_, value, __) {
+                        return CircularProgressIndicator(
+                          value: value < 0.1 ? null : value,
+                          strokeWidth: 8,
+                          strokeCap: StrokeCap.round,
+                        );
+                      },
+                    ),
+                  ),
+                );
+              }
+
+              return isGifLoaded
+                  ? loadedInterface(context)
+                  : unloadedInterface(context);
+            },
+          ),
+        ),
+        SizedBox(
+          child: Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Tooltip(
+                  message:
+                      'GIF frames are each encoded with intervals in 10 millisecond increments.\n'
+                      'This makes their actual framerate potentially variable,\n'
+                      'and often not precisely fitting common video framerates.',
+                  child: Text(
+                    getFramerateLabel(),
+                    style: smallGrayStyle,
+                  ),
+                ),
+                const Spacer(),
+                Wrap(
+                  direction: Axis.horizontal,
+                  spacing: 8,
+                  children: [
+                    // const IconButton.filled(
+                    //   onPressed: null,
+                    //   icon: Icon(Icons.play_arrow),
+                    // ),
+                    Tooltip(
+                      message: 'Open GIF file...\n'
+                          'Or use ${Phshortcuts.shortcutString(Phshortcuts.pasteAndGo)} to paste a link to a GIF.',
+                      child: IconButton.filled(
+                        onPressed: () => openNewFile(),
+                        icon: const Icon(Icons.file_open_outlined),
+                      ),
+                    ),
+                  ],
+                )
+              ],
+            ),
+          ),
+        )
+      ],
     );
   }
 
@@ -490,11 +597,18 @@ class _MyHomePageState extends State<MyHomePage> {
     final clipboardString = await phclipboard.getStringFromClipboard();
     if (clipboardString == null) return;
 
-    if (isUrlString(clipboardString)) {
-      var provider = NetworkImage(clipboardString);
-      loadGifFromProvider(provider, clipboardString);
+    tryLoadGifFromUrl(
+      clipboardString,
+      errorMessage: 'Pasted text was not a proper URL:\n "$clipboardString"',
+    );
+  }
+
+  void tryLoadGifFromUrl(String url, {String? errorMessage}) {
+    if (isUrlString(url)) {
+      var provider = NetworkImage(url);
+      loadGifFromProvider(provider, url);
     } else {
-      popupMessage('Pasted text was not a proper URL:\n "$clipboardString"');
+      popupMessage(errorMessage ?? "Can't load url:\n$url");
     }
   }
 

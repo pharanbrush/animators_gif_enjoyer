@@ -24,7 +24,7 @@ class Phshortcuts {
 
   static const playPause = SingleActivator(LogicalKeyboardKey.keyP);
   static const restart = SingleActivator(LogicalKeyboardKey.keyR);
-  static const openTimerMenu = SingleActivator(LogicalKeyboardKey.f2);
+  static const openTextMenu = SingleActivator(LogicalKeyboardKey.f2);
 
   static const copy = SingleActivator(LogicalKeyboardKey.keyC, control: true);
   static const pasteAndGo = SingleActivator(
@@ -67,7 +67,7 @@ class Phshortcuts {
     Phshortcuts.previous5: PreviousIntent(),
     Phshortcuts.next5: NextIntent(),
     Phshortcuts.playPause: PlayPauseIntent(),
-    Phshortcuts.openTimerMenu: OpenTimerMenuIntent(),
+    Phshortcuts.openTextMenu: OpenTextMenu(),
     Phshortcuts.restart: RestartIntent(),
     Phshortcuts.help: HelpIntent(),
     Phshortcuts.toggleSimplifiedInterface: SimpleInterfaceToggleIntent(),
@@ -125,8 +125,8 @@ class HelpIntent extends Intent {
   const HelpIntent();
 }
 
-class OpenTimerMenuIntent extends Intent {
-  const OpenTimerMenuIntent();
+class OpenTextMenu extends Intent {
+  const OpenTextMenu();
 }
 
 class SimpleInterfaceToggleIntent extends Intent {
