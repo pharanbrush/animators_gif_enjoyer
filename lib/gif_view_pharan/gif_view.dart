@@ -496,10 +496,8 @@ class GifController extends ChangeNotifier {
   }
 
   void tryDisposeFrames() {
-    if (_frames.isNotEmpty) {
-      for (var f in _frames) {
-        f.imageInfo.dispose();
-      }
+    for (var f in _frames) {
+      f.imageInfo.dispose();
     }
   }
 
