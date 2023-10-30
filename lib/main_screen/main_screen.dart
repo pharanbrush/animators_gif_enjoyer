@@ -158,7 +158,6 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     clampCurrentFrame();
-
     updateGifViewFrame();
   }
 
