@@ -24,7 +24,7 @@ class ModalPanel {
   });
 
   final Key? key;
-  final Widget Function() builder;
+  final Widget Function(BuildContext context) builder;
   final Function()? onBeforeOpen;
   final Function()? onOpened;
   final Function()? onClosed;
@@ -82,7 +82,7 @@ class _ModalPanelWidget extends StatelessWidget {
   final VoidCallback close;
   final bool isUnderlayTransparent;
   final AnimatedSwitcherTransitionBuilder transitionBuilder;
-  final Widget Function() builder;
+  final Widget Function(BuildContext context) builder;
 
   static const defaultDuration = Duration(milliseconds: 200);
   static const fastDuration = Duration(milliseconds: 100);
@@ -110,7 +110,7 @@ class _ModalPanelWidget extends StatelessWidget {
                 switchOutCurve: Curves.easeOutCubic,
                 duration: defaultDuration,
                 reverseDuration: fastDuration,
-                child: value ? builder() : null,
+                child: value ? builder(context) : null,
               ),
             ],
           ),
@@ -178,7 +178,7 @@ class ModalTextPanel extends ModalPanel {
     super.onClosed,
     super.isUnderlayTransparent = false,
     super.transitionBuilder = AnimatedSwitcher.defaultTransitionBuilder,
-  }) : super(builder: () => const SizedBox.shrink());
+  }) : super(builder: (context) => const SizedBox.shrink());
 
   final FocusNode textFocusNode = FocusNode();
   final TextEditingController textController = TextEditingController();
@@ -186,6 +186,7 @@ class ModalTextPanel extends ModalPanel {
   final bool closeOnSubmit;
 
   final Widget Function(
+    BuildContext context,
     TextEditingController textController,
     Function(String value) onTextFieldSubmitted,
     VoidCallback onSubmitButtonPressed,
@@ -199,7 +200,7 @@ class ModalTextPanel extends ModalPanel {
       close: close,
       isUnderlayTransparent: isUnderlayTransparent,
       transitionBuilder: transitionBuilder,
-      builder: () {
+      builder: (context) {
         return Focus(
           focusNode: textFocusNode,
           autofocus: true,
@@ -211,6 +212,7 @@ class ModalTextPanel extends ModalPanel {
             return KeyEventResult.ignored;
           },
           child: textPanelBuilder(
+            context,
             textController,
             (value) {
               onTextSubmitted(value);
