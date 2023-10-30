@@ -582,6 +582,10 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void tryLoadGifFromUrl(String url, {String? errorMessage}) {
+    if (url.isEmpty) {
+      return;
+    }
+
     if (isUrlString(url)) {
       var provider = NetworkImage(url);
       loadGifFromProvider(provider, url);
