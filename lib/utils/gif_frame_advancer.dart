@@ -75,10 +75,10 @@ class GifFrameAdvancer {
     ticker.stop();
   }
 
-  void _handleTick(Duration timeSinceTickerStarted) {
+  void _handleTick(Duration currentTickerTime) {
     if (!enabled) return;
 
-    final deltaTime = timeSinceTickerStarted - _lastTime;
+    final deltaTime = currentTickerTime - _lastTime;
     _accumulatedDuration += deltaTime;
 
     const maxFrameSkip = 2;
@@ -96,6 +96,6 @@ class GifFrameAdvancer {
       }
     }
 
-    _lastTime = timeSinceTickerStarted;
+    _lastTime = currentTickerTime;
   }
 }
