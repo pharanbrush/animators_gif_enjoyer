@@ -61,6 +61,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final ValueNotifier<bool> isUsingFocusRange = ValueNotifier(false);
   final ValueNotifier<bool> isGifDownloading = ValueNotifier(false);
   final ValueNotifier<double> gifDownloadPercent = ValueNotifier(0.0);
+  final ValueNotifier<bool> isScrubMode = ValueNotifier(true);
 
   bool get isGifLoaded => gifImageProvider != null;
 
@@ -222,47 +223,58 @@ class _MyHomePageState extends State<MyHomePage> {
             },
           ),
         ),
-        SizedBox(
-          child: Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
+        bottomBarWidget()
+      ],
+    );
+  }
+
+  SizedBox bottomBarWidget() {
+    return SizedBox(
+      child: Padding(
+        padding: const EdgeInsets.all(4.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Wrap(
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 4,
               children: [
-                Wrap(
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  spacing: 4,
-                  children: [
-                    getFramerateTooltip(),
-                    Text(
-                      getFramerateLabel(),
-                      style: smallGrayStyle,
-                    ),
-                  ],
+                getFramerateTooltip(),
+                Text(
+                  getFramerateLabel(),
+                  style: smallGrayStyle,
                 ),
-                const Spacer(),
-                Wrap(
-                  direction: Axis.horizontal,
-                  spacing: 8,
-                  children: [
-                    // const IconButton.filled(
-                    //   onPressed: null,
-                    //   icon: Icon(Icons.play_arrow),
-                    // ),
-                    Tooltip(
-                      message: 'Open GIF file...\n'
-                          'Or use ${Phshortcuts.shortcutString(Phshortcuts.pasteAndGo)} to paste a link to a GIF.',
-                      child: IconButton.filled(
-                        onPressed: () => openNewFile(),
-                        icon: const Icon(Icons.file_open_outlined),
-                      ),
-                    ),
-                  ],
-                )
               ],
             ),
-          ),
-        )
-      ],
+            const Spacer(),
+            Wrap(
+              direction: Axis.horizontal,
+              spacing: 8,
+              children: [
+                ValueListenableBuilder(
+                  valueListenable: isScrubMode,
+                  builder: (_, isPausedAndScrubbing, __) {
+                    return IconButton(
+                      onPressed: () => isScrubMode.toggle(),
+                      icon: Icon(
+                        isPausedAndScrubbing ? Icons.play_arrow : Icons.pause,
+                      ),
+                    );
+                  },
+                ),
+                Tooltip(
+                  message: 'Open GIF file...\n'
+                      'Or use ${Phshortcuts.shortcutString(Phshortcuts.pasteAndGo)} to paste a link to a GIF.',
+                  child: IconButton.filled(
+                    onPressed: () => openNewFile(),
+                    icon: const Icon(Icons.file_open_outlined),
+                  ),
+                ),
+              ],
+            )
+          ],
+        ),
+      ),
     );
   }
 
@@ -298,97 +310,108 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget loadedInterface(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Expanded(
-          child: GifViewContainer(
-            gifImageProvider: gifImageProvider,
-            gifController: gifController,
-            copyImageHandler: () => tryCopyFrameToClipboard(),
-          ),
-        ),
-        Column(
+    return ValueListenableBuilder(
+      valueListenable: isScrubMode,
+      builder: (_, __, ___) {
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Expanded(
+              child: GestureDetector(
+                onTap: () => isScrubMode.toggle(),
+                child: isScrubMode.value
+                    ? GifViewContainer(
+                        gifImageProvider: gifImageProvider,
+                        gifController: gifController,
+                        copyImageHandler: () => tryCopyFrameToClipboard(),
+                      )
+                    : Image(image: gifImageProvider!),
+              ),
+            ),
+            Column(
+              children: [
+                ValueListenableBuilder(
+                  valueListenable: currentFrame,
+                  builder: (_, currentFrameValue, __) {
+                    final bigStyle = Theme.of(context).textTheme.headlineMedium;
+                    final bigStyleGray =
+                        bigStyle?.copyWith(color: grayColor) ?? grayStyle;
+
+                    final separator = Text(' - ', style: bigStyleGray);
+
+                    return Wrap(
+                      alignment: WrapAlignment.center,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        separator,
+                        Text('$currentFrameValue', style: bigStyle),
+                        separator,
+                      ],
+                    );
+                  },
+                ),
+                const Text('frame', style: smallGrayStyle)
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: SizedBox(
+                width: double.infinity,
+                child: MainSlider(
+                  toggleUseFocus: toggleUseFocus,
+                  primarySliderRange: primarySliderRange,
+                  isUsingFocusRange: isUsingFocusRange,
+                  currentFrame: currentFrame,
+                  gifController: gifController,
+                  enabled: isGifLoaded && isScrubMode.value,
+                  onChange: updateGifViewFrame,
+                ),
+              ),
+            ),
             ValueListenableBuilder(
-              valueListenable: currentFrame,
-              builder: (_, currentFrameValue, __) {
-                final bigStyle = Theme.of(context).textTheme.headlineMedium;
-                final bigStyleGray =
-                    bigStyle?.copyWith(color: grayColor) ?? grayStyle;
+              valueListenable: isUsingFocusRange,
+              builder: (_, isUseCustomRange, __) {
+                final double frameCount = focusFrameRange.value.rangeSize + 1;
+                final rangeSeconds = frameDuration != null
+                    ? (frameCount *
+                        frameDuration!.inMilliseconds.toDouble() *
+                        0.001)
+                    : -1;
 
-                final separator = Text(' - ', style: bigStyleGray);
+                final String rangeSecondsString = rangeSeconds >= 0
+                    ? '${rangeSeconds.toStringAsFixed(2)} seconds'
+                    : '';
 
-                return Wrap(
-                  alignment: WrapAlignment.center,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    separator,
-                    Text('$currentFrameValue', style: bigStyle),
-                    separator,
-                  ],
+                return Visibility(
+                  maintainInteractivity: false,
+                  maintainSemantics: false,
+                  visible: isUseCustomRange,
+                  child: Column(
+                    children: [
+                      FrameRangeSlider(
+                        startEnd: focusFrameRange,
+                        maxFrameIndex: maxFrameIndex,
+                        enabled: isGifLoaded && isScrubMode.value,
+                        onChange: () => clampCurrentFrame(),
+                        onChangeRangeStart: () =>
+                            setDisplayedFrame(focusFrameRange.value.startInt),
+                        onChangeRangeEnd: () =>
+                            setDisplayedFrame(focusFrameRange.value.endInt),
+                        onChangeTapUp: () =>
+                            setDisplayedFrame(currentFrame.value),
+                      ),
+                      Text(
+                        'Custom range: ${frameCount.toInt()} frames. ~$rangeSecondsString',
+                        style: const TextStyle(color: focusRangeColor),
+                      ),
+                    ],
+                  ),
                 );
               },
             ),
-            const Text('frame', style: smallGrayStyle)
           ],
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: SizedBox(
-            width: double.infinity,
-            child: MainSlider(
-              toggleUseFocus: toggleUseFocus,
-              primarySliderRange: primarySliderRange,
-              isUsingFocusRange: isUsingFocusRange,
-              currentFrame: currentFrame,
-              gifController: gifController,
-              enabled: isGifLoaded,
-              onChange: updateGifViewFrame,
-            ),
-          ),
-        ),
-        ValueListenableBuilder(
-          valueListenable: isUsingFocusRange,
-          builder: (_, isUseCustomRange, __) {
-            final double frameCount = focusFrameRange.value.rangeSize + 1;
-            final rangeSeconds = frameDuration != null
-                ? (frameCount *
-                    frameDuration!.inMilliseconds.toDouble() *
-                    0.001)
-                : -1;
-
-            final String rangeSecondsString = rangeSeconds >= 0
-                ? '${rangeSeconds.toStringAsFixed(2)} seconds'
-                : '';
-
-            return Visibility(
-              maintainInteractivity: false,
-              maintainSemantics: false,
-              visible: isUseCustomRange,
-              child: Column(
-                children: [
-                  FrameRangeSlider(
-                    startEnd: focusFrameRange,
-                    maxFrameIndex: maxFrameIndex,
-                    enabled: gifImageProvider != null,
-                    onChange: () => clampCurrentFrame(),
-                    onChangeRangeStart: () =>
-                        setDisplayedFrame(focusFrameRange.value.startInt),
-                    onChangeRangeEnd: () =>
-                        setDisplayedFrame(focusFrameRange.value.endInt),
-                    onChangeTapUp: () => setDisplayedFrame(currentFrame.value),
-                  ),
-                  Text(
-                    'Custom range: ${frameCount.toInt()} frames. ~$rangeSecondsString',
-                    style: const TextStyle(color: focusRangeColor),
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
-      ],
+        );
+      },
     );
   }
 
