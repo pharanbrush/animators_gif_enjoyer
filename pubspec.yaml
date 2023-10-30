@@ -40,6 +40,7 @@ dependencies:
   window_manager: ^0.3.6
   contextual_menu: ^0.1.2
   super_clipboard: ^0.7.2
+  desktop_drop: ^0.4.4
 
 dev_dependencies:
   flutter_test:
