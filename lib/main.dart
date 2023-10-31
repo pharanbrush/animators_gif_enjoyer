@@ -4,7 +4,13 @@ import 'package:window_manager/window_manager.dart';
 
 const appName = "Animator's GIF Enjoyer Deluxe";
 
-void main() async {
+String fileToLoadFromMainArgs = '';
+
+void main(List<String> args) async {
+  if (args.isNotEmpty) {
+    fileToLoadFromMainArgs = args[0];
+  }
+
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
 

@@ -159,6 +159,14 @@ class _MyHomePageState extends State<MyHomePage>
     );
 
     super.initState();
+
+    if (fileToLoadFromMainArgs.isNotEmpty) {
+      try {
+        tryLoadGifFromFilePath(fileToLoadFromMainArgs);
+      } finally {
+        fileToLoadFromMainArgs = '';
+      }
+    }
   }
 
   @override
