@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.white,
         colorScheme: ColorScheme.fromSeed(
           seedColor: interfaceColor,
-          scrim: const Color(0xDDFFFFFF),
+          scrim: const Color(0xDD000000),
         ),
         useMaterial3: true,
       ),
@@ -118,6 +118,7 @@ class _MyHomePageState extends State<MyHomePage>
                         controller: textController,
                         style: const TextStyle(fontSize: 13),
                         decoration: const InputDecoration(
+                          hintText: 'Enter GIF link',
                           border: OutlineInputBorder(
                             borderSide:
                                 BorderSide(width: 0, style: BorderStyle.none),
