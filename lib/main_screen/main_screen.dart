@@ -524,11 +524,15 @@ class _MyHomePageState extends State<MyHomePage>
 
   void clampFocusRange() {
     final oldValue = focusFrameRange.value;
+    final lastFrameIndex = maxFrameIndex.value.toDouble();
+
     double minValue = oldValue.start;
-    minValue = minValue.clamp(0, maxFrameIndex.value.toDouble());
+    if (minValue < 0) minValue = 0;
+    if (minValue > lastFrameIndex) minValue = lastFrameIndex;
 
     double maxValue = oldValue.end;
-    if (maxValue < minValue) maxValue = maxFrameIndex.value.toDouble();
+    if (maxValue < minValue) maxValue = minValue;
+    if (maxValue > lastFrameIndex) maxValue = lastFrameIndex;
 
     focusFrameRange.value = RangeValues(minValue, maxValue);
   }
