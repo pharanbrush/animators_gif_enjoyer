@@ -6,7 +6,7 @@ const grayColor = Color(0x55000000);
 const grayStyle = TextStyle(color: grayColor);
 const double smallTextSize = 12;
 const smallGrayStyle = TextStyle(color: grayColor, fontSize: smallTextSize);
-const Color focusRangeColor = Colors.green;
+const MaterialColor focusRangeColor = Colors.green;
 
 class GifViewContainer extends StatelessWidget {
   GifViewContainer({

@@ -280,17 +280,18 @@ class _MyHomePageState extends State<MyHomePage>
               direction: Axis.horizontal,
               spacing: 8,
               children: [
-                ValueListenableBuilder(
-                  valueListenable: isScrubMode,
-                  builder: (_, isPausedAndScrubbing, __) {
-                    return IconButton(
-                      onPressed: () => togglePlayPause(),
-                      icon: Icon(
-                        isPausedAndScrubbing ? Icons.play_arrow : Icons.pause,
-                      ),
-                    );
-                  },
-                ),
+                if (isGifLoaded)
+                  ValueListenableBuilder(
+                    valueListenable: isScrubMode,
+                    builder: (_, isPausedAndScrubbing, __) {
+                      return IconButton(
+                        onPressed: () => togglePlayPause(),
+                        icon: Icon(
+                          isPausedAndScrubbing ? Icons.play_arrow : Icons.pause,
+                        ),
+                      );
+                    },
+                  ),
                 Tooltip(
                   message: 'Open GIF file...\n'
                       'Or use ${Phshortcuts.shortcutString(Phshortcuts.pasteAndGo)} to paste a link to a GIF.',
@@ -430,11 +431,24 @@ class _MyHomePageState extends State<MyHomePage>
                         onChangeTapUp: () =>
                             setDisplayedFrame(currentFrame.value),
                       ),
-                      Text(
-                        isScrubMode.value
-                            ? 'Custom range: ${frameCount.toInt()} frames. ~$rangeSecondsString'
-                            : '',
-                        style: const TextStyle(color: focusRangeColor),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Custom range: ${frameCount.toInt()} frames. ~$rangeSecondsString',
+                            style: const TextStyle(color: focusRangeColor),
+                          ),
+                          if (isScrubMode.value)
+                            Padding(
+                              padding: const EdgeInsets.only(right: 8.0),
+                              child: IconButton(
+                                iconSize: 12,
+                                onPressed: () => toggleUseFocus(),
+                                icon: const Icon(Icons.close),
+                              ),
+                            ),
+                        ],
                       ),
                     ],
                   ),
