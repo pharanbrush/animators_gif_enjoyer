@@ -1,4 +1,4 @@
-package com.example.animators_gif_enjoyer
+package com.pharanbrush.animatorsgifenjoyer
 
 import io.flutter.embedding.android.FlutterActivity
 

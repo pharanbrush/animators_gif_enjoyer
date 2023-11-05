@@ -41,6 +41,7 @@ dependencies:
   contextual_menu: ^0.1.2
   super_clipboard: ^0.7.2
   desktop_drop: ^0.4.4
+  change_app_package_name: ^1.1.0
 
 dev_dependencies:
   flutter_test:
