@@ -193,7 +193,14 @@ class MainSlider extends StatelessWidget {
               ),
               child: SizedBox(
                 width: width,
-                child: slider,
+                child: Focus(
+                  canRequestFocus: false,
+                  autofocus: false,
+                  skipTraversal: true,
+                  descendantsAreFocusable: false,
+                  descendantsAreTraversable: false,
+                  child: slider,
+                ),
               ),
             );
           },
