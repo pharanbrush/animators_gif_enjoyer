@@ -77,7 +77,9 @@ class FrameRangeSlider extends StatelessWidget {
             child: Theme(
               data: focusTheme,
               child: SliderTheme(
-                data: mainSliderTheme,
+                data: mainSliderTheme.copyWith(
+                  thumbColor: focusTheme.colorScheme.inversePrimary,
+                ),
                 child: ValueListenableBuilder(
                   valueListenable: startEnd,
                   builder: (_, currentStartEnd, __) {
