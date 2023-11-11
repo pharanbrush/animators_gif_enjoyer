@@ -185,10 +185,11 @@ class MainSlider extends StatelessWidget {
 
             return SliderTheme(
               data: SliderThemeData(
+                thumbColor: Theme.of(context).colorScheme.secondary,
                 trackHeight: enabled ? 10 : 2,
                 thumbShape: const RoundSliderThumbShape(
                   disabledThumbRadius: 0,
-                  elevation: 0,
+                  elevation: 2,
                 ),
               ),
               child: SizedBox(
