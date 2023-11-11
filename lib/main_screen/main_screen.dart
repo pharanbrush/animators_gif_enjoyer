@@ -4,6 +4,7 @@ import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
 import 'package:animators_gif_enjoyer/interface/shortcuts.dart';
 import 'package:animators_gif_enjoyer/main.dart';
 import 'package:animators_gif_enjoyer/main_screen/main_screen_widgets.dart';
+import 'package:animators_gif_enjoyer/main_screen/theme.dart';
 import 'package:animators_gif_enjoyer/phlutter/image_drop_target.dart';
 import 'package:animators_gif_enjoyer/phlutter/modal_panel.dart';
 import 'package:animators_gif_enjoyer/utils/download_file.dart';
@@ -13,8 +14,6 @@ import 'package:animators_gif_enjoyer/utils/phclipboard.dart' as phclipboard;
 import 'package:animators_gif_enjoyer/utils/value_notifier_extensions.dart';
 import 'package:flutter/material.dart';
 
-const Color interfaceColor = Colors.deepPurple; //Colors.blue;
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -23,14 +22,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: appName,
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        scaffoldBackgroundColor: Colors.white,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: interfaceColor,
-          scrim: const Color(0xDD000000),
-        ),
-        useMaterial3: true,
-      ),
+      theme: getEnjoyerTheme(),
       home: const MyHomePage(title: appName),
     );
   }
@@ -296,7 +288,7 @@ class _MyHomePageState extends State<MyHomePage>
                 Tooltip(
                   message: 'Open GIF file...\n'
                       'Or use ${Phshortcuts.shortcutString(Phshortcuts.pasteAndGo)} to paste a link to a GIF.',
-                  child: IconButton.filled(
+                  child: IconButton(
                     onPressed: () => openNewFile(),
                     icon: const Icon(Icons.file_open_outlined),
                   ),

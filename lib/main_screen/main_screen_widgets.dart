@@ -1,12 +1,7 @@
 import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
+import 'package:animators_gif_enjoyer/main_screen/theme.dart';
 import 'package:contextual_menu/contextual_menu.dart';
 import 'package:flutter/material.dart';
-
-const grayColor = Color(0x55000000);
-const grayStyle = TextStyle(color: grayColor);
-const double smallTextSize = 12;
-const smallGrayStyle = TextStyle(color: grayColor, fontSize: smallTextSize);
-const MaterialColor focusRangeColor = Colors.green;
 
 class GifViewContainer extends StatelessWidget {
   GifViewContainer({
@@ -69,10 +64,6 @@ class FrameRangeSlider extends StatelessWidget {
       disabledThumbRadius: 3,
       enabledThumbRadius: 4,
     ),
-  );
-
-  static final focusTheme = ThemeData(
-    colorScheme: ColorScheme.fromSeed(seedColor: focusRangeColor),
   );
 
   @override
@@ -194,7 +185,7 @@ class MainSlider extends StatelessWidget {
 
             return SliderTheme(
               data: SliderThemeData(
-                trackHeight: enabled ? 12 : 2,
+                trackHeight: enabled ? 10 : 2,
                 thumbShape: const RoundSliderThumbShape(
                   disabledThumbRadius: 0,
                   elevation: 0,
