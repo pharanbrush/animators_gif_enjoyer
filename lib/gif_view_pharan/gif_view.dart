@@ -198,9 +198,9 @@ class GifView extends StatefulWidget {
   final ValueChanged<Object?>? onError;
 
   /// The widget shown while the image data is still being loaded or processed.
-  final Widget? loadingWidget;
-  final bool useLoadingFadeAnimation;
-  final Duration? loadingFadeDuration;
+  // final Widget? loadingWidget;
+  // final bool useLoadingFadeAnimation;
+  // final Duration? loadingFadeDuration;
 
   GifView.network(
     String url, {
@@ -220,9 +220,9 @@ class GifView extends StatefulWidget {
     this.filterQuality = FilterQuality.low,
     this.isAntiAlias = false,
     this.onError,
-    this.loadingWidget,
-    this.useLoadingFadeAnimation = true,
-    this.loadingFadeDuration,
+    // this.loadingWidget,
+    // this.useLoadingFadeAnimation = true,
+    // this.loadingFadeDuration,
     double scale = 1.0,
     Map<String, String>? headers,
   }) : image = NetworkImage(url, scale: scale, headers: headers);
@@ -245,9 +245,9 @@ class GifView extends StatefulWidget {
     this.filterQuality = FilterQuality.low,
     this.isAntiAlias = false,
     this.onError,
-    this.loadingWidget,
-    this.useLoadingFadeAnimation = true,
-    this.loadingFadeDuration,
+    // this.loadingWidget,
+    // this.useLoadingFadeAnimation = true,
+    // this.loadingFadeDuration,
     String? package,
     AssetBundle? bundle,
   }) : image = AssetImage(asset, package: package, bundle: bundle);
@@ -270,9 +270,9 @@ class GifView extends StatefulWidget {
     this.filterQuality = FilterQuality.low,
     this.isAntiAlias = false,
     this.onError,
-    this.loadingWidget,
-    this.useLoadingFadeAnimation = true,
-    this.loadingFadeDuration,
+    // this.loadingWidget,
+    // this.useLoadingFadeAnimation = true,
+    // this.loadingFadeDuration,
     double scale = 1.0,
   }) : image = MemoryImage(bytes, scale: scale);
 
@@ -294,9 +294,9 @@ class GifView extends StatefulWidget {
     this.filterQuality = FilterQuality.low,
     this.isAntiAlias = false,
     this.onError,
-    this.useLoadingFadeAnimation = true,
-    this.loadingWidget,
-    this.loadingFadeDuration,
+    //this.useLoadingFadeAnimation = true,
+    // this.loadingWidget,
+    // this.loadingFadeDuration,
   });
 
   @override
@@ -305,17 +305,17 @@ class GifView extends StatefulWidget {
 
 class GifViewState extends State<GifView> with TickerProviderStateMixin {
   late GifController controller;
-  AnimationController? _loadingFadeAnimationController;
+  //AnimationController? _loadingFadeAnimationController;
 
   @override
   void initState() {
-    if (widget.useLoadingFadeAnimation) {
-      _loadingFadeAnimationController = AnimationController(
-        vsync: this,
-        duration:
-            widget.loadingFadeDuration ?? const Duration(milliseconds: 150),
-      );
-    }
+    // if (widget.useLoadingFadeAnimation) {
+    //   _loadingFadeAnimationController = AnimationController(
+    //     vsync: this,
+    //     duration:
+    //         widget.loadingFadeDuration ?? const Duration(milliseconds: 150),
+    //   );
+    // }
     controller = widget.controller ?? GifController();
     controller.addListener(_listener);
     Future.delayed(Duration.zero, _loadImage);
@@ -336,7 +336,7 @@ class GifViewState extends State<GifView> with TickerProviderStateMixin {
       return SizedBox(
         width: widget.width,
         height: widget.height,
-        child: widget.loadingWidget,
+        child: const SizedBox.shrink(), //widget.loadingWidget,
       );
     }
 
@@ -355,7 +355,7 @@ class GifViewState extends State<GifView> with TickerProviderStateMixin {
       invertColors: widget.invertColors,
       filterQuality: widget.filterQuality,
       isAntiAlias: widget.isAntiAlias,
-      opacity: _loadingFadeAnimationController,
+      //opacity: _loadingFadeAnimationController,
     );
   }
 
@@ -366,15 +366,15 @@ class GifViewState extends State<GifView> with TickerProviderStateMixin {
       onError: widget.onError,
     );
     controller.load(frames, updateFrames: updateFrames);
-    _loadingFadeAnimationController?.forward(from: 0);
+    //_loadingFadeAnimationController?.forward(from: 0);
   }
 
   @override
   void dispose() {
     controller.stop();
     controller.removeListener(_listener);
-    _loadingFadeAnimationController?.dispose();
-    _loadingFadeAnimationController = null;
+    // _loadingFadeAnimationController?.dispose();
+    // _loadingFadeAnimationController = null;
     super.dispose();
   }
 
