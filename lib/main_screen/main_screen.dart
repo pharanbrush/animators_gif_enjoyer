@@ -429,19 +429,21 @@ class _MyHomePageState extends State<MyHomePage>
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
+                          if (isScrubMode.value) const SizedBox(width: 48),
                           Text(
                             'Custom range: ${frameCount.toInt()} frames. ~$rangeSecondsString',
                             style: const TextStyle(color: focusRangeColor),
                           ),
-                          if (isScrubMode.value)
-                            Padding(
-                              padding: const EdgeInsets.only(right: 8.0),
-                              child: IconButton(
-                                iconSize: 12,
-                                onPressed: () => toggleUseFocus(),
-                                icon: const Icon(Icons.close),
-                              ),
-                            ),
+                          isScrubMode.value
+                              ? Padding(
+                                  padding: const EdgeInsets.only(right: 8.0),
+                                  child: IconButton(
+                                    iconSize: 12,
+                                    onPressed: () => toggleUseFocus(),
+                                    icon: const Icon(Icons.close),
+                                  ),
+                                )
+                              : const SizedBox(height: 40),
                         ],
                       ),
                     ],
