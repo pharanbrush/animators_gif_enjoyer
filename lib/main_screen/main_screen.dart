@@ -78,7 +78,7 @@ class _MyHomePageState extends State<MyHomePage>
     (OpenTextMenu, (_) => bottomTextPanel.open()),
     (PasteAndGoIntent, (_) => openTextPanelAndPaste()),
     (PlayPauseIntent, (_) => togglePlayPause()),
-    (EscapeIntent, (_) => handleReturnHome()),
+    (EscapeIntent, (_) => handleEscapeIntent()),
   ];
 
   late final ModalTextPanel bottomTextPanel = ModalTextPanel(
@@ -778,8 +778,12 @@ class _MyHomePageState extends State<MyHomePage>
     );
   }
 
-  void handleReturnHome() {
+  void handleEscapeIntent() {
     if (bottomTextPanel.isOpen) return;
+    _exitApplication();
+  }
+
+  void _exitApplication() {
     //SystemChannels.platform.invokeMethod<void>('SystemNavigator.pop');
 
     // This is the dirty workaround for a nonfunctional application exit method on Flutter Windows.
