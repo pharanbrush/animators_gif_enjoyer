@@ -37,6 +37,8 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
+const bool isPlayOnLoad = true;
+
 class _MyHomePageState extends State<MyHomePage>
     with SingleTickerProviderStateMixin {
   final FocusNode mainWindowFocus = FocusNode(canRequestFocus: true);
@@ -56,7 +58,7 @@ class _MyHomePageState extends State<MyHomePage>
   final ValueNotifier<bool> isUsingFocusRange = ValueNotifier(false);
   final ValueNotifier<bool> isGifDownloading = ValueNotifier(false);
   final ValueNotifier<double> gifDownloadPercent = ValueNotifier(0.0);
-  final ValueNotifier<bool> isScrubMode = ValueNotifier(true);
+  final ValueNotifier<bool> isScrubMode = ValueNotifier(!isPlayOnLoad);
 
   bool get isGifLoaded => gifImageProvider != null;
 
@@ -486,15 +488,20 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   void togglePlayPause() {
+    setPlayMode(isScrubMode.value);
+  }
+
+  void setPlayMode(bool active) {
     if (!isGifLoaded) return;
 
-    isScrubMode.toggle();
-    if (!isScrubMode.value) {
+    isScrubMode.value = !active;
+    if (active) {
       final range = primarySliderRange;
       final int start = range.start.toInt();
       final int last = range.end.toInt();
       clampCurrentFrame();
 
+      gifAdvancer.pause();
       gifAdvancer.play(
         start: start,
         last: last,
@@ -661,9 +668,7 @@ class _MyHomePageState extends State<MyHomePage>
     ImageProvider provider,
     String source,
   ) async {
-    if (!isScrubMode.value) {
-      togglePlayPause();
-    }
+    setPlayMode(false);
 
     try {
       final isDownload = provider is NetworkImage;
@@ -691,6 +696,10 @@ class _MyHomePageState extends State<MyHomePage>
 
         if (gifImageProvider is NetworkImage) {
           popupMessage('Download complete');
+        }
+
+        if (isPlayOnLoad) {
+          setPlayMode(true);
         }
       });
     } catch (e) {
