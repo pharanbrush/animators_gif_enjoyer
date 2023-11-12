@@ -470,6 +470,7 @@ class _MyHomePageState extends State<MyHomePage>
       final range = primarySliderRange;
       final int start = range.start.toInt();
       final int last = range.end.toInt();
+      clampCurrentFrame();
 
       gifAdvancer.play(
         start: start,
