@@ -280,9 +280,17 @@ class _MyHomePageState extends State<MyHomePage>
                     valueListenable: isScrubMode,
                     builder: (_, isPausedAndScrubbing, __) {
                       return IconButton(
+                        style: const ButtonStyle(
+                          maximumSize: MaterialStatePropertyAll(
+                            Size(100, 100),
+                          ),
+                        ),
                         onPressed: () => togglePlayPause(),
-                        icon: Icon(
-                          isPausedAndScrubbing ? Icons.play_arrow : Icons.pause,
+                        icon: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                          child: Icon(
+                            isPausedAndScrubbing ? Icons.play_arrow : Icons.pause,
+                          ),
                         ),
                       );
                     },
