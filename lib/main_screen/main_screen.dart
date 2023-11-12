@@ -286,6 +286,8 @@ class _MyHomePageState extends State<MyHomePage>
                           ),
                         ),
                         onPressed: () => togglePlayPause(),
+                        tooltip:
+                            'Toggle play/pause.\nYou can also click on the gif.',
                         icon: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 15.0),
                           child: Icon(
@@ -459,7 +461,7 @@ class _MyHomePageState extends State<MyHomePage>
                                         Size(buttonSize, buttonSize),
                                       ),
                                     ),
-                                    tooltip: 'Disable focus frame range',
+                                    tooltip: 'Disable frame range',
                                     iconSize: 12,
                                     onPressed: () => toggleUseFocus(),
                                     icon: const Icon(Icons.close),
