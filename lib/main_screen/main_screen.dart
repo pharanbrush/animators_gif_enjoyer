@@ -1,3 +1,5 @@
+import 'dart:developer';
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
@@ -13,6 +15,7 @@ import 'package:animators_gif_enjoyer/utils/open_file.dart';
 import 'package:animators_gif_enjoyer/utils/phclipboard.dart' as phclipboard;
 import 'package:animators_gif_enjoyer/utils/value_notifier_extensions.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -75,6 +78,7 @@ class _MyHomePageState extends State<MyHomePage>
     (OpenTextMenu, (_) => bottomTextPanel.open()),
     (PasteAndGoIntent, (_) => openTextPanelAndPaste()),
     (PlayPauseIntent, (_) => togglePlayPause()),
+    (EscapeIntent, (_) => handleReturnHome()),
   ];
 
   late final ModalTextPanel bottomTextPanel = ModalTextPanel(
@@ -772,5 +776,15 @@ class _MyHomePageState extends State<MyHomePage>
         content: Text(message),
       ),
     );
+  }
+
+  void handleReturnHome() {
+    if (bottomTextPanel.isOpen) return;
+    //SystemChannels.platform.invokeMethod<void>('SystemNavigator.pop');
+
+    // This is the dirty workaround for a nonfunctional application exit method on Flutter Windows.
+    // For more info: https://github.com/flutter/flutter/issues/66631
+    debugger();
+    exit(0);
   }
 }
