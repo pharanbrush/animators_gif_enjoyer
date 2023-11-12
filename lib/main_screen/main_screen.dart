@@ -87,6 +87,15 @@ class _MyHomePageState extends State<MyHomePage>
     onTextSubmitted: (value) {
       tryLoadGifFromUrl(value);
     },
+    transitionBuilder: (child, animation) {
+      return SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(0, 1),
+          end: Offset.zero,
+        ).animate(animation),
+        child: child,
+      );
+    },
     textPanelBuilder: bottomTextPanelBuilder,
   );
 
@@ -104,41 +113,51 @@ class _MyHomePageState extends State<MyHomePage>
           right: 0,
           child: Material(
             type: MaterialType.canvas,
+            borderRadius: const BorderRadius.only(
+              topLeft: borderRadiusRadius,
+              topRight: borderRadiusRadius,
+            ),
             elevation: 20,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              child: Material(
-                type: MaterialType.canvas,
-                color: Theme.of(context).colorScheme.surfaceVariant,
-                borderRadius: const BorderRadius.all(Radius.circular(8)),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: textController,
-                        style: const TextStyle(fontSize: 13),
-                        decoration: const InputDecoration(
-                          hintText: 'Enter GIF link',
-                          border: OutlineInputBorder(
-                            borderSide:
-                                BorderSide(width: 0, style: BorderStyle.none),
+            child: Column(
+              children: [
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  child: Material(
+                    type: MaterialType.canvas,
+                    color: Theme.of(context).colorScheme.surfaceVariant,
+                    borderRadius: const BorderRadius.all(Radius.circular(8)),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: textController,
+                            style: const TextStyle(fontSize: 13),
+                            decoration: const InputDecoration(
+                              hintText: 'Enter GIF link',
+                              border: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                    width: 0, style: BorderStyle.none),
+                              ),
+                            ),
+                            autocorrect: false,
+                            onSubmitted: onTextFieldSubmitted,
                           ),
                         ),
-                        autocorrect: false,
-                        onSubmitted: onTextFieldSubmitted,
-                      ),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 10),
+                          child: IconButton(
+                            onPressed: onSubmitButtonPressed,
+                            icon: const Icon(Icons.send),
+                            tooltip: 'Download GIF from Link',
+                          ),
+                        )
+                      ],
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(right: 10),
-                      child: IconButton(
-                        onPressed: onSubmitButtonPressed,
-                        icon: const Icon(Icons.send),
-                        tooltip: 'Download GIF from Link',
-                      ),
-                    )
-                  ],
+                  ),
                 ),
-              ),
+                const SizedBox(height: 30),
+              ],
             ),
           ),
         ),

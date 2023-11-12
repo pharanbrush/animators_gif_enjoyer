@@ -7,8 +7,9 @@ const smallGrayStyle = TextStyle(color: grayColor, fontSize: smallTextSize);
 const Color focusRangeColor = Color.fromARGB(255, 137, 175, 76);
 
 const double borderRadius = 6;
+const Radius borderRadiusRadius = Radius.circular(borderRadius);
 const OutlinedBorder buttonShape = RoundedRectangleBorder(
-  borderRadius: BorderRadius.all(Radius.circular(borderRadius)),
+  borderRadius: BorderRadius.all(borderRadiusRadius),
 );
 
 const ButtonStyle buttonStyle = ButtonStyle(
