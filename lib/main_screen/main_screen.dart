@@ -293,7 +293,9 @@ class _MyHomePageState extends State<MyHomePage>
                         icon: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 15.0),
                           child: Icon(
-                            isPausedAndScrubbing ? Icons.play_arrow : Icons.pause,
+                            isPausedAndScrubbing
+                                ? Icons.play_arrow
+                                : Icons.pause,
                           ),
                         ),
                       );
