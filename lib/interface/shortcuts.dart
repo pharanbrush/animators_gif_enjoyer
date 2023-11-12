@@ -27,6 +27,8 @@ class Phshortcuts {
 
   static const restart = SingleActivator(LogicalKeyboardKey.keyR);
   static const openTextMenu = SingleActivator(LogicalKeyboardKey.f2);
+  static const openTextMenu2 =
+      SingleActivator(LogicalKeyboardKey.keyT, control: true);
 
   static const copy = SingleActivator(LogicalKeyboardKey.keyC, control: true);
   static const pasteAndGo = SingleActivator(
@@ -53,7 +55,7 @@ class Phshortcuts {
       SingleActivator(LogicalKeyboardKey.keyH);
   static const help = SingleActivator(LogicalKeyboardKey.f1);
 
-  static const returnHome = SingleActivator(LogicalKeyboardKey.escape);
+  static const escape = SingleActivator(LogicalKeyboardKey.escape);
 
   static const intentMap = <ShortcutActivator, Intent>{
     Phshortcuts.openFile: OpenFilesIntent(),
@@ -72,13 +74,13 @@ class Phshortcuts {
     Phshortcuts.playPause2: PlayPauseIntent(),
     Phshortcuts.openTextMenu: OpenTextMenu(),
     Phshortcuts.restart: RestartIntent(),
-    Phshortcuts.help: HelpIntent(),
-    Phshortcuts.toggleSimplifiedInterface: SimpleInterfaceToggleIntent(),
-    Phshortcuts.alwaysOnTop: AlwaysOnTopIntent(),
-    Phshortcuts.toggleSounds: ToggleSoundIntent(),
-    Phshortcuts.returnHome: ReturnHomeIntent(),
+    // Phshortcuts.help: HelpIntent(),
+    // Phshortcuts.toggleSimplifiedInterface: SimpleInterfaceToggleIntent(),
+    // Phshortcuts.alwaysOnTop: AlwaysOnTopIntent(),
+    // Phshortcuts.toggleSounds: ToggleSoundIntent(),
+    Phshortcuts.escape: EscapeIntent(),
     Phshortcuts.revealInExplorer: RevealInExplorerIntent(),
-    Phshortcuts.preferences: OpenPreferencesIntent(),
+    // Phshortcuts.preferences: OpenPreferencesIntent(),
     Phshortcuts.copy: CopyIntent(),
     Phshortcuts.pasteAndGo: PasteAndGoIntent(),
   };
@@ -92,8 +94,8 @@ class PasteAndGoIntent extends Intent {
   const PasteAndGoIntent();
 }
 
-class ReturnHomeIntent extends Intent {
-  const ReturnHomeIntent();
+class EscapeIntent extends Intent {
+  const EscapeIntent();
 }
 
 class ToggleSoundIntent extends Intent {
