@@ -408,6 +408,9 @@ class _MyHomePageState extends State<MyHomePage>
                     ? '${rangeSeconds.toStringAsFixed(2)} seconds'
                     : '';
 
+                const double buttonSize = 25;
+                const double buttonSpace = 4;
+
                 return Visibility(
                   maintainInteractivity: false,
                   maintainSemantics: false,
@@ -430,21 +433,28 @@ class _MyHomePageState extends State<MyHomePage>
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          if (isScrubMode.value) const SizedBox(width: 48),
+                          if (isScrubMode.value)
+                            const SizedBox(width: buttonSize + buttonSpace + 3),
                           Text(
                             'Custom range: ${frameCount.toInt()} frames. ~$rangeSecondsString',
                             style: const TextStyle(color: focusRangeColor),
                           ),
                           isScrubMode.value
                               ? Padding(
-                                  padding: const EdgeInsets.only(right: 8.0),
+                                  padding:
+                                      const EdgeInsets.only(left: buttonSpace),
                                   child: IconButton(
+                                    style: const ButtonStyle(
+                                      minimumSize: MaterialStatePropertyAll(
+                                        Size(buttonSize, buttonSize),
+                                      ),
+                                    ),
                                     iconSize: 12,
                                     onPressed: () => toggleUseFocus(),
                                     icon: const Icon(Icons.close),
                                   ),
                                 )
-                              : const SizedBox(height: 40),
+                              : const SizedBox(height: buttonSize + 3),
                         ],
                       ),
                     ],
