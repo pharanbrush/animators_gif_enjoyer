@@ -22,6 +22,7 @@ void main(List<String> args) async {
     minimumSize: Size.square(460),
     size: Size(500, 540),
     title: appName,
+    center: true,
   );
 
   windowManager.waitUntilReadyToShow(windowOptions, () async {
