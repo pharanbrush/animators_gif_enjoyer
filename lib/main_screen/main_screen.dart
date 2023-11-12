@@ -408,14 +408,17 @@ class _MyHomePageState extends State<MyHomePage>
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: SizedBox(
                 width: double.infinity,
-                child: MainSlider(
-                  toggleUseFocus: toggleUseFocus,
-                  primarySliderRange: primarySliderRange,
-                  isUsingFocusRange: isUsingFocusRange,
-                  currentFrame: currentFrame,
-                  gifController: gifController,
-                  enabled: isGifLoaded && isScrubMode.value,
-                  onChange: updateGifViewFrame,
+                child: GestureDetector(
+                  onTap: isScrubMode.value ? null : () => setPlayMode(false),
+                  child: MainSlider(
+                    toggleUseFocus: toggleUseFocus,
+                    primarySliderRange: primarySliderRange,
+                    isUsingFocusRange: isUsingFocusRange,
+                    currentFrame: currentFrame,
+                    gifController: gifController,
+                    enabled: isGifLoaded && isScrubMode.value,
+                    onChange: updateGifViewFrame,
+                  ),
                 ),
               ),
             ),
