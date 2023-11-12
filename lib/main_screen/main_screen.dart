@@ -15,7 +15,6 @@ import 'package:animators_gif_enjoyer/utils/open_file.dart';
 import 'package:animators_gif_enjoyer/utils/phclipboard.dart' as phclipboard;
 import 'package:animators_gif_enjoyer/utils/value_notifier_extensions.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -90,6 +89,7 @@ class _MyHomePageState extends State<MyHomePage>
     },
     textPanelBuilder: bottomTextPanelBuilder,
   );
+
   Widget bottomTextPanelBuilder(
     BuildContext context,
     TextEditingController textController,
