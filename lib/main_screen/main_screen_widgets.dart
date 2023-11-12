@@ -33,7 +33,7 @@ class GifViewContainer extends StatelessWidget {
   late final Menu menu = Menu(
     items: [
       MenuItem(
-        label: 'Open...',
+        label: 'Open GIF...',
         onClick: (_) => openImageHandler(),
       ),
       MenuItem.separator(),
