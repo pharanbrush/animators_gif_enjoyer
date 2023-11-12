@@ -379,7 +379,7 @@ class _MyHomePageState extends State<MyHomePage>
               ],
             ),
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: SizedBox(
                 width: double.infinity,
                 child: MainSlider(
