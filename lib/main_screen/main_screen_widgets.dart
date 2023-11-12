@@ -1,4 +1,5 @@
 import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
+import 'package:animators_gif_enjoyer/main_screen/main_screen.dart';
 import 'package:animators_gif_enjoyer/main_screen/theme.dart';
 import 'package:contextual_menu/contextual_menu.dart';
 import 'package:flutter/material.dart';
@@ -30,15 +31,19 @@ class GifViewContainer extends StatelessWidget {
     );
   }
 
+  String get buildName {
+    if (packageInfo == null) return 'x.x+x';
+    return '${packageInfo!.version}.${packageInfo!.buildNumber}';
+  }
+
   late final Menu menu = Menu(
     items: [
       MenuItem(
         label: 'Open GIF...',
         onClick: (_) => openImageHandler(),
       ),
-      MenuItem.separator(),
       MenuItem(
-        label: 'Paste to address bar',
+        label: 'Paste to address bar...',
         onClick: (_) => pasteHandler(),
       ),
       MenuItem.separator(),
@@ -46,6 +51,12 @@ class GifViewContainer extends StatelessWidget {
         label: 'Copy frame image',
         onClick: (_) => copyImageHandler(),
       ),
+      MenuItem.separator(),
+      if (packageInfo != null)
+        MenuItem(
+          label: 'Build $buildName',
+          disabled: true,
+        )
     ],
   );
 }

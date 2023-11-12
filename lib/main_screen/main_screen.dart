@@ -15,6 +15,9 @@ import 'package:animators_gif_enjoyer/utils/open_file.dart';
 import 'package:animators_gif_enjoyer/utils/phclipboard.dart' as phclipboard;
 import 'package:animators_gif_enjoyer/utils/value_notifier_extensions.dart';
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+
+PackageInfo? packageInfo;
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -182,6 +185,12 @@ class _MyHomePageState extends State<MyHomePage>
 
     tryLoadFromWindowsOpenWith();
     onSecondWindow = () => tryLoadFromWindowsOpenWith();
+
+    tryGetPackageInfo();
+  }
+
+  void tryGetPackageInfo() async {
+    packageInfo = await PackageInfo.fromPlatform();
   }
 
   void tryLoadFromWindowsOpenWith() {
