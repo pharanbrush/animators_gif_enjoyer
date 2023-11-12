@@ -9,11 +9,15 @@ class GifViewContainer extends StatelessWidget {
     required this.gifImageProvider,
     required this.gifController,
     required this.copyImageHandler,
+    required this.openImageHandler,
+    required this.pasteHandler,
   });
 
   final ImageProvider<Object>? gifImageProvider;
   final GifController gifController;
   final VoidCallback copyImageHandler;
+  final VoidCallback openImageHandler;
+  final VoidCallback pasteHandler;
 
   @override
   Widget build(BuildContext context) {
@@ -29,11 +33,19 @@ class GifViewContainer extends StatelessWidget {
   late final Menu menu = Menu(
     items: [
       MenuItem(
+        label: 'Open...',
+        onClick: (_) => openImageHandler(),
+      ),
+      MenuItem.separator(),
+      MenuItem(
+        label: 'Paste to address bar',
+        onClick: (_) => pasteHandler(),
+      ),
+      MenuItem.separator(),
+      MenuItem(
         label: 'Copy frame image',
         onClick: (_) => copyImageHandler(),
       ),
-      MenuItem.separator(),
-      MenuItem(label: 'Bunger', disabled: true),
     ],
   );
 }

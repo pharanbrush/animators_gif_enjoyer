@@ -71,7 +71,7 @@ class _MyHomePageState extends State<MyHomePage>
     (NextIntent, (_) => incrementFrame(1)),
     (CopyIntent, (_) => tryCopyFrameToClipboard()),
     (OpenTextMenu, (_) => bottomTextPanel.open()),
-    (PasteAndGoIntent, (_) => textPanelOpenAndPaste()),
+    (PasteAndGoIntent, (_) => openTextPanelAndPaste()),
     (PlayPauseIntent, (_) => togglePlayPause()),
   ];
 
@@ -348,6 +348,8 @@ class _MyHomePageState extends State<MyHomePage>
                   gifImageProvider: gifImageProvider,
                   gifController: gifController,
                   copyImageHandler: () => tryCopyFrameToClipboard(),
+                  openImageHandler: () => openNewFile(),
+                  pasteHandler: () => openTextPanelAndPaste(),
                 ),
               ),
             ),
@@ -492,7 +494,7 @@ class _MyHomePageState extends State<MyHomePage>
     }
   }
 
-  void textPanelOpenAndPaste() async {
+  void openTextPanelAndPaste() async {
     final pastedText = await phclipboard.getStringFromClipboard();
     if (pastedText != null) {
       bottomTextPanel.openWithText(pastedText);
