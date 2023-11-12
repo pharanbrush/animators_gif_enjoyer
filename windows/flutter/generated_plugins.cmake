@@ -10,6 +10,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   screen_retriever
   super_native_extensions
   window_manager
+  windows_single_instance
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST

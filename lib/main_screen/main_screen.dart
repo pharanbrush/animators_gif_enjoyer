@@ -157,6 +157,11 @@ class _MyHomePageState extends State<MyHomePage>
 
     super.initState();
 
+    tryLoadFromWindowsOpenWith();
+    onSecondWindow = () => tryLoadFromWindowsOpenWith();
+  }
+
+  void tryLoadFromWindowsOpenWith() {
     if (fileToLoadFromMainArgs.isNotEmpty) {
       try {
         tryLoadGifFromFilePath(fileToLoadFromMainArgs);
