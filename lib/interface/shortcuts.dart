@@ -23,6 +23,8 @@ class Phshortcuts {
   static const next5 = SingleActivator(LogicalKeyboardKey.navigateNext);
 
   static const playPause = SingleActivator(LogicalKeyboardKey.keyP);
+  static const playPause2 = SingleActivator(LogicalKeyboardKey.space);
+
   static const restart = SingleActivator(LogicalKeyboardKey.keyR);
   static const openTextMenu = SingleActivator(LogicalKeyboardKey.f2);
 
@@ -67,6 +69,7 @@ class Phshortcuts {
     Phshortcuts.previous5: PreviousIntent(),
     Phshortcuts.next5: NextIntent(),
     Phshortcuts.playPause: PlayPauseIntent(),
+    Phshortcuts.playPause2: PlayPauseIntent(),
     Phshortcuts.openTextMenu: OpenTextMenu(),
     Phshortcuts.restart: RestartIntent(),
     Phshortcuts.help: HelpIntent(),

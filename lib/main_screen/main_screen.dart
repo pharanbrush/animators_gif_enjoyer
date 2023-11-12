@@ -71,6 +71,7 @@ class _MyHomePageState extends State<MyHomePage>
     (CopyIntent, (_) => tryCopyFrameToClipboard()),
     (OpenTextMenu, (_) => bottomTextPanel.open()),
     (PasteAndGoIntent, (_) => textPanelOpenAndPaste()),
+    (PlayPauseIntent, (_) => togglePlayPause()),
   ];
 
   late final ModalTextPanel bottomTextPanel = ModalTextPanel(
