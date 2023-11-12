@@ -60,9 +60,10 @@ class _MyHomePageState extends State<MyHomePage>
 
   bool get isGifLoaded => gifImageProvider != null;
 
-  RangeValues get primarySliderRange => isUsingFocusRange.value
-      ? focusFrameRange.value
-      : RangeValues(0, maxFrameIndex.value.toDouble());
+  RangeValues get fullFrameRange =>
+      RangeValues(0, maxFrameIndex.value.toDouble());
+  RangeValues get primarySliderRange =>
+      isUsingFocusRange.value ? focusFrameRange.value : fullFrameRange;
 
   final Map<Type, Action<Intent>> shortcutActions = {};
   late List<(Type, Object? Function(Intent))> shortcutIntentActions = [
@@ -514,6 +515,12 @@ class _MyHomePageState extends State<MyHomePage>
   void toggleUseFocus() {
     setState(() {
       clampFocusRange();
+
+      bool willSwitchToFocused = !isUsingFocusRange.value;
+      final nextRange =
+          willSwitchToFocused ? focusFrameRange.value : fullFrameRange;
+      clampCurrentFrameWithRange(nextRange);
+
       isUsingFocusRange.toggle();
     });
   }
@@ -531,6 +538,12 @@ class _MyHomePageState extends State<MyHomePage>
     if (maxValue > lastFrameIndex) maxValue = lastFrameIndex;
 
     focusFrameRange.value = RangeValues(minValue, maxValue);
+  }
+
+  void clampCurrentFrameWithRange(RangeValues range) {
+    currentFrame.value =
+        clampDouble(currentFrame.value.toDouble(), range.start, range.end)
+            .toInt();
   }
 
   void clampCurrentFrame() {
