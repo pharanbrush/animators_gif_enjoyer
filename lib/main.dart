@@ -7,7 +7,6 @@ const appName = "Animator's GIF Enjoyer Deluxe";
 const appWindowIdentifier = 'animators_gif_enjoyer';
 
 String fileToLoadFromMainArgs = '';
-
 Function()? onSecondWindow;
 
 void main(List<String> args) async {
