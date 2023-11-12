@@ -459,6 +459,7 @@ class _MyHomePageState extends State<MyHomePage>
                                         Size(buttonSize, buttonSize),
                                       ),
                                     ),
+                                    tooltip: 'Disable focus frame range',
                                     iconSize: 12,
                                     onPressed: () => toggleUseFocus(),
                                     icon: const Icon(Icons.close),
