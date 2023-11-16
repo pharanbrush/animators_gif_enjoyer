@@ -17,7 +17,6 @@ import 'package:animators_gif_enjoyer/utils/phclipboard.dart' as phclipboard;
 import 'package:animators_gif_enjoyer/utils/value_notifier_extensions.dart';
 import 'package:contextual_menu/contextual_menu.dart';
 import 'package:flutter/material.dart';
-//import 'package:package_info_plus/package_info_plus.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
