@@ -1,6 +1,5 @@
 import 'dart:developer';
 import 'dart:io';
-import 'dart:ui';
 
 import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
 import 'package:animators_gif_enjoyer/interface/shortcuts.dart';
@@ -16,6 +15,7 @@ import 'package:animators_gif_enjoyer/utils/open_file.dart';
 import 'package:animators_gif_enjoyer/utils/phclipboard.dart' as phclipboard;
 import 'package:animators_gif_enjoyer/phlutter/value_notifier_extensions.dart';
 import 'package:contextual_menu/contextual_menu.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class MyApp extends StatelessWidget {
@@ -531,28 +531,9 @@ class _MyHomePageState extends State<MyHomePage>
               spacing: 8,
               children: [
                 if (isGifLoaded)
-                  ValueListenableBuilder(
-                    valueListenable: isScrubMode,
-                    builder: (_, isPausedAndScrubbing, __) {
-                      return IconButton(
-                        style: const ButtonStyle(
-                          maximumSize: MaterialStatePropertyAll(
-                            Size(100, 100),
-                          ),
-                        ),
-                        onPressed: () => togglePlayPause(),
-                        tooltip:
-                            'Toggle play/pause.\nYou can also click on the gif.',
-                        icon: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                          child: Icon(
-                            isPausedAndScrubbing
-                                ? Icons.play_arrow
-                                : Icons.pause,
-                          ),
-                        ),
-                      );
-                    },
+                  BottomPlayPauseButton(
+                    isScrubMode: isScrubMode,
+                    onPressed: () => togglePlayPause(),
                   ),
                 Tooltip(
                   message: 'Open GIF file...\n'

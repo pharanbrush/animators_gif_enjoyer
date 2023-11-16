@@ -3,6 +3,7 @@ import 'package:animators_gif_enjoyer/main_screen/theme.dart';
 import 'package:animators_gif_enjoyer/utils/build_info.dart';
 import 'package:animators_gif_enjoyer/utils/preferences.dart';
 import 'package:contextual_menu/contextual_menu.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class GifViewContainer extends StatelessWidget {
@@ -57,6 +58,39 @@ class GifViewContainer extends StatelessWidget {
             disabled: true,
           )
       ],
+    );
+  }
+}
+
+class BottomPlayPauseButton extends StatelessWidget {
+  const BottomPlayPauseButton({
+    super.key,
+    required this.isScrubMode,
+    this.onPressed,
+  });
+
+  final ValueListenable<bool> isScrubMode;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder(
+      valueListenable: isScrubMode,
+      builder: (_, isPausedAndScrubbing, __) {
+        return IconButton(
+          style: const ButtonStyle(
+            maximumSize: MaterialStatePropertyAll(Size(100, 100)),
+          ),
+          onPressed: onPressed,
+          tooltip: 'Toggle play/pause.\nYou can also click on the gif.',
+          icon: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15.0),
+            child: Icon(
+              isPausedAndScrubbing ? Icons.play_arrow : Icons.pause,
+            ),
+          ),
+        );
+      },
     );
   }
 }
