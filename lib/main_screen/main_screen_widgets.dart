@@ -86,6 +86,7 @@ class BottomPlayPauseButton extends StatelessWidget {
           icon: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15.0),
             child: Icon(
+              color: Theme.of(context).colorScheme.mutedSurfaceColor,
               isPausedAndScrubbing ? Icons.play_arrow : Icons.pause,
             ),
           ),

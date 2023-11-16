@@ -37,7 +37,7 @@ class MyApp extends StatelessWidget {
               title: appName,
               debugShowCheckedModeBanner: false,
               theme: getEnjoyerTheme(),
-              darkTheme: getEnjoyerThemeDark(),
+              darkTheme: getPhriendsTheme(),
               themeMode: themeMode,
               home: const MyHomePage(title: appName),
             );
@@ -540,6 +540,7 @@ class _MyHomePageState extends State<MyHomePage>
                       'Or use ${Phshortcuts.shortcutString(Phshortcuts.pasteAndGo)} to paste a link to a GIF.',
                   child: IconButton(
                     onPressed: () => openNewFile(),
+                    color: Theme.of(context).colorScheme.mutedSurfaceColor,
                     icon: const Icon(Icons.file_open_outlined),
                   ),
                 ),

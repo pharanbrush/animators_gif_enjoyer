@@ -29,7 +29,8 @@ ThemeData paleButtonTheme = ThemeData(
 );
 
 extension EnjoyerColorExtensions on ColorScheme {
-  Color get grayColor => onSurface.withAlpha(0x55);
+  Color get grayColor => onSurface.withAlpha(0x66);
+  Color get mutedSurfaceColor => onSurface.withAlpha(0x99);
 }
 
 extension EnjoyerThemeExtensions on ThemeData {
@@ -44,6 +45,26 @@ ThemeData getEnjoyerTheme() {
   return ThemeData(
     scaffoldBackgroundColor: Colors.white,
     colorScheme: ColorScheme.fromSeed(
+      seedColor: interfaceColor,
+      primary: interfaceColor,
+      scrim: const Color(0xDD000000),
+    ),
+    textButtonTheme: const TextButtonThemeData(style: buttonStyle),
+    iconButtonTheme: const IconButtonThemeData(style: buttonStyle),
+    buttonTheme: const ButtonThemeData(shape: buttonShape),
+    useMaterial3: true,
+  );
+}
+
+ThemeData getPhriendsTheme() {
+  const Color interfaceColor = Color(0xFF5865F2);
+  //const Color panelBackground = Color(0xFF2B2D31);
+  const Color appBackground = Color(0xFF313338);
+
+  return ThemeData(
+    scaffoldBackgroundColor: appBackground,
+    colorScheme: ColorScheme.fromSeed(
+      brightness: Brightness.dark,
       seedColor: interfaceColor,
       primary: interfaceColor,
       scrim: const Color(0xDD000000),
