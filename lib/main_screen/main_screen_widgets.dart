@@ -1,6 +1,6 @@
 import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
-import 'package:animators_gif_enjoyer/main_screen/main_screen.dart';
 import 'package:animators_gif_enjoyer/main_screen/theme.dart';
+import 'package:animators_gif_enjoyer/utils/build_info.dart';
 import 'package:contextual_menu/contextual_menu.dart';
 import 'package:flutter/material.dart';
 
@@ -29,11 +29,6 @@ class GifViewContainer extends StatelessWidget {
         controller: gifController,
       ),
     );
-  }
-
-  String get buildName {
-    if (packageInfo == null) return 'x.x+x';
-    return '${packageInfo!.version}.${packageInfo!.buildNumber}';
   }
 
   late final Menu menu = Menu(

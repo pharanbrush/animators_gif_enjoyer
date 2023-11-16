@@ -9,15 +9,14 @@ import 'package:animators_gif_enjoyer/main_screen/main_screen_widgets.dart';
 import 'package:animators_gif_enjoyer/main_screen/theme.dart';
 import 'package:animators_gif_enjoyer/phlutter/image_drop_target.dart';
 import 'package:animators_gif_enjoyer/phlutter/modal_panel.dart';
+import 'package:animators_gif_enjoyer/utils/build_info.dart';
 import 'package:animators_gif_enjoyer/utils/download_file.dart';
 import 'package:animators_gif_enjoyer/utils/gif_frame_advancer.dart';
 import 'package:animators_gif_enjoyer/utils/open_file.dart';
 import 'package:animators_gif_enjoyer/utils/phclipboard.dart' as phclipboard;
 import 'package:animators_gif_enjoyer/utils/value_notifier_extensions.dart';
 import 'package:flutter/material.dart';
-import 'package:package_info_plus/package_info_plus.dart';
-
-PackageInfo? packageInfo;
+//import 'package:package_info_plus/package_info_plus.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -191,7 +190,7 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   void tryGetPackageInfo() async {
-    packageInfo = await PackageInfo.fromPlatform();
+    initializePackageInfo();
   }
 
   void tryLoadFromWindowsOpenWith() {
