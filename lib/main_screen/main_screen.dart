@@ -28,6 +28,7 @@ class MyApp extends StatelessWidget {
       title: appName,
       debugShowCheckedModeBanner: false,
       theme: getEnjoyerTheme(),
+      darkTheme: getEnjoyerThemeDark(),
       home: const MyHomePage(title: appName),
     );
   }
@@ -305,7 +306,7 @@ class _MyHomePageState extends State<MyHomePage>
                 getFramerateTooltip(),
                 Text(
                   getFramerateLabel(),
-                  style: smallGrayStyle,
+                  style: Theme.of(context).smallGrayStyle,
                 ),
               ],
             ),
@@ -410,8 +411,9 @@ class _MyHomePageState extends State<MyHomePage>
                   valueListenable: currentFrame,
                   builder: (_, currentFrameValue, __) {
                     final bigStyle = Theme.of(context).textTheme.headlineMedium;
-                    final bigStyleGray =
-                        bigStyle?.copyWith(color: grayColor) ?? grayStyle;
+                    final bigStyleGray = bigStyle?.copyWith(
+                            color: Theme.of(context).colorScheme.grayColor) ??
+                        Theme.of(context).grayStyle;
 
                     final separator = Text(' - ', style: bigStyleGray);
 
@@ -429,7 +431,7 @@ class _MyHomePageState extends State<MyHomePage>
                     );
                   },
                 ),
-                const Text('frame', style: smallGrayStyle)
+                Text('frame', style: Theme.of(context).smallGrayStyle)
               ],
             ),
             Padding(
@@ -658,10 +660,10 @@ class _MyHomePageState extends State<MyHomePage>
 
     return Tooltip(
       message: message,
-      child: const Icon(
+      child: Icon(
         Icons.info_outline,
         size: 13,
-        color: Color(0x33000000),
+        color: Theme.of(context).colorScheme.grayColor,
       ),
     );
   }

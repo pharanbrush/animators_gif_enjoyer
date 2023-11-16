@@ -95,7 +95,7 @@ class FrameRangeSlider extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 30),
       child: Row(
         children: [
-          const Text('0', style: smallGrayStyle),
+          Text('0', style: Theme.of(context).smallGrayStyle),
           Expanded(
             child: Theme(
               data: focusTheme,
@@ -139,7 +139,8 @@ class FrameRangeSlider extends StatelessWidget {
               ),
             ),
           ),
-          Text('${maxFrameIndex.value}', style: smallGrayStyle),
+          Text('${maxFrameIndex.value}',
+              style: Theme.of(context).smallGrayStyle),
         ],
       ),
     );
@@ -274,7 +275,7 @@ class ToggleFocusButton extends StatelessWidget {
         onPressed: enabled ? handleToggle : null,
         child: Text(
           label,
-          style: isFocusing ? customFocusStyle : grayStyle,
+          style: isFocusing ? customFocusStyle : Theme.of(context).grayStyle,
         ),
       ),
     );
