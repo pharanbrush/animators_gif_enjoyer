@@ -23,12 +23,32 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: appName,
-      debugShowCheckedModeBanner: false,
-      theme: getEnjoyerTheme(),
-      darkTheme: getEnjoyerThemeDark(),
-      home: const MyHomePage(title: appName),
+    return ThemeContext(
+      child: Builder(
+        builder: (context) {
+          Widget app(ThemeMode themeMode) {
+            return MaterialApp(
+              title: appName,
+              debugShowCheckedModeBanner: false,
+              theme: getEnjoyerTheme(),
+              darkTheme: getEnjoyerThemeDark(),
+              themeMode: ThemeMode.system,
+              home: const MyHomePage(title: appName),
+            );
+          }
+
+          ThemeContext? themeContext = ThemeContext.of(context);
+
+          if (themeContext == null) {
+            return app(ThemeMode.system);
+          }
+
+          return ValueListenableBuilder(
+            valueListenable: themeContext.themeMode,
+            builder: (_, themeModeValue, ___) => app(themeModeValue),
+          );
+        },
+      ),
     );
   }
 }
@@ -366,6 +386,8 @@ class _MyHomePageState extends State<MyHomePage>
             label: 'Paste to address bar...',
             onClick: (_) => openTextPanelAndPaste(),
           ),
+          MenuItem.separator(),
+          themeSubmenu(context),
           MenuItem.separator(),
           if (packageInfo != null)
             MenuItem(

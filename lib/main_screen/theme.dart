@@ -57,7 +57,7 @@ ThemeData getEnjoyerTheme() {
 
 ThemeData getEnjoyerThemeDark() {
   const Color interfaceColor = Color.fromARGB(255, 107, 152, 204);
-  const Color darkBackground = Color(0xFF111111);
+  const Color darkBackground = Color(0xFF161616);
 
   return ThemeData(
     scaffoldBackgroundColor: darkBackground,
@@ -72,4 +72,22 @@ ThemeData getEnjoyerThemeDark() {
     buttonTheme: const ButtonThemeData(shape: buttonShape),
     useMaterial3: true,
   );
+}
+
+class ThemeContext extends InheritedWidget {
+  ThemeContext({
+    super.key,
+    required super.child,
+  });
+
+  final ValueNotifier<ThemeMode> themeMode = ValueNotifier(ThemeMode.system);
+
+  static ThemeContext? of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<ThemeContext>();
+  }
+
+  @override
+  bool updateShouldNotify(ThemeContext oldWidget) {
+    return false;
+  }
 }

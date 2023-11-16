@@ -5,7 +5,7 @@ import 'package:contextual_menu/contextual_menu.dart';
 import 'package:flutter/material.dart';
 
 class GifViewContainer extends StatelessWidget {
-  GifViewContainer({
+  const GifViewContainer({
     super.key,
     required this.gifImageProvider,
     required this.gifController,
@@ -23,7 +23,7 @@ class GifViewContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onSecondaryTap: () => popUpContextualMenu(menu),
+      onSecondaryTap: () => popUpContextualMenu(menu(context)),
       child: GifView(
         image: gifImageProvider!,
         controller: gifController,
@@ -31,29 +31,33 @@ class GifViewContainer extends StatelessWidget {
     );
   }
 
-  late final Menu menu = Menu(
-    items: [
-      MenuItem(
-        label: 'Open GIF...',
-        onClick: (_) => openImageHandler(),
-      ),
-      MenuItem(
-        label: 'Paste to address bar...',
-        onClick: (_) => pasteHandler(),
-      ),
-      MenuItem.separator(),
-      MenuItem(
-        label: 'Copy frame image',
-        onClick: (_) => copyImageHandler(),
-      ),
-      MenuItem.separator(),
-      if (packageInfo != null)
+  Menu menu(BuildContext context) {
+    return Menu(
+      items: [
         MenuItem(
-          label: 'Build $buildName',
-          disabled: true,
-        )
-    ],
-  );
+          label: 'Open GIF...',
+          onClick: (_) => openImageHandler(),
+        ),
+        MenuItem(
+          label: 'Paste to address bar...',
+          onClick: (_) => pasteHandler(),
+        ),
+        MenuItem.separator(),
+        MenuItem(
+          label: 'Copy frame image',
+          onClick: (_) => copyImageHandler(),
+        ),
+        MenuItem.separator(),
+        themeSubmenu(context),
+        MenuItem.separator(),
+        if (packageInfo != null)
+          MenuItem(
+            label: 'Build $buildName',
+            disabled: true,
+          )
+      ],
+    );
+  }
 }
 
 class FrameRangeSlider extends StatelessWidget {
@@ -282,4 +286,42 @@ extension RangeValuesExtensions on RangeValues {
   int get startInt => start.toInt();
 
   double get rangeSize => end - start;
+}
+
+MenuItem themeSubmenu(BuildContext context) {
+  ThemeContext? themeContext = ThemeContext.of(context);
+  if (themeContext == null) {
+    return MenuItem(
+      label: 'Themes',
+      disabled: true,
+    );
+  }
+
+  final themeModeNotifier = themeContext.themeMode;
+
+  final themeMode = themeModeNotifier.value;
+
+  return MenuItem.submenu(
+    label: 'Theme',
+    submenu: Menu(
+      items: [
+        MenuItem.checkbox(
+          checked: themeMode == ThemeMode.light,
+          label: 'Light',
+          onClick: (menuItem) => themeModeNotifier.value = ThemeMode.light,
+        ),
+        MenuItem.checkbox(
+          checked: themeMode == ThemeMode.dark,
+          label: 'Dark',
+          onClick: (menuItem) => themeModeNotifier.value = ThemeMode.dark,
+        ),
+        MenuItem.separator(),
+        MenuItem.checkbox(
+          checked: themeMode == ThemeMode.system,
+          label: 'System',
+          onClick: (menuItem) => themeModeNotifier.value = ThemeMode.system,
+        ),
+      ],
+    ),
+  );
 }
