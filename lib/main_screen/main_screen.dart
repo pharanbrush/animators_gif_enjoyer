@@ -292,7 +292,7 @@ class _MyHomePageState extends State<MyHomePage>
     );
   }
 
-  SizedBox bottomBarWidget() {
+  Widget bottomBarWidget() {
     return SizedBox(
       child: Padding(
         padding: const EdgeInsets.all(4.0),
