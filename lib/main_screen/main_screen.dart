@@ -14,7 +14,7 @@ import 'package:animators_gif_enjoyer/utils/download_file.dart';
 import 'package:animators_gif_enjoyer/utils/gif_frame_advancer.dart';
 import 'package:animators_gif_enjoyer/utils/open_file.dart';
 import 'package:animators_gif_enjoyer/utils/phclipboard.dart' as phclipboard;
-import 'package:animators_gif_enjoyer/utils/value_notifier_extensions.dart';
+import 'package:animators_gif_enjoyer/phlutter/value_notifier_extensions.dart';
 import 'package:contextual_menu/contextual_menu.dart';
 import 'package:flutter/material.dart';
 
