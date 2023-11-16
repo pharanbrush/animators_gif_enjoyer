@@ -1,6 +1,7 @@
 import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
 import 'package:animators_gif_enjoyer/main_screen/theme.dart';
 import 'package:animators_gif_enjoyer/utils/build_info.dart';
+import 'package:animators_gif_enjoyer/utils/preferences.dart';
 import 'package:contextual_menu/contextual_menu.dart';
 import 'package:flutter/material.dart';
 
@@ -288,6 +289,13 @@ extension RangeValuesExtensions on RangeValues {
   double get rangeSize => end - start;
 }
 
+final List<(String label, ThemeMode themeMode)> itemsData = [
+  ('Light', ThemeMode.light),
+  ('Dark', ThemeMode.dark),
+  ('-', ThemeMode.system),
+  ('System', ThemeMode.system),
+];
+
 MenuItem themeSubmenu(BuildContext context) {
   ThemeContext? themeContext = ThemeContext.of(context);
   if (themeContext == null) {
@@ -301,27 +309,24 @@ MenuItem themeSubmenu(BuildContext context) {
 
   final themeMode = themeModeNotifier.value;
 
-  return MenuItem.submenu(
-    label: 'Theme',
-    submenu: Menu(
-      items: [
-        MenuItem.checkbox(
-          checked: themeMode == ThemeMode.light,
-          label: 'Light',
-          onClick: (menuItem) => themeModeNotifier.value = ThemeMode.light,
-        ),
-        MenuItem.checkbox(
-          checked: themeMode == ThemeMode.dark,
-          label: 'Dark',
-          onClick: (menuItem) => themeModeNotifier.value = ThemeMode.dark,
-        ),
-        MenuItem.separator(),
-        MenuItem.checkbox(
-          checked: themeMode == ThemeMode.system,
-          label: 'System',
-          onClick: (menuItem) => themeModeNotifier.value = ThemeMode.system,
-        ),
-      ],
-    ),
-  );
+  MenuItem mapper(e) {
+    var (label, itemMode) = e;
+    switch (label) {
+      case '-':
+        return MenuItem.separator();
+      default:
+        return MenuItem.checkbox(
+          checked: themeMode == itemMode,
+          label: label,
+          onClick: (_) {
+            themeModeNotifier.value = itemMode;
+            storeThemePreference(itemMode);
+          },
+        );
+    }
+  }
+
+  final menuItems = itemsData.map(mapper).toList(growable: false);
+
+  return MenuItem.submenu(label: 'Theme', submenu: Menu(items: menuItems));
 }

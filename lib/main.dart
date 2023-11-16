@@ -1,4 +1,5 @@
 import 'package:animators_gif_enjoyer/main_screen/main_screen.dart';
+import 'package:animators_gif_enjoyer/utils/preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:windows_single_instance/windows_single_instance.dart';
@@ -40,5 +41,9 @@ void main(List<String> args) async {
     },
   );
 
-  runApp(const MyApp());
+  final initialThemeMode = await getThemeMode();
+
+  runApp(
+    MyApp(initialThemeMode: initialThemeMode),
+  );
 }

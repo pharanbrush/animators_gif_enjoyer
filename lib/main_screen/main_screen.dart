@@ -19,11 +19,17 @@ import 'package:contextual_menu/contextual_menu.dart';
 import 'package:flutter/material.dart';
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({
+    super.key,
+    this.initialThemeMode,
+  });
+
+  final ThemeMode? initialThemeMode;
 
   @override
   Widget build(BuildContext context) {
     return ThemeContext(
+      initialThemeMode: initialThemeMode ?? defaultThemeMode,
       child: Builder(
         builder: (context) {
           Widget app(ThemeMode themeMode) {

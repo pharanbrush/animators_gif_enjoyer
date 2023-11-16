@@ -74,13 +74,16 @@ ThemeData getEnjoyerThemeDark() {
   );
 }
 
+const defaultThemeMode = ThemeMode.light;
+
 class ThemeContext extends InheritedWidget {
   ThemeContext({
     super.key,
     required super.child,
-  });
+    required ThemeMode initialThemeMode,
+  }) : themeMode = ValueNotifier(initialThemeMode);
 
-  final ValueNotifier<ThemeMode> themeMode = ValueNotifier(ThemeMode.system);
+  final ValueNotifier<ThemeMode> themeMode;
 
   static ThemeContext? of(BuildContext context) {
     return context.dependOnInheritedWidgetOfExactType<ThemeContext>();
