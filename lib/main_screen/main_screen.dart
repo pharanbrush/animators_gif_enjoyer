@@ -189,6 +189,10 @@ class _MyHomePageState extends State<MyHomePage>
     );
   }
 
+  //
+  //  Lifecycle
+  //
+
   @override
   void initState() {
     gifAdvancer = GifFrameAdvancer(
@@ -204,24 +208,20 @@ class _MyHomePageState extends State<MyHomePage>
 
     super.initState();
 
+    void tryLoadFromWindowsOpenWith() {
+      if (fileToLoadFromMainArgs.isNotEmpty) {
+        try {
+          tryLoadGifFromFilePath(fileToLoadFromMainArgs);
+        } finally {
+          fileToLoadFromMainArgs = '';
+        }
+      }
+    }
+
     tryLoadFromWindowsOpenWith();
     onSecondWindow = () => tryLoadFromWindowsOpenWith();
 
-    tryGetPackageInfo();
-  }
-
-  void tryGetPackageInfo() async {
     initializePackageInfo();
-  }
-
-  void tryLoadFromWindowsOpenWith() {
-    if (fileToLoadFromMainArgs.isNotEmpty) {
-      try {
-        tryLoadGifFromFilePath(fileToLoadFromMainArgs);
-      } finally {
-        fileToLoadFromMainArgs = '';
-      }
-    }
   }
 
   @override
@@ -230,22 +230,23 @@ class _MyHomePageState extends State<MyHomePage>
     super.dispose();
   }
 
-  void setCurrentFrame(int newFrame) {
-    currentFrame.value = newFrame;
-    clampCurrentFrame();
-    setDisplayedFrame(newFrame);
+  void handleEscapeIntent() {
+    if (bottomTextPanel.isOpen) return;
+    _exitApplication();
   }
 
-  void incrementFrame(int incrementSign) {
-    if (incrementSign > 0) {
-      currentFrame.value += 1;
-    } else if (incrementSign < 0) {
-      currentFrame.value -= 1;
-    }
+  void _exitApplication() {
+    //SystemChannels.platform.invokeMethod<void>('SystemNavigator.pop');
 
-    clampCurrentFrame();
-    updateGifViewFrame();
+    // This is the dirty workaround for a nonfunctional application exit method on Flutter Windows.
+    // For more info: https://github.com/flutter/flutter/issues/66631
+    debugger();
+    exit(0);
   }
+
+  //
+  // Build methods
+  //
 
   @override
   Widget build(BuildContext context) {
@@ -259,20 +260,6 @@ class _MyHomePageState extends State<MyHomePage>
           ],
         ),
       ),
-    );
-  }
-
-  Widget fileDropTarget(BuildContext context) {
-    return ImageDropTarget(
-      dragImagesHandler: (details) {
-        if (details.files.isEmpty) return;
-        final file = details.files[0];
-        if (!file.name.endsWith('.gif')) {
-          popupMessage('Not a GIF');
-        }
-
-        tryLoadGifFromFilePath(file.path);
-      },
     );
   }
 
@@ -309,69 +296,6 @@ class _MyHomePageState extends State<MyHomePage>
         ),
         bottomBarWidget()
       ],
-    );
-  }
-
-  Widget bottomBarWidget() {
-    return SizedBox(
-      child: Padding(
-        padding: const EdgeInsets.all(4.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Wrap(
-              crossAxisAlignment: WrapCrossAlignment.center,
-              spacing: 4,
-              children: [
-                getFramerateTooltip(),
-                Text(
-                  getGifInfoBottomLabel(),
-                  style: Theme.of(context).smallGrayStyle,
-                ),
-              ],
-            ),
-            const Spacer(),
-            Wrap(
-              direction: Axis.horizontal,
-              spacing: 8,
-              children: [
-                if (isGifLoaded)
-                  ValueListenableBuilder(
-                    valueListenable: isScrubMode,
-                    builder: (_, isPausedAndScrubbing, __) {
-                      return IconButton(
-                        style: const ButtonStyle(
-                          maximumSize: MaterialStatePropertyAll(
-                            Size(100, 100),
-                          ),
-                        ),
-                        onPressed: () => togglePlayPause(),
-                        tooltip:
-                            'Toggle play/pause.\nYou can also click on the gif.',
-                        icon: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                          child: Icon(
-                            isPausedAndScrubbing
-                                ? Icons.play_arrow
-                                : Icons.pause,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                Tooltip(
-                  message: 'Open GIF file...\n'
-                      'Or use ${Phshortcuts.shortcutString(Phshortcuts.pasteAndGo)} to paste a link to a GIF.',
-                  child: IconButton(
-                    onPressed: () => openNewFile(),
-                    icon: const Icon(Icons.file_open_outlined),
-                  ),
-                ),
-              ],
-            )
-          ],
-        ),
-      ),
     );
   }
 
@@ -577,12 +501,149 @@ class _MyHomePageState extends State<MyHomePage>
     );
   }
 
+  Widget bottomBarWidget() {
+    return SizedBox(
+      child: Padding(
+        padding: const EdgeInsets.all(4.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Wrap(
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 4,
+              children: [
+                getFramerateTooltip(),
+                Text(
+                  getGifInfoBottomLabel(),
+                  style: Theme.of(context).smallGrayStyle,
+                ),
+              ],
+            ),
+            const Spacer(),
+            Wrap(
+              direction: Axis.horizontal,
+              spacing: 8,
+              children: [
+                if (isGifLoaded)
+                  ValueListenableBuilder(
+                    valueListenable: isScrubMode,
+                    builder: (_, isPausedAndScrubbing, __) {
+                      return IconButton(
+                        style: const ButtonStyle(
+                          maximumSize: MaterialStatePropertyAll(
+                            Size(100, 100),
+                          ),
+                        ),
+                        onPressed: () => togglePlayPause(),
+                        tooltip:
+                            'Toggle play/pause.\nYou can also click on the gif.',
+                        icon: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                          child: Icon(
+                            isPausedAndScrubbing
+                                ? Icons.play_arrow
+                                : Icons.pause,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                Tooltip(
+                  message: 'Open GIF file...\n'
+                      'Or use ${Phshortcuts.shortcutString(Phshortcuts.pasteAndGo)} to paste a link to a GIF.',
+                  child: IconButton(
+                    onPressed: () => openNewFile(),
+                    icon: const Icon(Icons.file_open_outlined),
+                  ),
+                ),
+              ],
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget fileDropTarget(BuildContext context) {
+    return ImageDropTarget(
+      dragImagesHandler: (details) {
+        if (details.files.isEmpty) return;
+        final file = details.files[0];
+        if (!file.name.endsWith('.gif')) {
+          popupMessage('Not a GIF');
+        }
+
+        tryLoadGifFromFilePath(file.path);
+      },
+    );
+  }
+
+  Widget shortcutsWrapper({required Widget child}) {
+    if (shortcutActions.isEmpty) {
+      for (var (intentType, callback) in shortcutIntentActions) {
+        shortcutActions[intentType] = CallbackAction(onInvoke: callback);
+      }
+    }
+
+    return Shortcuts(
+      shortcuts: Phshortcuts.intentMap,
+      child: Actions(
+        actions: shortcutActions,
+        child: Focus(
+          focusNode: mainWindowFocus,
+          autofocus: true,
+          child: child,
+        ),
+      ),
+    );
+  }
+
+  //
+  // UI Controls
+  //
+
   void closeAllPanels() {
     bottomTextPanel.close();
   }
 
+  void openTextPanelAndPaste() async {
+    final pastedText = await phclipboard.getStringFromClipboard();
+    if (pastedText != null) {
+      bottomTextPanel.openWithText(pastedText);
+    }
+  }
+
+  void setDisplayedFrame(int frame) {
+    gifController.seek(frame);
+    displayedFrame.value = gifController.currentFrame;
+  }
+
+  void tryCopyFrameToClipboard() {
+    if (!isGifLoaded) return;
+    final image = gifController.currentFrameData.imageInfo.image;
+    final suggestedName = "gifFrameg${gifController.currentFrame}.png";
+    phclipboard.copyImageToClipboardAsPng(image, suggestedName);
+  }
+
+  //
+  // Model controls
+  //
+
   void togglePlayPause() {
     setPlayMode(isScrubMode.value);
+  }
+
+  void toggleUseFocus() {
+    setState(() {
+      clampFocusRange();
+
+      bool willSwitchToFocused = !isUsingFocusRange.value;
+      final nextRange =
+          willSwitchToFocused ? focusFrameRange.value : fullFrameRange;
+      clampCurrentFrameWithRange(nextRange);
+
+      isUsingFocusRange.toggle();
+    });
   }
 
   void setPlayMode(bool active) {
@@ -606,48 +667,29 @@ class _MyHomePageState extends State<MyHomePage>
     }
   }
 
-  void openTextPanelAndPaste() async {
-    final pastedText = await phclipboard.getStringFromClipboard();
-    if (pastedText != null) {
-      bottomTextPanel.openWithText(pastedText);
-    }
-  }
-
   void updateGifViewFrame() {
     gifController.seek(currentFrame.value);
   }
 
-  Widget shortcutsWrapper({required Widget child}) {
-    if (shortcutActions.isEmpty) {
-      for (var (intentType, callback) in shortcutIntentActions) {
-        shortcutActions[intentType] = CallbackAction(onInvoke: callback);
-      }
-    }
+  //
+  // Frame controls
+  //
 
-    return Shortcuts(
-      shortcuts: Phshortcuts.intentMap,
-      child: Actions(
-        actions: shortcutActions,
-        child: Focus(
-          focusNode: mainWindowFocus,
-          autofocus: true,
-          child: child,
-        ),
-      ),
-    );
+  void setCurrentFrame(int newFrame) {
+    currentFrame.value = newFrame;
+    clampCurrentFrame();
+    setDisplayedFrame(newFrame);
   }
 
-  void toggleUseFocus() {
-    setState(() {
-      clampFocusRange();
+  void incrementFrame(int incrementSign) {
+    if (incrementSign > 0) {
+      currentFrame.value += 1;
+    } else if (incrementSign < 0) {
+      currentFrame.value -= 1;
+    }
 
-      bool willSwitchToFocused = !isUsingFocusRange.value;
-      final nextRange =
-          willSwitchToFocused ? focusFrameRange.value : fullFrameRange;
-      clampCurrentFrameWithRange(nextRange);
-
-      isUsingFocusRange.toggle();
-    });
+    clampCurrentFrame();
+    updateGifViewFrame();
   }
 
   void clampFocusRange() {
@@ -680,14 +722,13 @@ class _MyHomePageState extends State<MyHomePage>
     });
   }
 
-  void setDisplayedFrame(int frame) {
-    gifController.seek(frame);
-    displayedFrame.value = gifController.currentFrame;
-  }
-
   static bool isFpsWhole(double fps) {
     return fps.floorToDouble() == fps;
   }
+
+  //
+  // UI info methods
+  //
 
   Widget getFramerateTooltip() {
     if (!isGifLoaded) return const SizedBox.shrink();
@@ -740,7 +781,7 @@ class _MyHomePageState extends State<MyHomePage>
     }
 
     const millisecondsUnit = 'ms';
-    
+
     switch (frameDuration) {
       case null:
         return 'Variable frame durations';
@@ -754,20 +795,9 @@ class _MyHomePageState extends State<MyHomePage>
     }
   }
 
-  static Duration? getFrameDuration(List<GifFrame> frames) {
-    var duration = frames[0].duration;
-    for (var frame in frames) {
-      if (duration != frame.duration) return null;
-    }
-    return duration;
-  }
-
-  void tryCopyFrameToClipboard() {
-    if (!isGifLoaded) return;
-    final image = gifController.currentFrameData.imageInfo.image;
-    final suggestedName = "gifFrameg${gifController.currentFrame}.png";
-    phclipboard.copyImageToClipboardAsPng(image, suggestedName);
-  }
+  //
+  // Load Operations
+  //
 
   void openNewFile() async {
     var (gifImage, name) = await openGifImageFile();
@@ -795,7 +825,7 @@ class _MyHomePageState extends State<MyHomePage>
       );
       gifImageProvider = provider;
 
-      frameDuration = getFrameDuration(frames);
+      frameDuration = readFrameDuration(frames);
 
       final image = frames[0].imageInfo.image;
       imageSize = Size(image.width.toDouble(), image.height.toDouble());
@@ -840,11 +870,12 @@ class _MyHomePageState extends State<MyHomePage>
     }
   }
 
-  void showGifLoadFailedAlert(String errorText) {
-    popupMessage(
-      'GIF loading failed\n'
-      '$errorText',
-    );
+  static Duration? readFrameDuration(List<GifFrame> frames) {
+    var duration = frames[0].duration;
+    for (var frame in frames) {
+      if (duration != frame.duration) return null;
+    }
+    return duration;
   }
 
   void tryLoadClipboardPath() async {
@@ -875,6 +906,17 @@ class _MyHomePageState extends State<MyHomePage>
     }
   }
 
+  //
+  // Screen messages
+  //
+
+  void showGifLoadFailedAlert(String errorText) {
+    popupMessage(
+      'GIF loading failed\n'
+      '$errorText',
+    );
+  }
+
   void popupMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -882,19 +924,5 @@ class _MyHomePageState extends State<MyHomePage>
         content: Text(message),
       ),
     );
-  }
-
-  void handleEscapeIntent() {
-    if (bottomTextPanel.isOpen) return;
-    _exitApplication();
-  }
-
-  void _exitApplication() {
-    //SystemChannels.platform.invokeMethod<void>('SystemNavigator.pop');
-
-    // This is the dirty workaround for a nonfunctional application exit method on Flutter Windows.
-    // For more info: https://github.com/flutter/flutter/issues/66631
-    debugger();
-    exit(0);
   }
 }
