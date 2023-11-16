@@ -15,6 +15,7 @@ import 'package:animators_gif_enjoyer/utils/gif_frame_advancer.dart';
 import 'package:animators_gif_enjoyer/utils/open_file.dart';
 import 'package:animators_gif_enjoyer/utils/phclipboard.dart' as phclipboard;
 import 'package:animators_gif_enjoyer/utils/value_notifier_extensions.dart';
+import 'package:contextual_menu/contextual_menu.dart';
 import 'package:flutter/material.dart';
 //import 'package:package_info_plus/package_info_plus.dart';
 
@@ -355,29 +356,57 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   Widget unloadedInterface(BuildContext context) {
-    return Align(
-      alignment: Alignment.center,
-      child: Material(
-        type: MaterialType.transparency,
-        child: SizedBox(
-          height: 200,
-          width: 300,
-          child: Center(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Load a GIF!',
-                  style: Theme.of(context).textTheme.headlineSmall,
+    Menu unloadedMenu() {
+      return Menu(
+        items: [
+          MenuItem(
+            label: 'Open GIF...',
+            onClick: (_) => openNewFile(),
+          ),
+          MenuItem(
+            label: 'Paste to address bar...',
+            onClick: (_) => openTextPanelAndPaste(),
+          ),
+          MenuItem.separator(),
+          if (packageInfo != null)
+            MenuItem(
+              label: 'Build $buildName',
+              disabled: true,
+            )
+        ],
+      );
+    }
+
+    return GestureDetector(
+      onSecondaryTap: () => popUpContextualMenu(unloadedMenu()),
+      child: Container(
+        decoration:
+            BoxDecoration(color: Theme.of(context).scaffoldBackgroundColor),
+        child: Align(
+          alignment: Alignment.center,
+          child: Material(
+            type: MaterialType.transparency,
+            child: SizedBox(
+              height: 200,
+              width: 300,
+              child: Center(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Load a GIF!',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                    const SizedBox(height: 5),
+                    const Text(
+                      'Use the button on the lower right.\n'
+                      'Or drag and drop a GIF into the window.',
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 5),
-                const Text(
-                  'Use the button on the lower right.\n'
-                  'Or drag and drop a GIF into the window.',
-                  textAlign: TextAlign.center,
-                ),
-              ],
+              ),
             ),
           ),
         ),
