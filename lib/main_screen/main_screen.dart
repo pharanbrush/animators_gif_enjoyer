@@ -74,6 +74,7 @@ class _MyHomePageState extends State<MyHomePage>
   String filename = '';
 
   Duration? frameDuration;
+  Size imageSize = Size.zero;
 
   final ValueNotifier<RangeValues> focusFrameRange =
       ValueNotifier(const RangeValues(0, 100));
@@ -324,7 +325,7 @@ class _MyHomePageState extends State<MyHomePage>
               children: [
                 getFramerateTooltip(),
                 Text(
-                  getFramerateLabel(),
+                  getGifInfoBottomLabel(),
                   style: Theme.of(context).smallGrayStyle,
                 ),
               ],
@@ -717,21 +718,39 @@ class _MyHomePageState extends State<MyHomePage>
     );
   }
 
+  String getGifInfoBottomLabel() {
+    if (!isGifLoaded) {
+      return '';
+    }
+
+    return '${getFramerateLabel()}- ${getImageDimensionsLabel()}';
+  }
+
+  String getImageDimensionsLabel() {
+    if (!isGifLoaded) {
+      return '';
+    }
+
+    return '${imageSize.width.toInt()}x${imageSize.height.toInt()}px';
+  }
+
   String getFramerateLabel() {
     if (!isGifLoaded) {
       return '';
     }
 
+    const millisecondsUnit = 'ms';
+    
     switch (frameDuration) {
       case null:
         return 'Variable frame durations';
       case <= const Duration(milliseconds: 10):
-        return '${frameDuration!.inMilliseconds} milliseconds per frame.';
+        return '${frameDuration!.inMilliseconds} $millisecondsUnit per frame.';
       default:
         final frameInterval = frameDuration!.inMilliseconds;
         final fps = 1000.0 / frameInterval;
         return '~${fps.toStringAsFixed(2)} fps '
-            '($frameInterval milliseconds per frame.) ';
+            '($frameInterval $millisecondsUnit per frame.) ';
     }
   }
 
@@ -775,7 +794,12 @@ class _MyHomePageState extends State<MyHomePage>
             : null,
       );
       gifImageProvider = provider;
+
       frameDuration = getFrameDuration(frames);
+
+      final image = frames[0].imageInfo.image;
+      imageSize = Size(image.width.toDouble(), image.height.toDouble());
+
       gifController.load(frames);
       gifAdvancer.setFrames(frames);
       int lastFrame = frames.length - 1;
