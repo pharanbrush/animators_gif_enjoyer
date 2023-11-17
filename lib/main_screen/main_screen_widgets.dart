@@ -1,7 +1,6 @@
 import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
 import 'package:animators_gif_enjoyer/main_screen/theme.dart';
 import 'package:animators_gif_enjoyer/utils/build_info.dart';
-import 'package:animators_gif_enjoyer/utils/preferences.dart';
 import 'package:contextual_menu/contextual_menu.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -49,8 +48,6 @@ class GifViewContainer extends StatelessWidget {
           label: 'Copy frame image',
           onClick: (_) => copyImageHandler(),
         ),
-        MenuItem.separator(),
-        themeSubmenu(context),
         MenuItem.separator(),
         if (packageInfo != null)
           MenuItem(
@@ -324,44 +321,44 @@ extension RangeValuesExtensions on RangeValues {
   double get rangeSize => end - start;
 }
 
-final List<(String label, ThemeMode themeMode)> itemsData = [
-  ('Light', ThemeMode.light),
-  ('Dark', ThemeMode.dark),
-  ('-', ThemeMode.system),
-  ('System', ThemeMode.system),
-];
+// final List<(String label, ThemeMode themeMode)> itemsData = [
+//   ('Light', ThemeMode.light),
+//   ('Dark', ThemeMode.dark),
+//   ('-', ThemeMode.system),
+//   ('System', ThemeMode.system),
+// ];
 
-MenuItem themeSubmenu(BuildContext context) {
-  ThemeContext? themeContext = ThemeContext.of(context);
-  if (themeContext == null) {
-    return MenuItem(
-      label: 'Themes',
-      disabled: true,
-    );
-  }
+// MenuItem themeSubmenu(BuildContext context) {
+//   ThemeContext? themeContext = ThemeContext.of(context);
+//   if (themeContext == null) {
+//     return MenuItem(
+//       label: 'Themes',
+//       disabled: true,
+//     );
+//   }
 
-  final themeModeNotifier = themeContext.themeMode;
+//   final themeModeNotifier = themeContext.themeMode;
 
-  final themeMode = themeModeNotifier.value;
+//   final themeMode = themeModeNotifier.value;
 
-  MenuItem mapper(e) {
-    var (label, itemMode) = e;
-    switch (label) {
-      case '-':
-        return MenuItem.separator();
-      default:
-        return MenuItem.checkbox(
-          checked: themeMode == itemMode,
-          label: label,
-          onClick: (_) {
-            themeModeNotifier.value = itemMode;
-            storeThemePreference(itemMode);
-          },
-        );
-    }
-  }
+//   MenuItem mapper(e) {
+//     var (label, itemMode) = e;
+//     switch (label) {
+//       case '-':
+//         return MenuItem.separator();
+//       default:
+//         return MenuItem.checkbox(
+//           checked: themeMode == itemMode,
+//           label: label,
+//           onClick: (_) {
+//             themeModeNotifier.value = itemMode;
+//             storeThemePreference(itemMode);
+//           },
+//         );
+//     }
+//   }
 
-  final menuItems = itemsData.map(mapper).toList(growable: false);
+//   final menuItems = itemsData.map(mapper).toList(growable: false);
 
-  return MenuItem.submenu(label: 'Theme', submenu: Menu(items: menuItems));
-}
+//   return MenuItem.submenu(label: 'Theme', submenu: Menu(items: menuItems));
+// }

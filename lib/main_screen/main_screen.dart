@@ -7,6 +7,7 @@ import 'package:animators_gif_enjoyer/main.dart';
 import 'package:animators_gif_enjoyer/main_screen/main_screen_widgets.dart';
 import 'package:animators_gif_enjoyer/main_screen/theme.dart';
 import 'package:animators_gif_enjoyer/phlutter/image_drop_target.dart';
+import 'package:animators_gif_enjoyer/phlutter/material_state_property_utils.dart';
 import 'package:animators_gif_enjoyer/phlutter/modal_panel.dart';
 import 'package:animators_gif_enjoyer/utils/build_info.dart';
 import 'package:animators_gif_enjoyer/utils/download_file.dart';
@@ -14,6 +15,7 @@ import 'package:animators_gif_enjoyer/utils/gif_frame_advancer.dart';
 import 'package:animators_gif_enjoyer/utils/open_file.dart';
 import 'package:animators_gif_enjoyer/utils/phclipboard.dart' as phclipboard;
 import 'package:animators_gif_enjoyer/phlutter/value_notifier_extensions.dart';
+import 'package:animators_gif_enjoyer/utils/preferences.dart';
 import 'package:contextual_menu/contextual_menu.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -21,37 +23,35 @@ import 'package:flutter/material.dart';
 class MyApp extends StatelessWidget {
   const MyApp({
     super.key,
-    this.initialThemeMode,
+    this.initialTheme,
   });
 
-  final ThemeMode? initialThemeMode;
+  final String? initialTheme;
 
   @override
   Widget build(BuildContext context) {
     return ThemeContext(
-      initialThemeMode: initialThemeMode ?? defaultThemeMode,
+      initialThemeData: getThemeFromString(initialTheme ?? defaultThemeString),
       child: Builder(
         builder: (context) {
-          Widget app(ThemeMode themeMode) {
+          Widget app(ThemeData themeData) {
             return MaterialApp(
               title: appName,
               debugShowCheckedModeBanner: false,
-              theme: getEnjoyerTheme(),
-              darkTheme: getPhriendsTheme(),
-              themeMode: themeMode,
-              home: const MyHomePage(title: appName),
+              theme: themeData,
+              home: MyHomePage(initialThemeString: initialTheme),
             );
           }
 
           ThemeContext? themeContext = ThemeContext.of(context);
 
           if (themeContext == null) {
-            return app(ThemeMode.system);
+            return app(getThemeFromString(defaultThemeString));
           }
 
           return ValueListenableBuilder(
-            valueListenable: themeContext.themeMode,
-            builder: (_, themeModeValue, ___) => app(themeModeValue),
+            valueListenable: themeContext.themeData,
+            builder: (_, themeDataValue, ___) => app(themeDataValue),
           );
         },
       ),
@@ -60,9 +60,12 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+  const MyHomePage({
+    super.key,
+    this.initialThemeString,
+  });
 
-  final String title;
+  final String? initialThemeString;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -81,6 +84,8 @@ class _MyHomePageState extends State<MyHomePage>
 
   Duration? frameDuration;
   Size imageSize = Size.zero;
+
+  late final ValueNotifier<String> themeString;
 
   final ValueNotifier<RangeValues> focusFrameRange =
       ValueNotifier(const RangeValues(0, 100));
@@ -201,6 +206,9 @@ class _MyHomePageState extends State<MyHomePage>
 
   @override
   void initState() {
+    themeString =
+        ValueNotifier(widget.initialThemeString ?? defaultThemeString);
+
     gifAdvancer = GifFrameAdvancer(
       tickerProvider: this,
       onFrame: (frameIndex) {
@@ -228,11 +236,26 @@ class _MyHomePageState extends State<MyHomePage>
     onSecondWindow = () => tryLoadFromWindowsOpenWith();
 
     initializePackageInfo();
+
+    themeString.addListener(updateAppTheme);
+  }
+
+  void updateAppTheme() {
+    final themeContext = ThemeContext.of(context);
+    if (themeContext == null) {
+      return;
+    }
+
+    themeContext.themeData.value = getThemeFromString(themeString.value);
+    storeThemeStringPreference(themeString.value);
   }
 
   @override
   void dispose() {
     gifAdvancer.dispose();
+
+    themeString.removeListener(updateAppTheme);
+
     super.dispose();
   }
 
@@ -261,12 +284,58 @@ class _MyHomePageState extends State<MyHomePage>
         child: Stack(
           children: [
             shortcutsWrapper(child: mainLayer(context)),
+            topLeftControls(context),
             bottomTextPanel.widget(),
             fileDropTarget(context),
           ],
         ),
       ),
     );
+  }
+
+  Widget topLeftControls(BuildContext context) {
+    final grayColor = Theme.of(context).colorScheme.faintGrayColor;
+    const double iconSize = 16;
+    const double buttonSize = 34;
+    final iconButtonTheme = IconButtonThemeData(
+      style: ButtonStyle(
+        minimumSize:
+            const MaterialStatePropertyAll(Size(buttonSize, buttonSize)),
+        shape: const MaterialStatePropertyAll(appButtonShape),
+        iconSize: const MaterialStatePropertyAll(iconSize),
+        iconColor: hoverColors(
+          idle: grayColor,
+          hover: grayColor.withAlpha(0xFF),
+        ),
+      ),
+    );
+
+    return Positioned(
+      left: 0,
+      top: 0,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          vertical: 2,
+          horizontal: 2,
+        ),
+        child: IconButtonTheme(
+          data: iconButtonTheme,
+          child: Column(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.lightbulb_outline),
+                tooltip: 'Cycle interface brightness',
+                onPressed: cycleTheme,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void cycleTheme() {
+    themeString.value = getNextCycleTheme(themeString.value);
   }
 
   Widget mainLayer(BuildContext context) {
@@ -317,8 +386,6 @@ class _MyHomePageState extends State<MyHomePage>
             label: 'Paste to address bar...',
             onClick: (_) => openTextPanelAndPaste(),
           ),
-          MenuItem.separator(),
-          themeSubmenu(context),
           MenuItem.separator(),
           if (packageInfo != null)
             MenuItem(
@@ -904,6 +971,7 @@ class _MyHomePageState extends State<MyHomePage>
           '$errorText',
     );
   }
+}
 
 mixin SnackbarShower<T extends StatefulWidget> on State<T> {
   static const IconData emptyIcon = Icons.check_box_outline_blank;

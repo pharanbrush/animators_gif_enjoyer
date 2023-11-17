@@ -41,9 +41,9 @@ void main(List<String> args) async {
     },
   );
 
-  final initialThemeMode = await getThemeMode();
+  final initialThemeString = await getThemeStringFromPreference();
 
   runApp(
-    MyApp(initialThemeMode: initialThemeMode),
+    MyApp(initialTheme: initialThemeString),
   );
 }

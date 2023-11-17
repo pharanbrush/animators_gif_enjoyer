@@ -6,6 +6,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 // Theme preferences
 //
 const themeModePreferenceKey = 'theme_mode';
+const themeStringKey = 'theme_string';
+
+//
+// ThemeMode preference
+//
 const darkMode = 'dark';
 const lightMode = 'light';
 const systemMode = 'system';
@@ -24,15 +29,32 @@ ThemeMode toThemeModeFromString(String themeModeString) =>
       _ => defaultThemeMode,
     };
 
-void storeThemePreference(ThemeMode mode) async {
+// void storeThemeModePreference(ThemeMode mode) async {
+//   final prefs = await SharedPreferences.getInstance();
+//   await prefs.setString(themeModePreferenceKey, toThemeModeString(mode));
+// }
+
+// Future<ThemeMode> getThemeModeFromPreference() async {
+//   final prefs = await SharedPreferences.getInstance();
+//   final retrievedModeString = prefs.getString(themeModePreferenceKey);
+//   if (retrievedModeString == null) return defaultThemeMode;
+
+//   return toThemeModeFromString(retrievedModeString);
+// }
+
+//
+// ThemeString preference
+//
+
+void storeThemeStringPreference(String themeString) async {
   final prefs = await SharedPreferences.getInstance();
-  await prefs.setString(themeModePreferenceKey, toThemeModeString(mode));
+  await prefs.setString(themeStringKey, themeString);
 }
 
-Future<ThemeMode> getThemeMode() async {
+Future<String> getThemeStringFromPreference() async {
   final prefs = await SharedPreferences.getInstance();
-  final retrievedModeString = prefs.getString(themeModePreferenceKey);
-  if (retrievedModeString == null) return defaultThemeMode;
+  final retrievedThemeString = prefs.getString(themeStringKey);
+  if (retrievedThemeString == null) return defaultThemeString;
 
-  return toThemeModeFromString(retrievedModeString);
+  return retrievedThemeString;
 }
