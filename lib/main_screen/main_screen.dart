@@ -1,6 +1,3 @@
-import 'dart:developer';
-import 'dart:io';
-
 import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
 import 'package:animators_gif_enjoyer/interface/shortcuts.dart';
 import 'package:animators_gif_enjoyer/main.dart';
@@ -19,6 +16,7 @@ import 'package:animators_gif_enjoyer/utils/preferences.dart';
 import 'package:contextual_menu/contextual_menu.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:window_manager/window_manager.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({
@@ -231,8 +229,11 @@ class _MyHomePageState extends State<MyHomePage>
 
     // This is the dirty workaround for a nonfunctional application exit method on Flutter Windows.
     // For more info: https://github.com/flutter/flutter/issues/66631
-    debugger();
-    exit(0);
+    // debugger();
+    // exit(0);
+
+    //Separate workaround that uses window_manager since already it's a dependency.
+    windowManager.close();
   }
 
   //
