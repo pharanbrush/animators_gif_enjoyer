@@ -395,6 +395,7 @@ class _MyHomePageState extends State<MyHomePage>
 
     return GestureDetector(
       onSecondaryTap: () => popUpContextualMenu(unloadedMenu()),
+      onDoubleTap: () => openNewFile(),
       child: Container(
         decoration:
             BoxDecoration(color: Theme.of(context).scaffoldBackgroundColor),
