@@ -260,7 +260,6 @@ class _MyHomePageState extends State<MyHomePage>
       }
 
       if (getLatestSaveCommandId() == saveCommandId) {
-        print('saved ${themeString.value}');
         storeThemeStringPreference(themeString.value);
       }
     }
