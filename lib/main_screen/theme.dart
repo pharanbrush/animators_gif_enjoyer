@@ -43,12 +43,14 @@ extension EnjoyerThemeExtensions on ThemeData {
 const lightThemeString = 'light';
 const grayThemeString = 'gray';
 const darkThemeString = 'dark';
+const blackThemeString = 'black';
 //const systemThemeString = 'system';
 const defaultThemeString = lightThemeString;
 
 String getNextCycleTheme(String currentThemeString) =>
     switch (currentThemeString) {
-      lightThemeString => darkThemeString,
+      lightThemeString => blackThemeString,
+      blackThemeString => darkThemeString,
       darkThemeString => grayThemeString,
       grayThemeString => lightThemeString,
       _ => lightThemeString,
@@ -60,6 +62,7 @@ ThemeData getThemeFromString(String themeString) => switch (themeString) {
       lightThemeString => getEnjoyerTheme(),
       grayThemeString => getEnjoyerThemeGray(),
       darkThemeString => getPhriendsTheme(),
+      blackThemeString => getEnjoyerThemeBlack(),
       _ => getEnjoyerTheme(),
     };
 
@@ -139,9 +142,9 @@ ThemeData getEnjoyerThemeGray() {
   );
 }
 
-ThemeData getEnjoyerThemeDark() {
+ThemeData getEnjoyerThemeBlack() {
   const Color interfaceColor = Color.fromARGB(255, 107, 152, 204);
-  const Color darkBackground = Color(0xFF161616);
+  const Color darkBackground = Color(0xFF181818);
 
   return ThemeData(
     scaffoldBackgroundColor: darkBackground,
