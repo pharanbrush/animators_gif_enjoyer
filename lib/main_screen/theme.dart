@@ -144,7 +144,6 @@ class ThemeCache {
 //
 
 ThemeData getEnjoyerTheme() {
-  print('light build');
   const Color interfaceColor = Color.fromARGB(255, 107, 152, 204);
 
   return ThemeData(
@@ -162,7 +161,6 @@ ThemeData getEnjoyerTheme() {
 }
 
 ThemeData getPhriendsTheme() {
-  print('phriends build');
   const Color interfaceColor = Color(0xFF5865F2);
   //const Color panelBackground = Color(0xFF2B2D31);
   const Color appBackground = Color(0xFF313338);
@@ -203,7 +201,6 @@ ThemeData getPhriendsTheme() {
 }
 
 ThemeData getEnjoyerThemeGray() {
-  print('gray build');
   const Color interfaceColor = Color.fromARGB(255, 107, 152, 204);
   const Color background = Color.fromARGB(255, 115, 115, 115);
 
@@ -223,7 +220,6 @@ ThemeData getEnjoyerThemeGray() {
 }
 
 ThemeData getEnjoyerThemeBlack() {
-  print('black build');
   const Color interfaceColor = Color.fromARGB(255, 107, 152, 204);
   const Color darkBackground = Color(0xFF181818);
 
