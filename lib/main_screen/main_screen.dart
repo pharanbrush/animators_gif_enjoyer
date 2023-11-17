@@ -249,42 +249,48 @@ class _MyHomePageState extends State<MyHomePage>
 
   @override
   Widget build(BuildContext context) {
+    final windowContents = Stack(
+      children: [
+        shortcutsWrapper(child: mainLayer(context)),
+        topLeftControls(context),
+        bottomTextPanel.widget(),
+        fileDropTarget(context),
+      ],
+    );
+
+    final titleBar = WindowTitlebar(
+      title: appName,
+      titleColor: Theme.of(context).colorScheme.mutedSurfaceColor,
+      iconWidget: Image.memory(appIconDataBytes),
+      includeTopWindowResizer: false,
+      extraWidgets: [
+        ValueListenableBuilder(
+          valueListenable: isAlwaysOnTop,
+          builder: (_, value, __) {
+            return IconButton(
+              tooltip: value
+                  ? 'Click to disable Keep window on top'
+                  : 'Click to enable Keep window on top',
+              icon: value
+                  ? const Icon(Icons.picture_in_picture_alt)
+                  : const Icon(Icons.picture_in_picture_alt_outlined),
+              onPressed: () => isAlwaysOnTop.toggle(),
+            );
+          },
+        ),
+      ],
+    );
+
     return Scaffold(
-      body: Column(
+      body: Stack(
         children: [
-          WindowTitlebar(
-            title: appName,
-            titleColor: Theme.of(context).colorScheme.mutedSurfaceColor,
-            iconWidget: Image.memory(appIconDataBytes),
-            extraWidgets: [
-              ValueListenableBuilder(
-                valueListenable: isAlwaysOnTop,
-                builder: (_, value, __) {
-                  return IconButton(
-                    tooltip: value
-                        ? 'Click to disable Keep window on top'
-                        : 'Click to enable Keep window on top',
-                    icon: value
-                        ? const Icon(Icons.picture_in_picture_alt)
-                        : const Icon(Icons.picture_in_picture_alt_outlined),
-                    onPressed: () => isAlwaysOnTop.toggle(),
-                  );
-                },
-              ),
+          Column(
+            children: [
+              titleBar,
+              Expanded(child: windowContents),
             ],
           ),
-          Expanded(
-            child: Center(
-              child: Stack(
-                children: [
-                  shortcutsWrapper(child: mainLayer(context)),
-                  topLeftControls(context),
-                  bottomTextPanel.widget(),
-                  fileDropTarget(context),
-                ],
-              ),
-            ),
-          ),
+          const WindowResizeFrame(),
         ],
       ),
     );
