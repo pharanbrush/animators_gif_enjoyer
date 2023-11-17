@@ -6,6 +6,7 @@ import 'package:animators_gif_enjoyer/main_screen/theme.dart';
 import 'package:animators_gif_enjoyer/phlutter/image_drop_target.dart';
 import 'package:animators_gif_enjoyer/phlutter/material_state_property_utils.dart';
 import 'package:animators_gif_enjoyer/phlutter/modal_panel.dart';
+import 'package:animators_gif_enjoyer/phlutter/window_manager_titlebar.dart';
 import 'package:animators_gif_enjoyer/utils/build_info.dart';
 import 'package:animators_gif_enjoyer/utils/download_file.dart';
 import 'package:animators_gif_enjoyer/utils/gif_frame_advancer.dart';
@@ -243,15 +244,26 @@ class _MyHomePageState extends State<MyHomePage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Stack(
-          children: [
-            shortcutsWrapper(child: mainLayer(context)),
-            topLeftControls(context),
-            bottomTextPanel.widget(),
-            fileDropTarget(context),
-          ],
-        ),
+      body: Column(
+        children: [
+          WindowTitlebar(
+            title: appName,
+            titleColor: Theme.of(context).colorScheme.mutedSurfaceColor,
+            iconWidget: Image.memory(appIconDataBytes),
+          ),
+          Expanded(
+            child: Center(
+              child: Stack(
+                children: [
+                  shortcutsWrapper(child: mainLayer(context)),
+                  topLeftControls(context),
+                  bottomTextPanel.widget(),
+                  fileDropTarget(context),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

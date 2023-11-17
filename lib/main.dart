@@ -23,6 +23,8 @@ void main(List<String> args) async {
     size: Size(500, 540),
     title: appName,
     center: true,
+    titleBarStyle: TitleBarStyle.hidden,
+    windowButtonVisibility: true,
   );
 
   windowManager.waitUntilReadyToShow(windowOptions, () async {
