@@ -249,14 +249,12 @@ class _MyHomePageState extends State<MyHomePage>
 
   @override
   Widget build(BuildContext context) {
-    final windowContents = Stack(
-      children: [
-        shortcutsWrapper(child: mainLayer(context)),
-        topLeftControls(context),
-        bottomTextPanel.widget(),
-        fileDropTarget(context),
-      ],
-    );
+    final windowContents = <Widget>[
+      shortcutsWrapper(child: mainLayer(context)),
+      topLeftControls(context),
+      bottomTextPanel.widget(),
+      fileDropTarget(context),
+    ];
 
     final titleBar = WindowTitlebar(
       title: appName,
@@ -287,7 +285,7 @@ class _MyHomePageState extends State<MyHomePage>
           Column(
             children: [
               titleBar,
-              Expanded(child: windowContents),
+              Expanded(child: Stack(children: windowContents)),
             ],
           ),
           const WindowResizeFrame(),
