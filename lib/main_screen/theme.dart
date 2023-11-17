@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 const double smallTextSize = 12;
 const Color focusRangeColor = Color.fromARGB(255, 137, 175, 76);
 
-const double borderRadius = 6;
+const double borderRadius = 5;
 const Radius borderRadiusRadius = Radius.circular(borderRadius);
 const OutlinedBorder appButtonShape = RoundedRectangleBorder(
   borderRadius: BorderRadius.all(borderRadiusRadius),
