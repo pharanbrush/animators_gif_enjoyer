@@ -10,6 +10,7 @@ class GifFrameAdvancer {
   late final Ticker ticker;
 
   bool enabled = false;
+  double timeScale = 1;
   Duration _accumulatedDuration = Duration.zero;
   Duration _lastTime = Duration.zero;
   int _start = 0;
@@ -25,6 +26,7 @@ class GifFrameAdvancer {
 
   void reset() {
     _accumulatedDuration = Duration.zero;
+    _lastTime = Duration.zero;
   }
 
   void setFrames(List<GifFrame> frames) {
@@ -73,7 +75,8 @@ class GifFrameAdvancer {
   void _handleTick(Duration currentTickerTime) {
     if (!enabled) return;
 
-    final deltaTime = currentTickerTime - _lastTime;
+    final unscaledDeltaTime = currentTickerTime - _lastTime;
+    final deltaTime = unscaledDeltaTime * timeScale;
     _accumulatedDuration += deltaTime;
 
     const maxFrameSkip = 2;
