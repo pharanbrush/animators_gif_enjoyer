@@ -314,6 +314,81 @@ class ToggleFocusButton extends StatelessWidget {
   }
 }
 
+class EnjoyerBottomTextPanel extends StatelessWidget {
+  const EnjoyerBottomTextPanel({
+    super.key,
+    required this.textController,
+    required this.onTextFieldSubmitted,
+    required this.onSubmitButtonPressed,
+  });
+
+  final TextEditingController textController;
+  final Function(String) onTextFieldSubmitted;
+  final VoidCallback onSubmitButtonPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Positioned(
+          bottom: 0,
+          left: 0,
+          right: 0,
+          child: Material(
+            type: MaterialType.canvas,
+            borderRadius: const BorderRadius.only(
+              topLeft: borderRadiusRadius,
+              topRight: borderRadiusRadius,
+            ),
+            elevation: 20,
+            child: Column(
+              children: [
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  child: Material(
+                    type: MaterialType.canvas,
+                    color: Theme.of(context).colorScheme.surfaceVariant,
+                    borderRadius: const BorderRadius.all(Radius.circular(8)),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: textController,
+                            style: const TextStyle(fontSize: 13),
+                            decoration: const InputDecoration(
+                              hintText: 'Enter GIF link',
+                              border: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                    width: 0, style: BorderStyle.none),
+                              ),
+                            ),
+                            autocorrect: false,
+                            onSubmitted: onTextFieldSubmitted,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 10),
+                          child: IconButton(
+                            onPressed: onSubmitButtonPressed,
+                            icon: const Icon(Icons.send),
+                            tooltip: 'Download GIF from Link',
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 30),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 extension RangeValuesExtensions on RangeValues {
   int get endInt => end.toInt();
   int get startInt => start.toInt();

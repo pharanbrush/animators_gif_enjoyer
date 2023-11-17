@@ -132,74 +132,19 @@ class _MyHomePageState extends State<MyHomePage>
         child: child,
       );
     },
-    textPanelBuilder: bottomTextPanelBuilder,
+    textPanelBuilder: (
+      context,
+      textController,
+      onTextFieldSubmitted,
+      onSubmitButtonPressed,
+    ) {
+      return EnjoyerBottomTextPanel(
+        textController: textController,
+        onTextFieldSubmitted: onTextFieldSubmitted,
+        onSubmitButtonPressed: onSubmitButtonPressed,
+      );
+    },
   );
-
-  Widget bottomTextPanelBuilder(
-    BuildContext context,
-    TextEditingController textController,
-    Function(String) onTextFieldSubmitted,
-    VoidCallback onSubmitButtonPressed,
-  ) {
-    return Stack(
-      children: [
-        Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          child: Material(
-            type: MaterialType.canvas,
-            borderRadius: const BorderRadius.only(
-              topLeft: borderRadiusRadius,
-              topRight: borderRadiusRadius,
-            ),
-            elevation: 20,
-            child: Column(
-              children: [
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  child: Material(
-                    type: MaterialType.canvas,
-                    color: Theme.of(context).colorScheme.surfaceVariant,
-                    borderRadius: const BorderRadius.all(Radius.circular(8)),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: textController,
-                            style: const TextStyle(fontSize: 13),
-                            decoration: const InputDecoration(
-                              hintText: 'Enter GIF link',
-                              border: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                    width: 0, style: BorderStyle.none),
-                              ),
-                            ),
-                            autocorrect: false,
-                            onSubmitted: onTextFieldSubmitted,
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(right: 10),
-                          child: IconButton(
-                            onPressed: onSubmitButtonPressed,
-                            icon: const Icon(Icons.send),
-                            tooltip: 'Download GIF from Link',
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 30),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
 
   //
   //  Lifecycle
