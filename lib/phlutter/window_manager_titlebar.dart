@@ -40,41 +40,38 @@ class WindowTitlebar extends StatelessWidget {
               height: height,
               child: Stack(
                 children: [
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 3),
-                      child: Row(
-                        children: [
-                          const SizedBox(width: 6),
-                          WindowIconGestureDetector(
-                            child: Padding(
-                              padding: const EdgeInsets.all(3.0),
-                              child: iconWidget != null
-                                  ? SizedBox(
-                                      height: iconSize,
-                                      width: iconSize,
-                                      child: iconWidget,
-                                    )
-                                  : const SizedBox.shrink(),
-                            ),
+                  SizedBox.expand(
+                    child: Row(
+                      children: [
+                        const SizedBox(width: 6),
+                        WindowIconGestureDetector(
+                          child: Padding(
+                            padding: const EdgeInsets.all(3.0),
+                            child: iconWidget != null
+                                ? SizedBox(
+                                    height: iconSize,
+                                    width: iconSize,
+                                    child: iconWidget,
+                                  )
+                                : const SizedBox.shrink(),
                           ),
-                          Expanded(
-                            child: TitlebarGestureDetector(
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.only(bottom: 2, left: 2),
-                                child: Text(
-                                  title,
-                                  style: TextStyle(
-                                    fontSize: titleFontSize,
-                                    color: titleColor,
-                                  ),
+                        ),
+                        Expanded(
+                          child: TitlebarGestureDetector(
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.only(bottom: 2, left: 2),
+                              child: Text(
+                                title,
+                                style: TextStyle(
+                                  fontSize: titleFontSize,
+                                  color: titleColor,
                                 ),
                               ),
                             ),
-                          )
-                        ],
-                      ),
+                          ),
+                        )
+                      ],
                     ),
                   ),
                   const TopWindowEdgeResizer(),
