@@ -18,6 +18,7 @@ class WindowTitlebar extends StatelessWidget {
     this.titleColor,
     this.iconWidget,
     this.extraWidgets,
+    this.includeTopWindowResizer = true,
   });
 
   final double height;
@@ -25,6 +26,7 @@ class WindowTitlebar extends StatelessWidget {
   final Color? titleColor;
   final Image? iconWidget;
   final List<Widget>? extraWidgets;
+  final bool includeTopWindowResizer;
 
   static const double titleFontSize = 12;
   static const double iconSize = 17;
@@ -78,7 +80,90 @@ class WindowTitlebar extends StatelessWidget {
               const DefaultWindowButtonSet(),
             ],
           ),
-          const TopWindowEdgeResizer(),
+          if (includeTopWindowResizer) const TopWindowEdgeResizer(),
+        ],
+      ),
+    );
+  }
+}
+
+class WindowResizeFrame extends StatelessWidget {
+  const WindowResizeFrame({
+    super.key,
+    this.edges = const EdgeInsets.all(_resizeHandleThickness),
+  });
+
+  final EdgeInsets edges;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox.expand(
+      child: Column(
+        children: [
+          //
+          // Top row
+          //
+          Row(
+            children: [
+              WindowResizeHandle(
+                resizeEdge: ResizeEdge.topLeft,
+                height: edges.top,
+                width: edges.left,
+              ),
+              Expanded(
+                child: WindowResizeHandle(
+                  resizeEdge: ResizeEdge.top,
+                  height: edges.top,
+                ),
+              ),
+              WindowResizeHandle(
+                resizeEdge: ResizeEdge.topRight,
+                height: edges.top,
+                width: edges.right,
+              ),
+            ],
+          ),
+          //
+          // Middle row
+          //
+          Expanded(
+            child: Row(
+              children: [
+                WindowResizeHandle(
+                  resizeEdge: ResizeEdge.left,
+                  width: edges.left,
+                ),
+                const Expanded(child: SizedBox.shrink()),
+                WindowResizeHandle(
+                  resizeEdge: ResizeEdge.right,
+                  width: edges.right,
+                ),
+              ],
+            ),
+          ),
+          //
+          // Bottom row
+          //
+          Row(
+            children: [
+              WindowResizeHandle(
+                resizeEdge: ResizeEdge.bottomLeft,
+                height: edges.bottom,
+                width: edges.left,
+              ),
+              Expanded(
+                child: WindowResizeHandle(
+                  resizeEdge: ResizeEdge.bottom,
+                  height: edges.bottom,
+                ),
+              ),
+              WindowResizeHandle(
+                resizeEdge: ResizeEdge.bottomRight,
+                height: edges.bottom,
+                width: edges.right,
+              ),
+            ],
+          ),
         ],
       ),
     );
