@@ -96,6 +96,7 @@ class _MyHomePageState extends State<MyHomePage>
   final ValueNotifier<bool> isGifDownloading = ValueNotifier(false);
   final ValueNotifier<double> gifDownloadPercent = ValueNotifier(0.0);
   final ValueNotifier<bool> isScrubMode = ValueNotifier(!isPlayOnLoad);
+  final ValueNotifier<bool> isAlwaysOnTop = ValueNotifier(false);
 
   bool get isGifLoaded => gifImageProvider != null;
 
@@ -183,6 +184,37 @@ class _MyHomePageState extends State<MyHomePage>
     initializePackageInfo();
 
     themeString.addListener(updateAppTheme);
+    isAlwaysOnTop.addListener(updateAlwaysOnTop);
+  }
+
+  @override
+  void dispose() {
+    gifAdvancer.dispose();
+
+    themeString.removeListener(updateAppTheme);
+    isAlwaysOnTop.removeListener(updateAlwaysOnTop);
+    super.dispose();
+  }
+
+  void handleEscapeIntent() {
+    if (bottomTextPanel.isOpen) return;
+    _exitApplication();
+  }
+
+  void _exitApplication() {
+    //SystemChannels.platform.invokeMethod<void>('SystemNavigator.pop');
+
+    // This is the dirty workaround for a nonfunctional application exit method on Flutter Windows.
+    // For more info: https://github.com/flutter/flutter/issues/66631
+    // debugger();
+    // exit(0);
+
+    //Separate workaround that uses window_manager since already it's a dependency.
+    windowManager.close();
+  }
+
+  void updateAlwaysOnTop() {
+    windowManager.setAlwaysOnTop(isAlwaysOnTop.value);
   }
 
   void updateAppTheme() {
@@ -211,32 +243,6 @@ class _MyHomePageState extends State<MyHomePage>
     queueSaveThemetoPreferences();
   }
 
-  @override
-  void dispose() {
-    gifAdvancer.dispose();
-
-    themeString.removeListener(updateAppTheme);
-
-    super.dispose();
-  }
-
-  void handleEscapeIntent() {
-    if (bottomTextPanel.isOpen) return;
-    _exitApplication();
-  }
-
-  void _exitApplication() {
-    //SystemChannels.platform.invokeMethod<void>('SystemNavigator.pop');
-
-    // This is the dirty workaround for a nonfunctional application exit method on Flutter Windows.
-    // For more info: https://github.com/flutter/flutter/issues/66631
-    // debugger();
-    // exit(0);
-
-    //Separate workaround that uses window_manager since already it's a dependency.
-    windowManager.close();
-  }
-
   //
   // Build methods
   //
@@ -250,6 +256,22 @@ class _MyHomePageState extends State<MyHomePage>
             title: appName,
             titleColor: Theme.of(context).colorScheme.mutedSurfaceColor,
             iconWidget: Image.memory(appIconDataBytes),
+            extraWidgets: [
+              ValueListenableBuilder(
+                valueListenable: isAlwaysOnTop,
+                builder: (_, value, __) {
+                  return IconButton(
+                    tooltip: value
+                        ? 'Click to disable Keep window on top'
+                        : 'Click to enable Keep window on top',
+                    icon: value
+                        ? const Icon(Icons.picture_in_picture_alt)
+                        : const Icon(Icons.picture_in_picture_alt_outlined),
+                    onPressed: () => isAlwaysOnTop.toggle(),
+                  );
+                },
+              ),
+            ],
           ),
           Expanded(
             child: Center(
