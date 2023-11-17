@@ -71,7 +71,7 @@ class MyHomePage extends StatefulWidget {
 const bool isPlayOnLoad = true;
 
 class _MyHomePageState extends State<MyHomePage>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, SnackbarShower {
   final FocusNode mainWindowFocus = FocusNode(canRequestFocus: true);
   late GifFrameAdvancer gifAdvancer;
 
@@ -558,7 +558,7 @@ class _MyHomePageState extends State<MyHomePage>
         if (details.files.isEmpty) return;
         final file = details.files[0];
         if (!file.name.endsWith('.gif')) {
-          popupMessage('Not a GIF');
+          showSnackbar(label: 'Not a GIF');
         }
 
         tryLoadGifFromFilePath(file.path);
@@ -830,7 +830,7 @@ class _MyHomePageState extends State<MyHomePage>
         isGifDownloading.value = false;
 
         if (gifImageProvider is NetworkImage) {
-          popupMessage('Download complete');
+          showSnackbar(label: 'Download complete');
         }
 
         if (isPlayOnLoad) {
@@ -842,9 +842,9 @@ class _MyHomePageState extends State<MyHomePage>
         try {
           var uri = Uri.parse(source);
           if (uri.host.contains('tenor') && !uri.path.endsWith('gif')) {
-            popupMessage(
-              'Cannot access : $source \n'
-              '(Tenor embed links currently do not work.)',
+            showSnackbar(
+              label: 'Cannot access : $source \n'
+                  '(Tenor embed links currently do not work.)',
             );
           }
         } catch (m) {
@@ -890,7 +890,7 @@ class _MyHomePageState extends State<MyHomePage>
       var provider = NetworkImage(url);
       loadGifFromProvider(provider, url);
     } else {
-      popupMessage(errorMessage ?? "Can't load url:\n$url");
+      showSnackbar(label: errorMessage ?? "Can't load url:\n$url");
     }
   }
 
@@ -899,17 +899,47 @@ class _MyHomePageState extends State<MyHomePage>
   //
 
   void showGifLoadFailedAlert(String errorText) {
-    popupMessage(
-      'GIF loading failed\n'
-      '$errorText',
+    showSnackbar(
+      label: 'GIF loading failed\n'
+          '$errorText',
     );
   }
 
-  void popupMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
+mixin SnackbarShower<T extends StatefulWidget> on State<T> {
+  static const IconData emptyIcon = Icons.check_box_outline_blank;
+  static const IconData errorIcon = Icons.error_outline;
+  static const IconData okIcon = Icons.check;
+  static const IconData deleteIcon = Icons.delete;
+  static const IconData undoIcon = Icons.undo;
+  static const IconData saveIcon = Icons.save_alt;
+  static const IconData copyIcon = Icons.copy;
+
+  void showSnackbar({
+    required String label,
+    Icon? icon,
+    SnackBarAction? action,
+  }) {
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.clearSnackBars();
+
+    messenger.showSnackBar(
       SnackBar(
-        showCloseIcon: true,
-        content: Text(message),
+        content: IconTheme(
+          data: IconThemeData(
+            color: Theme.of(context).colorScheme.onInverseSurface,
+          ),
+          child: Row(
+            children: [
+              if (icon != null)
+                Padding(
+                  padding: const EdgeInsets.only(right: 10),
+                  child: icon,
+                ),
+              Flexible(child: Text(label)),
+            ],
+          ),
+        ),
+        action: action,
       ),
     );
   }
