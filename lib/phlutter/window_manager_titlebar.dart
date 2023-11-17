@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
 
 const double defaultTitleBarHeight = 30;
+const double _topResizeHandleHeight = 7;
 
 class WindowTitlebar extends StatelessWidget {
   const WindowTitlebar({
@@ -10,12 +11,14 @@ class WindowTitlebar extends StatelessWidget {
     this.title = '',
     this.titleColor,
     this.iconWidget,
+    this.extraWidgets,
   });
 
   final double height;
   final String title;
   final Color? titleColor;
   final Image? iconWidget;
+  final List<Widget>? extraWidgets;
 
   static const double titleFontSize = 12;
   static const double iconSize = 17;
@@ -26,37 +29,79 @@ class WindowTitlebar extends StatelessWidget {
       height: height,
       child: Row(
         children: [
-          const SizedBox(width: 6),
-          GestureDetector(
-            onTap: _popupWindowMenu,
-            onSecondaryTap: _popupWindowMenu,
-            child: Padding(
-              padding: const EdgeInsets.all(3.0),
-              child: iconWidget != null
-                  ? SizedBox(
-                      height: iconSize,
-                      width: iconSize,
-                      child: iconWidget,
-                    )
-                  : const SizedBox.shrink(),
-            ),
-          ),
           Expanded(
-            child: TitlebarGestureDetector(
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 2, left: 2),
-                child: Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: titleFontSize,
-                    color: titleColor,
+            child: SizedBox(
+              height: height,
+              child: Stack(
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 3),
+                      child: Row(
+                        children: [
+                          const SizedBox(width: 6),
+                          WindowIconGestureDetector(
+                            child: Padding(
+                              padding: const EdgeInsets.all(3.0),
+                              child: iconWidget != null
+                                  ? SizedBox(
+                                      height: iconSize,
+                                      width: iconSize,
+                                      child: iconWidget,
+                                    )
+                                  : const SizedBox.shrink(),
+                            ),
+                          ),
+                          Expanded(
+                            child: TitlebarGestureDetector(
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.only(bottom: 2, left: 2),
+                                child: Text(
+                                  title,
+                                  style: TextStyle(
+                                    fontSize: titleFontSize,
+                                    color: titleColor,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
                   ),
-                ),
+                  const TopWindowEdgeResizer(),
+                ],
               ),
             ),
           ),
+          if (extraWidgets != null) Row(children: extraWidgets!),
           const DefaultWindowButtonSet(),
         ],
+      ),
+    );
+  }
+}
+
+class TopWindowEdgeResizer extends StatelessWidget {
+  const TopWindowEdgeResizer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      left: 0,
+      right: 0,
+      top: 0,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.resizeUpDown,
+        child: GestureDetector(
+          onPanStart: (_) => _handleWindowResizeTop(),
+          child: SizedBox(
+            height: _topResizeHandleHeight,
+            child: Container(color: Colors.transparent),
+          ),
+        ),
       ),
     );
   }
@@ -147,6 +192,24 @@ class WindowButton extends StatelessWidget {
   }
 }
 
+class WindowIconGestureDetector extends StatelessWidget {
+  const WindowIconGestureDetector({
+    super.key,
+    required this.child,
+  });
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: _popupWindowMenu,
+      onSecondaryTap: _popupWindowMenu,
+      child: child,
+    );
+  }
+}
+
 /// Handles titlebar actions like click to drag window, and right-click to show window menu.
 class TitlebarGestureDetector extends StatelessWidget {
   const TitlebarGestureDetector({
@@ -166,6 +229,10 @@ class TitlebarGestureDetector extends StatelessWidget {
       child: child,
     );
   }
+}
+
+void _handleWindowResizeTop() {
+  windowManager.startResizing(ResizeEdge.top);
 }
 
 void _maximizeOrRestoreWindow() async {
@@ -222,7 +289,7 @@ MaterialStateProperty<Color> _hoverColors({
 //   @override
 //   Widget build(BuildContext context) {
 //     return Container(
-//       //decoration: BoxDecoration(color: color),
+//       decoration: BoxDecoration(color: color),
 //       child: child,
 //     );
 //   }
