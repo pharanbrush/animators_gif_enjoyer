@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
 
 const double defaultTitleBarHeight = 30;
-const double _topResizeHandleHeight = 6;
+const double _topResizeHandleHeight = 7;
 
 const double _extraButtonRadius = 4;
 const Radius _extraButtonRadiusRadius = Radius.circular(_extraButtonRadius);
@@ -33,55 +33,52 @@ class WindowTitlebar extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: height,
-      child: Row(
+      child: Stack(
         children: [
-          Expanded(
-            child: SizedBox(
-              height: height,
-              child: Stack(
-                children: [
-                  SizedBox.expand(
-                    child: Row(
-                      children: [
-                        const SizedBox(width: 6),
-                        WindowIconGestureDetector(
-                          child: Padding(
-                            padding: const EdgeInsets.all(3.0),
-                            child: iconWidget != null
-                                ? SizedBox(
-                                    height: iconSize,
-                                    width: iconSize,
-                                    child: iconWidget,
-                                  )
-                                : const SizedBox.shrink(),
-                          ),
+          Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: height,
+                  child: Row(
+                    children: [
+                      const SizedBox(width: 6),
+                      WindowIconGestureDetector(
+                        child: Padding(
+                          padding: const EdgeInsets.all(3.0),
+                          child: iconWidget != null
+                              ? SizedBox(
+                                  height: iconSize,
+                                  width: iconSize,
+                                  child: iconWidget,
+                                )
+                              : const SizedBox.shrink(),
                         ),
-                        Expanded(
-                          child: TitlebarGestureDetector(
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.only(bottom: 2, left: 2),
-                              child: Text(
-                                title,
-                                style: TextStyle(
-                                  fontSize: titleFontSize,
-                                  color: titleColor,
-                                ),
+                      ),
+                      Expanded(
+                        child: TitlebarGestureDetector(
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 2, left: 2),
+                            child: Text(
+                              title,
+                              style: TextStyle(
+                                fontSize: titleFontSize,
+                                color: titleColor,
                               ),
                             ),
                           ),
-                        )
-                      ],
-                    ),
+                        ),
+                      )
+                    ],
                   ),
-                  const TopWindowEdgeResizer(),
-                ],
+                ),
               ),
-            ),
+              if (extraWidgets != null)
+                ExtraTitlebarButtonsContainer(children: extraWidgets!),
+              const DefaultWindowButtonSet(),
+            ],
           ),
-          if (extraWidgets != null)
-            ExtraTitlebarButtonsContainer(children: extraWidgets!),
-          const DefaultWindowButtonSet(),
+          const TopWindowEdgeResizer(),
         ],
       ),
     );
