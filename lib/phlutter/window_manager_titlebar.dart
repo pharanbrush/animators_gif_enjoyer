@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
 
 const double defaultTitleBarHeight = 30;
-const double _topResizeHandleHeight = 7;
+const double _resizeHandleThickness = 7;
 
 const double _extraButtonRadius = 4;
 const Radius _extraButtonRadiusRadius = Radius.circular(_extraButtonRadius);
@@ -125,29 +125,64 @@ class ExtraTitlebarButtonsContainer extends StatelessWidget {
 class TopWindowEdgeResizer extends StatelessWidget {
   const TopWindowEdgeResizer({
     super.key,
-    this.height = _topResizeHandleHeight,
+    this.height = _resizeHandleThickness,
   });
 
   final double height;
 
   @override
   Widget build(BuildContext context) {
-    return Positioned(
+    return const Positioned(
       left: 0,
       right: 0,
       top: 0,
-      child: MouseRegion(
-        cursor: SystemMouseCursors.resizeUpDown,
-        child: GestureDetector(
-          onPanStart: (_) => _handleWindowResizeTop(),
-          child: SizedBox(
-            height: _topResizeHandleHeight,
-            child: Container(color: Colors.transparent),
-          ),
+      child: WindowResizeHandle(
+        height: _resizeHandleThickness,
+        resizeEdge: ResizeEdge.top,
+      ),
+    );
+  }
+}
+
+class WindowResizeHandle extends StatelessWidget {
+  const WindowResizeHandle({
+    super.key,
+    this.height,
+    this.width,
+    required this.resizeEdge,
+  });
+
+  final double? height;
+  final double? width;
+  final ResizeEdge resizeEdge;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: getCursorForResizeEdge(resizeEdge),
+      child: GestureDetector(
+        onPanStart: (_) => windowManager.startResizing(resizeEdge),
+        child: SizedBox(
+          height: height,
+          width: width,
+          child: Container(color: Colors.transparent),
         ),
       ),
     );
   }
+}
+
+MouseCursor getCursorForResizeEdge(ResizeEdge resizeEdge) {
+  return switch (resizeEdge) {
+    ResizeEdge.topLeft => SystemMouseCursors.resizeUpLeftDownRight,
+    ResizeEdge.top => SystemMouseCursors.resizeUpDown,
+    ResizeEdge.topRight => SystemMouseCursors.resizeUpRightDownLeft,
+    ResizeEdge.left => SystemMouseCursors.resizeLeftRight,
+    ResizeEdge.right => SystemMouseCursors.resizeLeftRight,
+    ResizeEdge.bottomLeft => SystemMouseCursors.resizeUpRightDownLeft,
+    ResizeEdge.bottom => SystemMouseCursors.resizeUpDown,
+    ResizeEdge.bottomRight => SystemMouseCursors.resizeUpLeftDownRight,
+  };
 }
 
 const _closeButttonHoverBgColor = Color(0xFFF23F42);
@@ -272,10 +307,6 @@ class TitlebarGestureDetector extends StatelessWidget {
       child: child,
     );
   }
-}
-
-void _handleWindowResizeTop() {
-  windowManager.startResizing(ResizeEdge.top);
 }
 
 void _maximizeOrRestoreWindow() async {
