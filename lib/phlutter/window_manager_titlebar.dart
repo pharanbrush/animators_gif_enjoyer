@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
 
 const double defaultTitleBarHeight = 30;
-const double _topResizeHandleHeight = 7;
+const double _topResizeHandleHeight = 6;
 
 const double _extraButtonRadius = 4;
 const Radius _extraButtonRadiusRadius = Radius.circular(_extraButtonRadius);
@@ -126,7 +126,12 @@ class ExtraTitlebarButtonsContainer extends StatelessWidget {
 }
 
 class TopWindowEdgeResizer extends StatelessWidget {
-  const TopWindowEdgeResizer({super.key});
+  const TopWindowEdgeResizer({
+    super.key,
+    this.height = _topResizeHandleHeight,
+  });
+
+  final double height;
 
   @override
   Widget build(BuildContext context) {
