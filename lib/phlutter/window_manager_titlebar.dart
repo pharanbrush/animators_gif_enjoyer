@@ -4,6 +4,12 @@ import 'package:window_manager/window_manager.dart';
 const double defaultTitleBarHeight = 30;
 const double _topResizeHandleHeight = 7;
 
+const double _extraButtonRadius = 4;
+const Radius _extraButtonRadiusRadius = Radius.circular(_extraButtonRadius);
+const OutlinedBorder _extraButtonShape = RoundedRectangleBorder(
+  borderRadius: BorderRadius.all(_extraButtonRadiusRadius),
+);
+
 class WindowTitlebar extends StatelessWidget {
   const WindowTitlebar({
     super.key,
@@ -76,9 +82,47 @@ class WindowTitlebar extends StatelessWidget {
               ),
             ),
           ),
-          if (extraWidgets != null) Row(children: extraWidgets!),
+          if (extraWidgets != null)
+            ExtraTitlebarButtonsContainer(children: extraWidgets!),
           const DefaultWindowButtonSet(),
         ],
+      ),
+    );
+  }
+}
+
+class ExtraTitlebarButtonsContainer extends StatelessWidget {
+  const ExtraTitlebarButtonsContainer({
+    super.key,
+    required this.children,
+    this.iconSize = 16,
+  });
+
+  final double iconSize;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    const double buttonSize = 20;
+    Color buttonColor =
+        Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5);
+
+    final iconButtonStyle = ButtonStyle(
+      alignment: Alignment.topCenter,
+      iconSize: MaterialStatePropertyAll(iconSize),
+      minimumSize: const MaterialStatePropertyAll(Size(buttonSize, buttonSize)),
+      padding: const MaterialStatePropertyAll(EdgeInsets.all(4)),
+      shape: const MaterialStatePropertyAll(_extraButtonShape),
+      iconColor: MaterialStatePropertyAll(buttonColor),
+    );
+
+    final themeData = IconButtonThemeData(style: iconButtonStyle);
+
+    return IconButtonTheme(
+      data: themeData,
+      child: Padding(
+        padding: const EdgeInsets.only(right: 6),
+        child: Row(children: children),
       ),
     );
   }
