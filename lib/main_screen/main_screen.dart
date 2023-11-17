@@ -86,6 +86,7 @@ class _MyHomePageState extends State<MyHomePage>
   Size imageSize = Size.zero;
 
   late final ValueNotifier<String> themeString;
+  int _queuedThemeSaveId = 0;
 
   final ValueNotifier<RangeValues> focusFrameRange =
       ValueNotifier(const RangeValues(0, 100));
@@ -247,7 +248,24 @@ class _MyHomePageState extends State<MyHomePage>
     }
 
     themeContext.themeData.value = getThemeFromString(themeString.value);
-    storeThemeStringPreference(themeString.value);
+
+    void queueSaveThemetoPreferences() async {
+      int getLatestSaveCommandId() => _queuedThemeSaveId;
+      int saveCommandId = DateTime.now().millisecondsSinceEpoch;
+      _queuedThemeSaveId = saveCommandId;
+
+      for (int i = 0; i < 5; i++) {
+        await Future.delayed(const Duration(milliseconds: 250));
+        if (getLatestSaveCommandId() != saveCommandId) return;
+      }
+
+      if (getLatestSaveCommandId() == saveCommandId) {
+        print('saved ${themeString.value}');
+        storeThemeStringPreference(themeString.value);
+      }
+    }
+
+    queueSaveThemetoPreferences();
   }
 
   @override
