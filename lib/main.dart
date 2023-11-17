@@ -24,7 +24,6 @@ void main(List<String> args) async {
     title: appName,
     center: true,
     titleBarStyle: TitleBarStyle.hidden,
-    windowButtonVisibility: true,
   );
 
   windowManager.waitUntilReadyToShow(windowOptions, () async {
