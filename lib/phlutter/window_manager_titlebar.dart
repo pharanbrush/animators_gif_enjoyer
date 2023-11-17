@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
 
+const double defaultTitleBarHeight = 30;
+
 class WindowTitlebar extends StatelessWidget {
   const WindowTitlebar({
     super.key,
-    this.height = 30,
+    this.height = defaultTitleBarHeight,
     this.title = '',
     this.titleColor,
     this.iconWidget,
@@ -43,11 +45,13 @@ class WindowTitlebar extends StatelessWidget {
             child: TitlebarGestureDetector(
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 2, left: 2),
-                child: Text(title,
-                    style: TextStyle(
-                      fontSize: titleFontSize,
-                      color: titleColor,
-                    )),
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: titleFontSize,
+                    color: titleColor,
+                  ),
+                ),
               ),
             ),
           ),
@@ -58,21 +62,11 @@ class WindowTitlebar extends StatelessWidget {
   }
 }
 
-class DebugDecoration extends StatelessWidget {
-  const DebugDecoration(this.color, {super.key, required this.child});
+const _closeButttonHoverBgColor = Color(0xFFF23F42);
+const _closeButtonPressedBgColor = Color(0xFFF16F7A);
+const _closeButtonIconHoverColor = Colors.white;
 
-  final Color color;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      //decoration: BoxDecoration(color: color),
-      child: child,
-    );
-  }
-}
-
+/// Buttons to the right of the titlebar that controls window minimize, maximize and close.
 class DefaultWindowButtonSet extends StatelessWidget {
   const DefaultWindowButtonSet({
     super.key,
@@ -83,29 +77,42 @@ class DefaultWindowButtonSet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final themeData = IconButtonThemeData(
-      style: ButtonStyle(
-        alignment: Alignment.topCenter,
-        iconSize: MaterialStatePropertyAll(iconSize),
-        shape: const MaterialStatePropertyAll(LinearBorder()),
-      ),
+    final iconButtonStyle = ButtonStyle(
+      alignment: Alignment.topCenter,
+      iconSize: MaterialStatePropertyAll(iconSize),
+      shape: const MaterialStatePropertyAll(LinearBorder()),
     );
+
+    final themeData = IconButtonThemeData(style: iconButtonStyle);
+
+    Color idleColor = Theme.of(context).colorScheme.onSurfaceVariant;
 
     return IconButtonTheme(
       data: themeData,
-      child: const Row(
+      child: Row(
         children: [
-          WindowButton(
+          const WindowButton(
             icon: Icon(Icons.minimize),
             onPressed: _minimizeWindow,
           ),
-          WindowButton(
+          const WindowButton(
             icon: Icon(Icons.check_box_outline_blank),
             onPressed: _maximizeOrRestoreWindow,
           ),
           WindowButton(
-            icon: Icon(Icons.close),
-            hoverColor: Color(0xFFE81123),
+            icon: const Icon(Icons.close),
+            style: iconButtonStyle.copyWith(
+                overlayColor:
+                    const MaterialStatePropertyAll(Colors.transparent),
+                backgroundColor: _hoverPressedColors(
+                  idle: Colors.transparent,
+                  hover: _closeButttonHoverBgColor,
+                  pressed: _closeButtonPressedBgColor,
+                ),
+                iconColor: _hoverColors(
+                  idle: idleColor,
+                  hover: _closeButtonIconHoverColor,
+                )),
             onPressed: _closeWindow,
           ),
         ],
@@ -114,22 +121,23 @@ class DefaultWindowButtonSet extends StatelessWidget {
   }
 }
 
+/// A button styled for the window buttons of a titlebar.
 class WindowButton extends StatelessWidget {
   const WindowButton({
     super.key,
     required this.icon,
     this.onPressed,
-    this.hoverColor,
+    this.style,
   });
 
   final VoidCallback? onPressed;
   final Icon icon;
-  final Color? hoverColor;
+  final ButtonStyle? style;
 
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      hoverColor: hoverColor,
+      style: style,
       highlightColor: Colors.transparent,
       autofocus: false,
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
@@ -139,15 +147,14 @@ class WindowButton extends StatelessWidget {
   }
 }
 
+/// Handles titlebar actions like click to drag window, and right-click to show window menu.
 class TitlebarGestureDetector extends StatelessWidget {
   const TitlebarGestureDetector({
     super.key,
-    this.child,
-    this.onDoubleTap,
+    required this.child,
   });
 
-  final Widget? child;
-  final VoidCallback? onDoubleTap;
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
@@ -155,8 +162,8 @@ class TitlebarGestureDetector extends StatelessWidget {
       behavior: HitTestBehavior.translucent,
       onPanStart: (details) => windowManager.startDragging(),
       onSecondaryTap: _popupWindowMenu,
-      onDoubleTap: onDoubleTap ?? _maximizeOrRestoreWindow,
-      child: child ?? Container(),
+      onDoubleTap: _maximizeOrRestoreWindow,
+      child: child,
     );
   }
 }
@@ -182,18 +189,41 @@ void _closeWindow() {
   windowManager.close();
 }
 
-// MaterialStateProperty<Color> _hoverActiveColors({
-//   required Color idle,
-//   required Color hover,
-//   required Color active,
-// }) {
-//   return MaterialStateProperty.resolveWith((states) {
-//     if (states.contains(MaterialState.hovered)) {
-//       return hover;
-//     } else if (states.contains(MaterialState.selected)) {
-//       return active;
-//     }
+MaterialStateProperty<Color> _hoverPressedColors({
+  required Color idle,
+  required Color hover,
+  required Color pressed,
+}) {
+  return MaterialStateProperty.resolveWith((states) {
+    if (states.contains(MaterialState.pressed)) {
+      return pressed;
+    } else if (states.contains(MaterialState.hovered)) {
+      return hover;
+    }
 
-//     return idle;
-//   });
+    return idle;
+  });
+}
+
+MaterialStateProperty<Color> _hoverColors({
+  required Color idle,
+  required Color hover,
+}) {
+  return MaterialStateProperty.resolveWith(
+      (states) => states.contains(MaterialState.hovered) ? hover : idle);
+}
+
+// class DebugDecoration extends StatelessWidget {
+//   const DebugDecoration(this.color, {super.key, required this.child});
+
+//   final Color color;
+//   final Widget child;
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       //decoration: BoxDecoration(color: color),
+//       child: child,
+//     );
+//   }
 // }
