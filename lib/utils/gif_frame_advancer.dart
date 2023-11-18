@@ -79,6 +79,11 @@ class GifFrameAdvancer {
     final deltaTime = unscaledDeltaTime * timeScale;
     _accumulatedDuration += deltaTime;
 
+    const maxTimeSkip = Duration(milliseconds: 300);
+    if (_accumulatedDuration > maxTimeSkip) {
+      _accumulatedDuration = maxTimeSkip;
+    }
+
     const maxFrameSkip = 2;
     for (var i = 0; i < maxFrameSkip; i++) {
       final currentFrameDuration = _frames[_current].duration;
