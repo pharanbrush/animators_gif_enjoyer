@@ -73,41 +73,13 @@ class MyHomePage extends StatefulWidget {
 const bool isPlayOnLoad = true;
 
 class _MyHomePageState extends State<MyHomePage>
-    with SingleTickerProviderStateMixin, SnackbarShower {
+    with SingleTickerProviderStateMixin, SnackbarShower, GifPlayer {
   final FocusNode mainWindowFocus = FocusNode(canRequestFocus: true);
-  late GifFrameAdvancer gifAdvancer;
-
-  late PlaybackSpeedController playSpeedController = PlaybackSpeedController(
-    setter: (timeScale) => gifAdvancer.timeScale = timeScale,
-  );
-
-  late final GifController gifController;
-  ImageProvider? gifImageProvider;
-  String filename = '';
-
-  Duration? frameDuration;
-  Size imageSize = Size.zero;
 
   late final ValueNotifier<String> themeString;
   int _queuedThemeSaveId = 0;
 
-  final ValueNotifier<RangeValues> focusFrameRange =
-      ValueNotifier(const RangeValues(0, 100));
-  final ValueNotifier<int> currentFrame = ValueNotifier(0);
-  final ValueNotifier<int> displayedFrame = ValueNotifier(0);
-  final ValueNotifier<int> maxFrameIndex = ValueNotifier(100);
-  final ValueNotifier<bool> isUsingFocusRange = ValueNotifier(false);
-  final ValueNotifier<bool> isGifDownloading = ValueNotifier(false);
-  final ValueNotifier<double> gifDownloadPercent = ValueNotifier(0.0);
-  final ValueNotifier<bool> isScrubMode = ValueNotifier(!isPlayOnLoad);
   final ValueNotifier<bool> isAlwaysOnTop = ValueNotifier(false);
-
-  bool get isGifLoaded => gifImageProvider != null;
-
-  RangeValues get fullFrameRange =>
-      RangeValues(0, maxFrameIndex.value.toDouble());
-  RangeValues get primarySliderRange =>
-      isUsingFocusRange.value ? focusFrameRange.value : fullFrameRange;
 
   final Map<Type, Action<Intent>> shortcutActions = {};
   late List<(Type, Object? Function(Intent))> shortcutIntentActions = [
@@ -159,17 +131,6 @@ class _MyHomePageState extends State<MyHomePage>
     themeString =
         ValueNotifier(widget.initialThemeString ?? defaultThemeString);
 
-    gifAdvancer = GifFrameAdvancer(
-      tickerProvider: this,
-      onFrame: (frameIndex) {
-        setCurrentFrameClamped(frameIndex);
-      },
-    );
-    gifController = GifController(
-      autoPlay: false,
-      loop: true,
-    );
-
     super.initState();
 
     void tryLoadFromWindowsOpenWith() {
@@ -193,11 +154,19 @@ class _MyHomePageState extends State<MyHomePage>
 
   @override
   void dispose() {
-    gifAdvancer.dispose();
-
     themeString.removeListener(updateAppTheme);
     isAlwaysOnTop.removeListener(updateAlwaysOnTop);
     super.dispose();
+  }
+
+  @override
+  void onGifDownloadSuccess() {
+    showSnackbar(label: 'Download complete');
+  }
+
+  @override
+  void onGifLoadError(String errorMessage) {
+    showGifLoadFailedAlert(errorMessage);
   }
 
   void handleEscapeIntent() {
@@ -560,9 +529,9 @@ class _MyHomePageState extends State<MyHomePage>
               valueListenable: isUsingFocusRange,
               builder: (_, isUseCustomRange, __) {
                 final double frameCount = focusFrameRange.value.rangeSize + 1;
-                final rangeSeconds = frameDuration != null
+                final rangeSeconds = loadedGifInfo.frameDuration != null
                     ? (frameCount *
-                        frameDuration!.inMilliseconds.toDouble() *
+                        loadedGifInfo.frameDuration!.inMilliseconds.toDouble() *
                         0.001)
                     : -1;
 
@@ -725,11 +694,6 @@ class _MyHomePageState extends State<MyHomePage>
     }
   }
 
-  void setDisplayedFrame(int frame) {
-    gifController.seek(frame);
-    displayedFrame.value = gifController.currentFrame;
-  }
-
   void tryCopyFrameToClipboard() {
     if (!isGifLoaded) return;
     final image = gifController.currentFrameData.imageInfo.image;
@@ -738,7 +702,226 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   //
-  // Model controls
+  // UI info methods
+  //
+
+  Widget getFramerateTooltip() {
+    if (!isGifLoaded) return const SizedBox.shrink();
+    if (loadedGifInfo.frameDuration == null) return const SizedBox.shrink();
+
+    final frameMilliseconds = loadedGifInfo.frameDuration!.inMilliseconds;
+    final fpsDouble = 1000.0 / frameMilliseconds;
+    if (frameMilliseconds > 0 && GifPlayer.isFpsWhole(fpsDouble)) {
+      return const SizedBox.shrink();
+    }
+
+    String message =
+        'GIF frames are each encoded with intervals in 10 millisecond increments.\n'
+        'This makes their actual framerate potentially variable,\n'
+        'and often not precisely fitting common video framerates.';
+    if (frameMilliseconds <= 10) {
+      message = 'Browsers usually reinterpret delays\n'
+          'below 20 milliseconds as 100 milliseconds.';
+    }
+
+    return Tooltip(
+      message: message,
+      child: Icon(
+        Icons.info_outline,
+        size: 13,
+        color: Theme.of(context).colorScheme.grayColor,
+      ),
+    );
+  }
+
+  String getGifInfoBottomLabel() {
+    if (!isGifLoaded) {
+      return '';
+    }
+
+    return '${getFramerateLabel()}- ${getImageDimensionsLabel()}';
+  }
+
+  String getImageDimensionsLabel() {
+    if (!isGifLoaded) {
+      return '';
+    }
+
+    return '${loadedGifInfo.width}x${loadedGifInfo.height}px';
+  }
+
+  String getFramerateLabel() {
+    if (!isGifLoaded) {
+      return '';
+    }
+
+    const millisecondsUnit = 'ms';
+
+    //final frameDuration = loadedGifInfo.frameDuration;
+    switch (loadedGifInfo.frameDuration) {
+      case null:
+        return 'Variable frame durations';
+      case <= const Duration(milliseconds: 10):
+        return '${loadedGifInfo.frameDuration!.inMilliseconds} $millisecondsUnit per frame.';
+      default:
+        final frameInterval = loadedGifInfo.frameDuration!.inMilliseconds;
+        final fps = 1000.0 / frameInterval;
+        return '~${fps.toStringAsFixed(2)} fps '
+            '($frameInterval $millisecondsUnit per frame.) ';
+    }
+  }
+
+  //
+  // Load Operations
+  //
+
+  void openNewFile() async {
+    var (gifImage, name) = await openGifImageFile();
+    if (gifImage == null || name == null) return;
+
+    loadGifFromProvider(gifImage, name);
+  }
+
+  void tryLoadClipboardPath() async {
+    final clipboardString = await phclipboard.getStringFromClipboard();
+    if (clipboardString == null) return;
+
+    tryLoadGifFromUrl(
+      clipboardString,
+      errorMessage: 'Pasted text was not a proper URL:\n "$clipboardString"',
+    );
+  }
+
+  void tryLoadGifFromFilePath(String path) {
+    if (path.isEmpty) return;
+    loadGifFromProvider(getFileImageFromPath(path), path);
+  }
+
+  void tryLoadGifFromUrl(String url, {String? errorMessage}) {
+    if (url.isEmpty) {
+      return;
+    }
+
+    if (isUrlString(url)) {
+      var provider = NetworkImage(url);
+      loadGifFromProvider(provider, url);
+    } else {
+      showSnackbar(label: errorMessage ?? "Can't load url:\n$url");
+    }
+  }
+
+  //
+  // Screen messages
+  //
+
+  void showGifLoadFailedAlert(String errorText) {
+    showSnackbar(
+      label: 'GIF loading failed\n'
+          '$errorText',
+    );
+  }
+}
+
+class GifInfo {
+  const GifInfo({
+    required this.filename,
+    required this.width,
+    required this.height,
+    required this.frameDuration,
+  });
+
+  GifInfo._fromFramesAndImageInfo({
+    required this.filename,
+    required List<GifFrame> frames,
+    required ImageInfo imageInfo,
+  })  : frameDuration = readFrameDuration(frames),
+        width = imageInfo.image.width,
+        height = imageInfo.image.height;
+
+  GifInfo.fromFrames({
+    required filename,
+    required List<GifFrame> frames,
+  }) : this._fromFramesAndImageInfo(
+          filename: filename,
+          frames: frames,
+          imageInfo: frames[0].imageInfo,
+        );
+
+  final String filename;
+  final int width;
+  final int height;
+  final Duration? frameDuration;
+
+  static Duration? readFrameDuration(List<GifFrame> frames) {
+    var duration = frames[0].duration;
+    for (var frame in frames) {
+      if (duration != frame.duration) return null;
+    }
+    return duration;
+  }
+}
+
+mixin GifPlayer<T extends StatefulWidget> on State<T>, TickerProvider {
+  late final GifController gifController;
+  ImageProvider? gifImageProvider;
+  late GifFrameAdvancer gifAdvancer;
+  late PlaybackSpeedController playSpeedController = PlaybackSpeedController(
+    setter: (timeScale) => gifAdvancer.timeScale = timeScale,
+  );
+
+  final ValueNotifier<int> displayedFrame = ValueNotifier(0);
+  final ValueNotifier<int> currentFrame = ValueNotifier(0);
+
+  final ValueNotifier<RangeValues> focusFrameRange =
+      ValueNotifier(const RangeValues(0, 100));
+
+  final ValueNotifier<bool> isScrubMode = ValueNotifier(!isPlayOnLoad);
+  final ValueNotifier<int> maxFrameIndex = ValueNotifier(100);
+  final ValueNotifier<bool> isUsingFocusRange = ValueNotifier(false);
+
+  RangeValues get fullFrameRange =>
+      RangeValues(0, maxFrameIndex.value.toDouble());
+  RangeValues get primarySliderRange =>
+      isUsingFocusRange.value ? focusFrameRange.value : fullFrameRange;
+
+  final ValueNotifier<bool> isGifDownloading = ValueNotifier(false);
+  final ValueNotifier<double> gifDownloadPercent = ValueNotifier(0.0);
+
+  GifInfo loadedGifInfo = const GifInfo(
+    filename: '',
+    width: 0,
+    height: 0,
+    frameDuration: Duration.zero,
+  );
+  int get lastGifFrame => gifController.frameCount - 1;
+
+  bool get isGifLoaded => gifImageProvider != null;
+
+  @override
+  void initState() {
+    gifAdvancer = GifFrameAdvancer(
+      tickerProvider: this,
+      onFrame: (frameIndex) => onGifFrameAdvance(frameIndex),
+    );
+    gifController = GifController(
+      autoPlay: false,
+      loop: true,
+    );
+    super.initState();
+  }
+
+  void onGifFrameAdvance(int frameIndex) {
+    setCurrentFrameClamped(frameIndex);
+  }
+
+  @override
+  void dispose() {
+    gifAdvancer.dispose();
+    super.dispose();
+  }
+
+  //
+  // Playback controls
   //
 
   void togglePlayPause() {
@@ -777,6 +960,80 @@ class _MyHomePageState extends State<MyHomePage>
     } else {
       gifAdvancer.pause();
     }
+  }
+
+  void onStartLoadNewGif() {
+    setPlayMode(false);
+  }
+
+  void onGifLoadSuccess() {
+    if (isPlayOnLoad) {
+      setPlayMode(true);
+    }
+  }
+
+  void onGifDownloadSuccess();
+  void onGifLoadError(String errorMessage);
+
+  void loadGifFromProvider(
+    ImageProvider provider,
+    String source,
+  ) async {
+    onStartLoadNewGif();
+
+    try {
+      final isDownload = provider is NetworkImage;
+      isGifDownloading.value = isDownload;
+      final frames = await loadGifFrames(
+        provider: provider,
+        onProgressPercent: isDownload
+            ? (downloadPercent) {
+                gifDownloadPercent.value = downloadPercent;
+              }
+            : null,
+      );
+      gifImageProvider = provider;
+      loadedGifInfo = GifInfo.fromFrames(filename: source, frames: frames);
+      gifController.load(frames);
+      gifAdvancer.setFrames(frames);
+
+      setState(() {
+        // Reset sensible values for new file.
+        int lastFrame = lastGifFrame;
+        focusFrameRange.value = RangeValues(0, lastFrame.toDouble());
+        maxFrameIndex.value = lastFrame;
+        currentFrame.value = 0;
+        playSpeedController.resetSpeed();
+        isGifDownloading.value = false;
+        onGifLoadSuccess();
+
+        if (gifImageProvider is NetworkImage) {
+          onGifDownloadSuccess();
+        }
+      });
+    } catch (e) {
+      if (gifImageProvider is NetworkImage) {
+        try {
+          var uri = Uri.parse(source);
+          if (uri.host.contains('tenor') && !uri.path.endsWith('gif')) {
+            final gifLinkError = 'Cannot access : $source \n'
+                '(Tenor embed links currently do not work.)';
+            onGifLoadError(gifLinkError);
+          }
+        } catch (m) {
+          onGifLoadError(e.toString());
+        }
+      } else {
+        onGifLoadError(e.toString());
+      }
+
+      isGifDownloading.value = false;
+    }
+  }
+
+  void setDisplayedFrame(int frame) {
+    gifController.seek(frame);
+    displayedFrame.value = gifController.currentFrame;
   }
 
   //
@@ -830,199 +1087,6 @@ class _MyHomePageState extends State<MyHomePage>
 
   static bool isFpsWhole(double fps) {
     return fps.floorToDouble() == fps;
-  }
-
-  //
-  // UI info methods
-  //
-
-  Widget getFramerateTooltip() {
-    if (!isGifLoaded) return const SizedBox.shrink();
-    if (frameDuration == null) return const SizedBox.shrink();
-
-    final frameMilliseconds = frameDuration!.inMilliseconds;
-    final fpsDouble = 1000.0 / frameMilliseconds;
-    if (frameMilliseconds > 0 && isFpsWhole(fpsDouble)) {
-      return const SizedBox.shrink();
-    }
-
-    String message =
-        'GIF frames are each encoded with intervals in 10 millisecond increments.\n'
-        'This makes their actual framerate potentially variable,\n'
-        'and often not precisely fitting common video framerates.';
-    if (frameMilliseconds <= 10) {
-      message = 'Browsers usually reinterpret delays\n'
-          'below 20 milliseconds as 100 milliseconds.';
-    }
-
-    return Tooltip(
-      message: message,
-      child: Icon(
-        Icons.info_outline,
-        size: 13,
-        color: Theme.of(context).colorScheme.grayColor,
-      ),
-    );
-  }
-
-  String getGifInfoBottomLabel() {
-    if (!isGifLoaded) {
-      return '';
-    }
-
-    return '${getFramerateLabel()}- ${getImageDimensionsLabel()}';
-  }
-
-  String getImageDimensionsLabel() {
-    if (!isGifLoaded) {
-      return '';
-    }
-
-    return '${imageSize.width.toInt()}x${imageSize.height.toInt()}px';
-  }
-
-  String getFramerateLabel() {
-    if (!isGifLoaded) {
-      return '';
-    }
-
-    const millisecondsUnit = 'ms';
-
-    switch (frameDuration) {
-      case null:
-        return 'Variable frame durations';
-      case <= const Duration(milliseconds: 10):
-        return '${frameDuration!.inMilliseconds} $millisecondsUnit per frame.';
-      default:
-        final frameInterval = frameDuration!.inMilliseconds;
-        final fps = 1000.0 / frameInterval;
-        return '~${fps.toStringAsFixed(2)} fps '
-            '($frameInterval $millisecondsUnit per frame.) ';
-    }
-  }
-
-  //
-  // Load Operations
-  //
-
-  void openNewFile() async {
-    var (gifImage, name) = await openGifImageFile();
-    if (gifImage == null || name == null) return;
-
-    loadGifFromProvider(gifImage, name);
-  }
-
-  void loadGifFromProvider(
-    ImageProvider provider,
-    String source,
-  ) async {
-    setPlayMode(false);
-
-    try {
-      final isDownload = provider is NetworkImage;
-      isGifDownloading.value = isDownload;
-      final frames = await loadGifFrames(
-        provider: provider,
-        onProgressPercent: isDownload
-            ? (downloadPercent) {
-                gifDownloadPercent.value = downloadPercent;
-              }
-            : null,
-      );
-      gifImageProvider = provider;
-
-      frameDuration = readFrameDuration(frames);
-
-      final image = frames[0].imageInfo.image;
-      imageSize = Size(image.width.toDouble(), image.height.toDouble());
-
-      gifController.load(frames);
-      gifAdvancer.setFrames(frames);
-      int lastFrame = frames.length - 1;
-
-      setState(() {
-        // Reset sensible values for new file.
-        focusFrameRange.value = RangeValues(0, lastFrame.toDouble());
-        maxFrameIndex.value = lastFrame;
-        currentFrame.value = 0;
-        playSpeedController.resetSpeed();
-        filename = source;
-        isGifDownloading.value = false;
-
-        if (gifImageProvider is NetworkImage) {
-          showSnackbar(label: 'Download complete');
-        }
-
-        if (isPlayOnLoad) {
-          setPlayMode(true);
-        }
-      });
-    } catch (e) {
-      if (gifImageProvider is NetworkImage) {
-        try {
-          var uri = Uri.parse(source);
-          if (uri.host.contains('tenor') && !uri.path.endsWith('gif')) {
-            showSnackbar(
-              label: 'Cannot access : $source \n'
-                  '(Tenor embed links currently do not work.)',
-            );
-          }
-        } catch (m) {
-          showGifLoadFailedAlert(e.toString());
-        }
-      } else {
-        showGifLoadFailedAlert(e.toString());
-      }
-
-      isGifDownloading.value = false;
-    }
-  }
-
-  static Duration? readFrameDuration(List<GifFrame> frames) {
-    var duration = frames[0].duration;
-    for (var frame in frames) {
-      if (duration != frame.duration) return null;
-    }
-    return duration;
-  }
-
-  void tryLoadClipboardPath() async {
-    final clipboardString = await phclipboard.getStringFromClipboard();
-    if (clipboardString == null) return;
-
-    tryLoadGifFromUrl(
-      clipboardString,
-      errorMessage: 'Pasted text was not a proper URL:\n "$clipboardString"',
-    );
-  }
-
-  void tryLoadGifFromFilePath(String path) {
-    if (path.isEmpty) return;
-    loadGifFromProvider(getFileImageFromPath(path), path);
-  }
-
-  void tryLoadGifFromUrl(String url, {String? errorMessage}) {
-    if (url.isEmpty) {
-      return;
-    }
-
-    if (isUrlString(url)) {
-      var provider = NetworkImage(url);
-      loadGifFromProvider(provider, url);
-    } else {
-      showSnackbar(label: errorMessage ?? "Can't load url:\n$url");
-    }
-  }
-
-  //
-  // Screen messages
-  //
-
-  void showGifLoadFailedAlert(String errorText) {
-    showSnackbar(
-      label: 'GIF loading failed\n'
-          '$errorText',
-    );
   }
 }
 
