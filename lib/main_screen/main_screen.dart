@@ -1046,7 +1046,7 @@ class PlaybackSpeedController {
       2 => '2',
       3 => '3',
       < 1 => _currentSpeed.value.toStringAsPrecision(2),
-      _ => _currentSpeed.toString(),
+      _ => _currentSpeed.value.toInt().toString(),
     };
   }
 
@@ -1056,6 +1056,11 @@ class PlaybackSpeedController {
 
   void cycleNextSpeed() {
     final currentIndex = _speeds.indexOf(_currentSpeed.value);
+    if (currentIndex < 0) {
+      _setSpeed(defaultSpeed);
+      return;
+    }
+
     final nextIndex =
         (currentIndex == _speeds.length - 1) ? 0 : currentIndex + 1;
 
