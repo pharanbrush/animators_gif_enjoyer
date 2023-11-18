@@ -158,7 +158,7 @@ class _MyHomePageState extends State<MyHomePage>
     gifAdvancer = GifFrameAdvancer(
       tickerProvider: this,
       onFrame: (frameIndex) {
-        setCurrentFrame(frameIndex);
+        setCurrentFrameClamped(frameIndex);
       },
     );
     gifController = GifController(
@@ -496,7 +496,7 @@ class _MyHomePageState extends State<MyHomePage>
                     currentFrame: currentFrame,
                     gifController: gifController,
                     enabled: isGifLoaded && isScrubMode.value,
-                    onChange: updateGifViewFrame,
+                    onChange: clampCurrentFrameAndShow,
                   ),
                 ),
               ),
@@ -724,29 +724,23 @@ class _MyHomePageState extends State<MyHomePage>
     }
   }
 
-  void updateGifViewFrame() {
-    gifController.seek(currentFrame.value);
-  }
-
   //
   // Frame controls
   //
 
-  void setCurrentFrame(int newFrame) {
-    currentFrame.value = newFrame;
-    clampCurrentFrame();
-    setDisplayedFrame(newFrame);
+  void incrementFrame(int incrementSign) {
+    if (incrementSign == 0) return;
+    setCurrentFrameClamped(currentFrame.value + incrementSign.sign);
   }
 
-  void incrementFrame(int incrementSign) {
-    if (incrementSign > 0) {
-      currentFrame.value += 1;
-    } else if (incrementSign < 0) {
-      currentFrame.value -= 1;
-    }
-
+  void setCurrentFrameClamped(int newFrame) {
+    currentFrame.value = newFrame;
+    clampCurrentFrameAndShow();
+  }
+  
+  void clampCurrentFrameAndShow() {
     clampCurrentFrame();
-    updateGifViewFrame();
+    setDisplayedFrame(currentFrame.value);
   }
 
   void clampFocusRange() {

@@ -1,5 +1,6 @@
 import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
 import 'package:animators_gif_enjoyer/main_screen/theme.dart';
+import 'package:animators_gif_enjoyer/phlutter/scroll_listener.dart';
 import 'package:animators_gif_enjoyer/utils/build_info.dart';
 import 'package:contextual_menu/contextual_menu.dart';
 import 'package:flutter/foundation.dart';
@@ -258,7 +259,11 @@ class MainSlider extends StatelessWidget {
                   skipTraversal: true,
                   descendantsAreFocusable: false,
                   descendantsAreTraversable: false,
-                  child: slider,
+                  child: ScrollListener(
+                    onScrollUp: () => increment(currentFrame, 1),
+                    onScrollDown: () => increment(currentFrame, -1),
+                    child: slider,
+                  ),
                 ),
               ),
             );
@@ -272,6 +277,11 @@ class MainSlider extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  void increment(ValueNotifier<int> notifier, int incrementSign) {
+    notifier.value = notifier.value + incrementSign.sign;
+    onChange();
   }
 }
 
