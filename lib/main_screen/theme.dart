@@ -21,6 +21,7 @@ final appIconDataBytes = const Base64Decoder().convert(_appIconData);
 
 const double smallTextSize = 12;
 const Color focusRangeColor = Color.fromARGB(255, 137, 175, 76);
+const Color defaultActiveColor = Colors.orange;
 
 const double borderRadius = 5;
 const Radius borderRadiusRadius = Radius.circular(borderRadius);
@@ -151,6 +152,7 @@ ThemeData getEnjoyerTheme() {
     colorScheme: ColorScheme.fromSeed(
       seedColor: interfaceColor,
       primary: interfaceColor,
+      tertiary: defaultActiveColor,
       scrim: const Color(0xDD000000),
     ),
     textButtonTheme: const TextButtonThemeData(style: buttonStyle),
@@ -163,6 +165,7 @@ ThemeData getEnjoyerTheme() {
 ThemeData getPhriendsTheme() {
   const Color interfaceColor = Color(0xFF5865F2);
   //const Color panelBackground = Color(0xFF2B2D31);
+  const Color tertiary = Color(0xFF23A55A);
   const Color appBackground = Color(0xFF313338);
   const Color tooltipBackgroundColor = Color(0xFF111214);
   const Color tooltipTextColor = Color(0xEEDBDEE1);
@@ -190,6 +193,7 @@ ThemeData getPhriendsTheme() {
       brightness: Brightness.dark,
       seedColor: interfaceColor,
       primary: interfaceColor,
+      tertiary: tertiary,
       scrim: const Color(0xDD000000),
     ),
     tooltipTheme: tooltipTheme,
@@ -210,6 +214,7 @@ ThemeData getEnjoyerThemeGray() {
       brightness: Brightness.dark,
       seedColor: interfaceColor,
       primary: interfaceColor,
+      tertiary: defaultActiveColor,
       scrim: const Color(0xDD000000),
     ),
     textButtonTheme: const TextButtonThemeData(style: buttonStyle),
@@ -229,6 +234,7 @@ ThemeData getEnjoyerThemeBlack() {
       brightness: Brightness.dark,
       seedColor: interfaceColor,
       primary: interfaceColor,
+      tertiary: defaultActiveColor,
       scrim: const Color(0xDD000000),
     ),
     textButtonTheme: const TextButtonThemeData(style: buttonStyle),

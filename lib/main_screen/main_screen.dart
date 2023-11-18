@@ -77,6 +77,10 @@ class _MyHomePageState extends State<MyHomePage>
   final FocusNode mainWindowFocus = FocusNode(canRequestFocus: true);
   late GifFrameAdvancer gifAdvancer;
 
+  late PlaybackSpeedController playbackController = PlaybackSpeedController(
+    setter: (timeScale) => gifAdvancer.timeScale = timeScale,
+  );
+
   late final GifController gifController;
   ImageProvider? gifImageProvider;
   String filename = '';
@@ -295,21 +299,75 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   Widget topLeftControls(BuildContext context) {
-    final grayColor = Theme.of(context).colorScheme.faintGrayColor;
     const double iconSize = 16;
     const double buttonSize = 34;
-    final iconButtonTheme = IconButtonThemeData(
-      style: ButtonStyle(
-        minimumSize:
-            const MaterialStatePropertyAll(Size(buttonSize, buttonSize)),
-        shape: const MaterialStatePropertyAll(appButtonShape),
-        iconSize: const MaterialStatePropertyAll(iconSize),
-        iconColor: hoverColors(
-          idle: grayColor,
-          hover: grayColor.withAlpha(0xFF),
-        ),
+    const Size size = Size(buttonSize, buttonSize);
+    const buttonSizeProperty = MaterialStatePropertyAll(size);
+
+    final buttonContentColor = Theme.of(context).colorScheme.faintGrayColor;
+    final contentColorProperty = hoverColors(
+      idle: buttonContentColor,
+      hover: buttonContentColor.withAlpha(0xFF),
+    );
+    final buttonStyle = ButtonStyle(
+      minimumSize: buttonSizeProperty,
+      maximumSize: buttonSizeProperty,
+      fixedSize: buttonSizeProperty,
+      shape: const MaterialStatePropertyAll(appButtonShape),
+      iconSize: const MaterialStatePropertyAll(iconSize),
+      iconColor: contentColorProperty,
+      foregroundColor: contentColorProperty,
+      textStyle: MaterialStatePropertyAll(
+        Theme.of(context).textTheme.labelSmall!.copyWith(
+              overflow: TextOverflow.visible,
+            ),
+      ),
+      padding: const MaterialStatePropertyAll(
+        EdgeInsets.symmetric(horizontal: 0),
       ),
     );
+    final activeColor = Theme.of(context).colorScheme.tertiary;
+    final activeButtonStyle = ButtonStyle(
+      foregroundColor: hoverColors(
+        idle: activeColor.withOpacity(0.75),
+        hover: activeColor,
+      ),
+    );
+    final iconButtonTheme = IconButtonThemeData(style: buttonStyle);
+    final textButtonTheme = TextButtonThemeData(style: buttonStyle);
+
+    final cycleThemeButton = IconButton(
+      icon: const Icon(Icons.lightbulb_outline),
+      tooltip: 'Cycle interface brightness',
+      onPressed: cycleTheme,
+    );
+
+    final cyclePlaybackSpeedButton = ValueListenableBuilder(
+      valueListenable: playbackController.valueListenable,
+      builder: (_, __, ___) {
+        return Tooltip(
+          message: 'Change playback speed',
+          child: GestureDetector(
+            onTertiaryTapDown: (_) => playbackController.resetSpeed(),
+            child: TextButton(
+              style:
+                  playbackController.isDefaultSpeed ? null : activeButtonStyle,
+              child: Text('${playbackController.currentSpeedString}x'),
+              onPressed: () => playbackController.cycleNextSpeed(),
+            ),
+          ),
+        );
+      },
+    );
+
+    final List<Widget> buttons = isGifLoaded
+        ? [
+            cycleThemeButton,
+            cyclePlaybackSpeedButton,
+          ]
+        : [
+            cycleThemeButton,
+          ];
 
     return Positioned(
       left: 0,
@@ -319,16 +377,13 @@ class _MyHomePageState extends State<MyHomePage>
           vertical: 2,
           horizontal: 2,
         ),
-        child: IconButtonTheme(
-          data: iconButtonTheme,
-          child: Column(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.lightbulb_outline),
-                tooltip: 'Cycle interface brightness',
-                onPressed: cycleTheme,
-              ),
-            ],
+        child: TextButtonTheme(
+          data: textButtonTheme,
+          child: IconButtonTheme(
+            data: iconButtonTheme,
+            child: Column(
+              children: buttons,
+            ),
           ),
         ),
       ),
@@ -737,7 +792,7 @@ class _MyHomePageState extends State<MyHomePage>
     currentFrame.value = newFrame;
     clampCurrentFrameAndShow();
   }
-  
+
   void clampCurrentFrameAndShow() {
     clampCurrentFrame();
     setDisplayedFrame(currentFrame.value);
@@ -886,9 +941,11 @@ class _MyHomePageState extends State<MyHomePage>
       int lastFrame = frames.length - 1;
 
       setState(() {
+        // Reset sensible values for new file.
         focusFrameRange.value = RangeValues(0, lastFrame.toDouble());
         maxFrameIndex.value = lastFrame;
         currentFrame.value = 0;
+        playbackController.resetSpeed();
         filename = source;
         isGifDownloading.value = false;
 
@@ -966,6 +1023,52 @@ class _MyHomePageState extends State<MyHomePage>
       label: 'GIF loading failed\n'
           '$errorText',
     );
+  }
+}
+
+class PlaybackSpeedController {
+  PlaybackSpeedController({
+    required this.setter,
+  });
+
+  final void Function(double timeScale) setter;
+
+  static const defaultSpeed = 1.0;
+  static const _speeds = <double>[0.25, 0.5, defaultSpeed, 2, 3];
+
+  final _currentSpeed = ValueNotifier<double>(defaultSpeed);
+
+  String get currentSpeedString {
+    return switch (_currentSpeed.value) {
+      0.25 => '.25',
+      0.5 => '.5',
+      1 => '1',
+      2 => '2',
+      3 => '3',
+      < 1 => _currentSpeed.value.toStringAsPrecision(2),
+      _ => _currentSpeed.toString(),
+    };
+  }
+
+  ValueListenable<double> get valueListenable => _currentSpeed;
+
+  bool get isDefaultSpeed => _currentSpeed.value == defaultSpeed;
+
+  void cycleNextSpeed() {
+    final currentIndex = _speeds.indexOf(_currentSpeed.value);
+    final nextIndex =
+        (currentIndex == _speeds.length - 1) ? 0 : currentIndex + 1;
+
+    _setSpeed(_speeds[nextIndex]);
+  }
+
+  void resetSpeed() {
+    _setSpeed(defaultSpeed);
+  }
+
+  void _setSpeed(double speed) {
+    _currentSpeed.value = speed;
+    setter(_currentSpeed.value);
   }
 }
 
