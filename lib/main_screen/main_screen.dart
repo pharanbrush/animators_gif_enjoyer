@@ -77,7 +77,7 @@ class _MyHomePageState extends State<MyHomePage>
   final FocusNode mainWindowFocus = FocusNode(canRequestFocus: true);
   late GifFrameAdvancer gifAdvancer;
 
-  late PlaybackSpeedController playbackController = PlaybackSpeedController(
+  late PlaybackSpeedController playSpeedController = PlaybackSpeedController(
     setter: (timeScale) => gifAdvancer.timeScale = timeScale,
   );
 
@@ -343,17 +343,17 @@ class _MyHomePageState extends State<MyHomePage>
     );
 
     final cyclePlaybackSpeedButton = ValueListenableBuilder(
-      valueListenable: playbackController.valueListenable,
+      valueListenable: playSpeedController.valueListenable,
       builder: (_, __, ___) {
         return Tooltip(
           message: 'Change playback speed',
           child: GestureDetector(
-            onTertiaryTapDown: (_) => playbackController.resetSpeed(),
+            onTertiaryTapDown: (_) => playSpeedController.resetSpeed(),
             child: TextButton(
               style:
-                  playbackController.isDefaultSpeed ? null : activeButtonStyle,
-              child: Text('${playbackController.currentSpeedString}x'),
-              onPressed: () => playbackController.cycleNextSpeed(),
+                  playSpeedController.isDefaultSpeed ? null : activeButtonStyle,
+              child: Text('${playSpeedController.currentSpeedString}x'),
+              onPressed: () => playSpeedController.cycleNextSpeed(),
             ),
           ),
         );
@@ -945,7 +945,7 @@ class _MyHomePageState extends State<MyHomePage>
         focusFrameRange.value = RangeValues(0, lastFrame.toDouble());
         maxFrameIndex.value = lastFrame;
         currentFrame.value = 0;
-        playbackController.resetSpeed();
+        playSpeedController.resetSpeed();
         filename = source;
         isGifDownloading.value = false;
 
