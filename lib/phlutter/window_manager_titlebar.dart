@@ -184,7 +184,7 @@ class ExtraTitlebarButtonsContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     const double buttonSize = 20;
     Color buttonColor =
-        Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5);
+        Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.4);
 
     final iconButtonStyle = ButtonStyle(
       alignment: Alignment.topCenter,
@@ -192,7 +192,11 @@ class ExtraTitlebarButtonsContainer extends StatelessWidget {
       minimumSize: const MaterialStatePropertyAll(Size(buttonSize, buttonSize)),
       padding: const MaterialStatePropertyAll(EdgeInsets.all(4)),
       shape: const MaterialStatePropertyAll(_extraButtonShape),
-      iconColor: MaterialStatePropertyAll(buttonColor),
+      iconColor: _hoverActiveColors(
+        idle: buttonColor,
+        hover: buttonColor.withOpacity(1),
+        active: Theme.of(context).colorScheme.primary,
+      ),
     );
 
     final themeData = IconButtonThemeData(style: iconButtonStyle);
@@ -438,6 +442,23 @@ MaterialStateProperty<Color> _hoverColors({
   return MaterialStateProperty.resolveWith(
       (states) => states.contains(MaterialState.hovered) ? hover : idle);
 }
+
+MaterialStateProperty<Color> _hoverActiveColors({
+  required Color idle,
+  required Color hover,
+  required Color active,
+}) {
+  return MaterialStateProperty.resolveWith((states) {
+    if (states.contains(MaterialState.hovered)) {
+      return hover;
+    } else if (states.contains(MaterialState.selected)) {
+      return active;
+    }
+
+    return idle;
+  });
+}
+
 
 // class DebugDecoration extends StatelessWidget {
 //   const DebugDecoration(this.color, {super.key, required this.child});

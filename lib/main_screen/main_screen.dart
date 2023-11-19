@@ -6,7 +6,7 @@ import 'package:animators_gif_enjoyer/main_screen/theme.dart';
 import 'package:animators_gif_enjoyer/phlutter/image_drop_target.dart';
 import 'package:animators_gif_enjoyer/phlutter/material_state_property_utils.dart';
 import 'package:animators_gif_enjoyer/phlutter/modal_panel.dart';
-import 'package:animators_gif_enjoyer/phlutter/window_manager_titlebar.dart';
+import 'package:animators_gif_enjoyer/phlutter/windows_phwindow.dart';
 import 'package:animators_gif_enjoyer/utils/build_info.dart';
 import 'package:animators_gif_enjoyer/utils/download_file.dart';
 import 'package:animators_gif_enjoyer/utils/gif_frame_advancer.dart';
@@ -79,8 +79,6 @@ class _MyHomePageState extends State<MyHomePage>
   late final ValueNotifier<String> themeString;
   int _queuedThemeSaveId = 0;
 
-  final ValueNotifier<bool> isAlwaysOnTop = ValueNotifier(false);
-
   final Map<Type, Action<Intent>> shortcutActions = {};
   late List<(Type, Object? Function(Intent))> shortcutIntentActions = [
     (PreviousIntent, (_) => incrementFrame(-1)),
@@ -149,13 +147,11 @@ class _MyHomePageState extends State<MyHomePage>
     initializePackageInfo();
 
     themeString.addListener(updateAppTheme);
-    isAlwaysOnTop.addListener(updateAlwaysOnTop);
   }
 
   @override
   void dispose() {
     themeString.removeListener(updateAppTheme);
-    isAlwaysOnTop.removeListener(updateAlwaysOnTop);
     super.dispose();
   }
 
@@ -184,10 +180,6 @@ class _MyHomePageState extends State<MyHomePage>
 
     //Separate workaround that uses window_manager since already it's a dependency.
     windowManager.close();
-  }
-
-  void updateAlwaysOnTop() {
-    windowManager.setAlwaysOnTop(isAlwaysOnTop.value);
   }
 
   void updateAppTheme() {
@@ -229,40 +221,13 @@ class _MyHomePageState extends State<MyHomePage>
       fileDropTarget(context),
     ];
 
-    final titleBar = WindowTitlebar(
+    return WindowsPhwindow(
       title: appName,
       titleColor: Theme.of(context).colorScheme.mutedSurfaceColor,
       iconWidget: Image.memory(appIconDataBytes),
-      includeTopWindowResizer: false,
-      extraWidgets: [
-        ValueListenableBuilder(
-          valueListenable: isAlwaysOnTop,
-          builder: (_, value, __) {
-            return IconButton(
-              tooltip: value
-                  ? 'Click to disable Keep window on top'
-                  : 'Click to enable Keep window on top',
-              icon: value
-                  ? const Icon(Icons.picture_in_picture_alt)
-                  : const Icon(Icons.picture_in_picture_alt_outlined),
-              onPressed: () => isAlwaysOnTop.toggle(),
-            );
-          },
-        ),
-      ],
-    );
-
-    return Scaffold(
-      body: Stack(
-        children: [
-          Column(
-            children: [
-              titleBar,
-              Expanded(child: Stack(children: windowContents)),
-            ],
-          ),
-          const WindowResizeFrame(),
-        ],
+      addExtraResizingFrame: true,
+      child: Stack(
+        children: windowContents,
       ),
     );
   }
