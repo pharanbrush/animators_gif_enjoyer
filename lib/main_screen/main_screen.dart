@@ -757,17 +757,17 @@ class _MyHomePageState extends State<MyHomePage>
 
     const millisecondsUnit = 'ms';
 
-    //final frameDuration = loadedGifInfo.frameDuration;
-    switch (loadedGifInfo.frameDuration) {
+    final frameDuration = loadedGifInfo.frameDuration;
+    switch (frameDuration) {
       case null:
         return 'Variable frame durations';
       case <= const Duration(milliseconds: 10):
-        return '${loadedGifInfo.frameDuration!.inMilliseconds} $millisecondsUnit per frame.';
+        return '${frameDuration.inMilliseconds} $millisecondsUnit per frame.';
       default:
-        final frameInterval = loadedGifInfo.frameDuration!.inMilliseconds;
+        final frameInterval = frameDuration.inMilliseconds;
         final fps = 1000.0 / frameInterval;
         return '~${fps.toStringAsFixed(2)} fps '
-            '($frameInterval $millisecondsUnit per frame.) ';
+            '($frameInterval $millisecondsUnit per frame) ';
     }
   }
 
