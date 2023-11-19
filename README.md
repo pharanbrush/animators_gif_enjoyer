@@ -16,6 +16,13 @@ Pharan's simple frame-by-frame GIF inspection utility app.
 - Drag and drop GIF files into the window.
 - Paste GIF links to download it. (Embed links like from Tenor are not supported)
 
+#### 1.0.4
+- Quickly switch the interface brightness to check what the GIF looks like on different backgrounds.
+
+#### COMING SOON: 1.0.6
+- Change the playback speed.
+- Export GIF as a PNG Sequence (so you can use them in Blender or other apps that don't support GIFs).
+
 ---
 
 With GIF handling library based on gif_view by Rafaelbarbosatec
