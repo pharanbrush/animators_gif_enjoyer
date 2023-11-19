@@ -45,6 +45,7 @@ dependencies:
   windows_single_instance: ^1.0.0
   package_info_plus: ^4.2.0
   shared_preferences: ^2.2.2
+  url_launcher: ^6.2.1
 
 dev_dependencies:
   flutter_test:
