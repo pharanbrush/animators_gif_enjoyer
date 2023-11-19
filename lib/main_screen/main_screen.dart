@@ -346,12 +346,18 @@ class _MyHomePageState extends State<MyHomePage>
           vertical: 2,
           horizontal: 2,
         ),
-        child: TextButtonTheme(
-          data: textButtonTheme,
-          child: IconButtonTheme(
-            data: iconButtonTheme,
-            child: Column(
-              children: buttons,
+        child: TooltipTheme(
+          data: Theme.of(context).tooltipTheme.copyWith(
+                verticalOffset: 35,
+                waitDuration: delayedTooltipDelay,
+              ),
+          child: TextButtonTheme(
+            data: textButtonTheme,
+            child: IconButtonTheme(
+              data: iconButtonTheme,
+              child: Column(
+                children: buttons,
+              ),
             ),
           ),
         ),

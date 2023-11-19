@@ -6,6 +6,9 @@ import 'package:contextual_menu/contextual_menu.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+const delayedTooltipDelay = Duration(milliseconds: 200);
+const slowTooltipDelay = Duration(milliseconds: 600);
+
 class GifViewContainer extends StatelessWidget {
   const GifViewContainer({
     super.key,
@@ -75,17 +78,20 @@ class BottomPlayPauseButton extends StatelessWidget {
     return ValueListenableBuilder(
       valueListenable: isScrubMode,
       builder: (_, isPausedAndScrubbing, __) {
-        return IconButton(
-          style: const ButtonStyle(
-            maximumSize: MaterialStatePropertyAll(Size(100, 100)),
-          ),
-          onPressed: onPressed,
-          tooltip: 'Toggle play/pause.\nYou can also click on the gif.',
-          icon: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15.0),
-            child: Icon(
-              color: Theme.of(context).colorScheme.mutedSurfaceColor,
-              isPausedAndScrubbing ? Icons.play_arrow : Icons.pause,
+        return Tooltip(
+          message: 'Toggle play/pause.\nYou can also click on the gif.',
+          waitDuration: slowTooltipDelay,
+          child: IconButton(
+            style: const ButtonStyle(
+              maximumSize: MaterialStatePropertyAll(Size(100, 100)),
+            ),
+            onPressed: onPressed,
+            icon: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15.0),
+              child: Icon(
+                color: Theme.of(context).colorScheme.mutedSurfaceColor,
+                isPausedAndScrubbing ? Icons.play_arrow : Icons.pause,
+              ),
             ),
           ),
         );
@@ -304,6 +310,7 @@ class ToggleFocusButton extends StatelessWidget {
     const customFocusStyle = TextStyle(color: focusRangeColor);
 
     return Tooltip(
+      preferBelow: false,
       message: !enabled
           ? ''
           : isFocusing
