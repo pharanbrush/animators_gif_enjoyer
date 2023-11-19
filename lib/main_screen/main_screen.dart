@@ -1105,12 +1105,8 @@ class PlaybackSpeedController {
 
   String get currentSpeedString {
     return switch (_currentSpeed.value) {
-      0.25 => '.25',
       0.5 => '.5',
-      1 => '1',
-      2 => '2',
-      3 => '3',
-      < 1 => _currentSpeed.value.toStringAsPrecision(2),
+      < 1 => _currentSpeed.value.toStringAsPrecision(2).substring(1),
       _ => _currentSpeed.value.toInt().toString(),
     };
   }
