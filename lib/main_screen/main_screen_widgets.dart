@@ -40,17 +40,17 @@ class GifViewContainer extends StatelessWidget {
     return Menu(
       items: [
         MenuItem(
+          label: 'Copy frame image',
+          onClick: (_) => copyImageHandler(),
+        ),
+        MenuItem.separator(),
+        MenuItem(
           label: 'Open GIF...',
           onClick: (_) => openImageHandler(),
         ),
         MenuItem(
           label: 'Paste to address bar...',
           onClick: (_) => pasteHandler(),
-        ),
-        MenuItem.separator(),
-        MenuItem(
-          label: 'Copy frame image',
-          onClick: (_) => copyImageHandler(),
         ),
         MenuItem.separator(),
         if (packageInfo != null)
