@@ -84,7 +84,8 @@ class GifFrameAdvancer {
       _accumulatedDuration = maxTimeSkip;
     }
 
-    const maxFrameSkip = 2;
+    const maxFrameSkip = 4;
+    bool wasUpdatedFrame = false;
     for (var i = 0; i < maxFrameSkip; i++) {
       final currentFrameDuration = _frames[_current].duration;
       if (_accumulatedDuration >= currentFrameDuration) {
@@ -94,10 +95,13 @@ class GifFrameAdvancer {
         if (_current > _last) {
           _current = _start;
         }
-
-        onFrame?.call(_current);
+        wasUpdatedFrame = true;
+      } else {
+        break;
       }
     }
+
+    if (wasUpdatedFrame) onFrame?.call(_current);
     _lastTime = currentTickerTime;
   }
 }
