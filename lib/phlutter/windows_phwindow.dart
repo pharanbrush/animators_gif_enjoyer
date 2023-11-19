@@ -5,13 +5,14 @@ import 'package:window_manager/window_manager.dart';
 ///
 /// Wraps the child with a titlebar and optional window resizing handles all around.
 /// This is meant as a top-level visible widget.
-class WindowsPhwindow extends StatefulWidget {
+class WindowsPhwindow extends StatelessWidget {
   const WindowsPhwindow({
     super.key,
     this.title = '',
     this.titleColor,
     this.iconWidget,
     this.addExtraResizingFrame = true,
+    this.isAlwaysOnTopNotifier,
     required this.child,
   });
 
@@ -20,23 +21,17 @@ class WindowsPhwindow extends StatefulWidget {
   final Image? iconWidget;
   final Widget child;
   final bool addExtraResizingFrame;
-
-  @override
-  State<WindowsPhwindow> createState() => _WindowsPhwindowState();
-}
-
-class _WindowsPhwindowState extends State<WindowsPhwindow> {
-  final ValueNotifier<bool> isAlwaysOnTop = ValueNotifier(false);
+  final ValueNotifier<bool>? isAlwaysOnTopNotifier;
 
   @override
   Widget build(BuildContext context) {
     final titleBar = WindowTitlebar(
-      title: widget.title,
-      titleColor: widget.titleColor,
-      iconWidget: widget.iconWidget,
-      includeTopWindowResizer: !widget.addExtraResizingFrame,
+      title: title,
+      titleColor: titleColor,
+      iconWidget: iconWidget,
+      includeTopWindowResizer: !addExtraResizingFrame,
       extraWidgets: [
-        KeepWindowOnTopButton(notifier: isAlwaysOnTop),
+        KeepWindowOnTopButton(notifier: isAlwaysOnTopNotifier),
       ],
     );
 
@@ -46,39 +41,30 @@ class _WindowsPhwindowState extends State<WindowsPhwindow> {
           Column(
             children: [
               titleBar,
-              Expanded(child: widget.child),
+              Expanded(child: child),
             ],
           ),
-          if (widget.addExtraResizingFrame) const WindowResizeFrame(),
+          if (addExtraResizingFrame) const WindowResizeFrame(),
         ],
       ),
     );
   }
-
-  @override
-  void initState() {
-    isAlwaysOnTop.addListener(updateAlwaysOnTop);
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    isAlwaysOnTop.removeListener(updateAlwaysOnTop);
-    super.dispose();
-  }
-
-  void updateAlwaysOnTop() {
-    windowManager.setAlwaysOnTop(isAlwaysOnTop.value);
-  }
 }
 
-class KeepWindowOnTopButton extends StatelessWidget {
+class KeepWindowOnTopButton extends StatefulWidget {
   const KeepWindowOnTopButton({
     super.key,
-    required this.notifier,
+    this.notifier,
   });
 
-  final ValueNotifier<bool> notifier;
+  final ValueNotifier<bool>? notifier;
+
+  @override
+  State<KeepWindowOnTopButton> createState() => _KeepWindowOnTopButtonState();
+}
+
+class _KeepWindowOnTopButtonState extends State<KeepWindowOnTopButton> {
+  late ValueNotifier<bool> notifier = widget.notifier ?? ValueNotifier(false);
   void toggleNotifier() => notifier.value = !notifier.value;
 
   @override
@@ -98,5 +84,21 @@ class KeepWindowOnTopButton extends StatelessWidget {
         );
       },
     );
+  }
+
+  @override
+  void initState() {
+    notifier.addListener(updateAlwaysOnTop);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    notifier.removeListener(updateAlwaysOnTop);
+    super.dispose();
+  }
+
+  void updateAlwaysOnTop() {
+    windowManager.setAlwaysOnTop(notifier.value);
   }
 }
