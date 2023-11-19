@@ -756,18 +756,19 @@ class _MyHomePageState extends State<MyHomePage>
     }
 
     const millisecondsUnit = 'ms';
+    const msPerFrameUnit = '$millisecondsUnit/frame';
 
     final frameDuration = loadedGifInfo.frameDuration;
     switch (frameDuration) {
       case null:
         return 'Variable frame durations';
       case <= const Duration(milliseconds: 10):
-        return '${frameDuration.inMilliseconds} $millisecondsUnit per frame.';
+        return '${frameDuration.inMilliseconds} $msPerFrameUnit';
       default:
         final frameInterval = frameDuration.inMilliseconds;
         final fps = 1000.0 / frameInterval;
         return '~${fps.toStringAsFixed(2)} fps '
-            '($frameInterval $millisecondsUnit per frame) ';
+            '($frameInterval $msPerFrameUnit) ';
     }
   }
 
