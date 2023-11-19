@@ -4,8 +4,9 @@ import 'dart:ui' as ui;
 import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
 import 'package:animators_gif_enjoyer/interface/shortcuts.dart';
 import 'package:animators_gif_enjoyer/main.dart';
+import 'package:animators_gif_enjoyer/phlutter/app_theme_cycler.dart';
 import 'package:animators_gif_enjoyer/main_screen/main_screen_widgets.dart';
-import 'package:animators_gif_enjoyer/main_screen/theme.dart';
+import 'package:animators_gif_enjoyer/main_screen/theme.dart' as app_theme;
 import 'package:animators_gif_enjoyer/phlutter/image_drop_target.dart';
 import 'package:animators_gif_enjoyer/phlutter/material_state_property_utils.dart';
 import 'package:animators_gif_enjoyer/phlutter/modal_panel.dart';
@@ -18,7 +19,6 @@ import 'package:animators_gif_enjoyer/utils/path_extensions.dart'
     as path_extensions;
 import 'package:animators_gif_enjoyer/utils/phclipboard.dart' as phclipboard;
 import 'package:animators_gif_enjoyer/phlutter/value_notifier_extensions.dart';
-import 'package:animators_gif_enjoyer/utils/preferences.dart';
 import 'package:animators_gif_enjoyer/utils/save_image_as_png.dart';
 import 'package:contextual_menu/contextual_menu.dart';
 import 'package:flutter/foundation.dart';
@@ -37,7 +37,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ThemeContext(
-      initialThemeData: getThemeFromString(initialTheme ?? defaultThemeString),
+      initialThemeData: app_theme
+          .getThemeFromString(initialTheme ?? app_theme.defaultThemeString),
       child: Builder(
         builder: (context) {
           Widget app(ThemeData themeData) {
@@ -52,7 +53,8 @@ class MyApp extends StatelessWidget {
           ThemeContext? themeContext = ThemeContext.of(context);
 
           if (themeContext == null) {
-            return app(getThemeFromString(defaultThemeString));
+            return app(
+                app_theme.getThemeFromString(app_theme.defaultThemeString));
           }
 
           return ValueListenableBuilder(
@@ -80,11 +82,12 @@ class MyHomePage extends StatefulWidget {
 const bool isPlayOnLoad = true;
 
 class _MyHomePageState extends State<MyHomePage>
-    with SingleTickerProviderStateMixin, SnackbarShower, GifPlayer {
+    with
+        SingleTickerProviderStateMixin,
+        SnackbarShower,
+        GifPlayer,
+        ThemeCycler {
   final FocusNode mainWindowFocus = FocusNode(canRequestFocus: true);
-
-  late final ValueNotifier<String> themeString;
-  int _queuedThemeSaveId = 0;
 
   final Map<Type, Action<Intent>> shortcutActions = {};
   late List<(Type, Object? Function(Intent))> shortcutIntentActions = [
@@ -133,9 +136,6 @@ class _MyHomePageState extends State<MyHomePage>
 
   @override
   void initState() {
-    themeString =
-        ValueNotifier(widget.initialThemeString ?? defaultThemeString);
-
     super.initState();
 
     void tryLoadFromWindowsOpenWith() {
@@ -152,14 +152,6 @@ class _MyHomePageState extends State<MyHomePage>
     onSecondWindow = () => tryLoadFromWindowsOpenWith();
 
     initializePackageInfo();
-
-    themeString.addListener(updateAppTheme);
-  }
-
-  @override
-  void dispose() {
-    themeString.removeListener(updateAppTheme);
-    super.dispose();
   }
 
   @override
@@ -189,32 +181,6 @@ class _MyHomePageState extends State<MyHomePage>
     windowManager.close();
   }
 
-  void updateAppTheme() {
-    final themeContext = ThemeContext.of(context);
-    if (themeContext == null) {
-      return;
-    }
-
-    themeContext.themeData.value = getThemeFromString(themeString.value);
-
-    void queueSaveThemetoPreferences() async {
-      int getLatestSaveCommandId() => _queuedThemeSaveId;
-      int saveCommandId = DateTime.now().millisecondsSinceEpoch;
-      _queuedThemeSaveId = saveCommandId;
-
-      for (int i = 0; i < 5; i++) {
-        await Future.delayed(const Duration(milliseconds: 250));
-        if (getLatestSaveCommandId() != saveCommandId) return;
-      }
-
-      if (getLatestSaveCommandId() == saveCommandId) {
-        storeThemeStringPreference(themeString.value);
-      }
-    }
-
-    queueSaveThemetoPreferences();
-  }
-
   //
   // Build methods
   //
@@ -231,7 +197,7 @@ class _MyHomePageState extends State<MyHomePage>
     return WindowsPhwindow(
       title: appName,
       titleColor: Theme.of(context).colorScheme.mutedSurfaceColor,
-      iconWidget: Image.memory(appIconDataBytes),
+      iconWidget: Image.memory(app_theme.appIconDataBytes),
       addExtraResizingFrame: true,
       child: Stack(
         children: windowContents,
@@ -254,7 +220,7 @@ class _MyHomePageState extends State<MyHomePage>
       minimumSize: buttonSizeProperty,
       maximumSize: buttonSizeProperty,
       fixedSize: buttonSizeProperty,
-      shape: const MaterialStatePropertyAll(appButtonShape),
+      shape: const MaterialStatePropertyAll(app_theme.appButtonShape),
       iconSize: const MaterialStatePropertyAll(iconSize),
       iconColor: contentColorProperty,
       foregroundColor: contentColorProperty,
@@ -335,10 +301,6 @@ class _MyHomePageState extends State<MyHomePage>
         ),
       ),
     );
-  }
-
-  void cycleTheme() {
-    themeString.value = getNextCycleTheme(themeString.value);
   }
 
   Widget mainLayer(BuildContext context) {
@@ -547,7 +509,8 @@ class _MyHomePageState extends State<MyHomePage>
                             const SizedBox(width: buttonSize + buttonSpace + 3),
                           Text(
                             'Custom range: ${frameCount.toInt()} frames. ~$rangeSecondsString',
-                            style: const TextStyle(color: focusRangeColor),
+                            style: const TextStyle(
+                                color: app_theme.focusRangeColor),
                           ),
                           isScrubMode.value
                               ? Padding(
@@ -632,7 +595,6 @@ class _MyHomePageState extends State<MyHomePage>
         if (!file.name.endsWith('.gif')) {
           showSnackbar(label: 'Not a GIF');
         }
-
         tryLoadGifFromFilePath(file.path);
       },
     );
@@ -838,6 +800,17 @@ class _MyHomePageState extends State<MyHomePage>
           '$errorText',
     );
   }
+
+  @override
+  String get defaultThemeString => app_theme.defaultThemeString;
+  @override
+  String? get initialThemeString => widget.initialThemeString;
+  @override
+  ThemeData getThemeFromString(String themeName) =>
+      app_theme.getThemeFromString(themeName);
+  @override
+  String getNextCycleTheme(String currentValue) =>
+      app_theme.getNextCycleTheme(currentValue);
 }
 
 class GifInfo {

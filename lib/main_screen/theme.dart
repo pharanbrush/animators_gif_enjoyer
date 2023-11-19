@@ -77,25 +77,6 @@ const defaultThemeString = lightThemeString;
 
 const defaultThemeMode = ThemeMode.light;
 
-class ThemeContext extends InheritedWidget {
-  ThemeContext({
-    super.key,
-    required super.child,
-    required ThemeData initialThemeData,
-  }) : themeData = ValueNotifier(initialThemeData);
-
-  final ValueNotifier<ThemeData> themeData;
-
-  static ThemeContext? of(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<ThemeContext>();
-  }
-
-  @override
-  bool updateShouldNotify(ThemeContext oldWidget) {
-    return false;
-  }
-}
-
 String getNextCycleTheme(String currentThemeString) =>
     switch (currentThemeString) {
       lightThemeString => blackThemeString,

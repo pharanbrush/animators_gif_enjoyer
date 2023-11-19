@@ -1,5 +1,6 @@
+import 'package:animators_gif_enjoyer/phlutter/app_theme_cycler.dart';
 import 'package:animators_gif_enjoyer/main_screen/main_screen.dart';
-import 'package:animators_gif_enjoyer/utils/preferences.dart';
+import 'package:animators_gif_enjoyer/main_screen/theme.dart' as app_theme;
 import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:windows_single_instance/windows_single_instance.dart';
@@ -42,7 +43,8 @@ void main(List<String> args) async {
     },
   );
 
-  final initialThemeString = await getThemeStringFromPreference();
+  final initialThemeString = await getThemeStringFromPreference(
+      defaultThemeString: app_theme.defaultThemeString);
 
   runApp(
     MyApp(initialTheme: initialThemeString),
