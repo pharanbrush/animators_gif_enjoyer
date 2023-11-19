@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'dart:ui' as ui;
+
 import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
 import 'package:animators_gif_enjoyer/interface/shortcuts.dart';
 import 'package:animators_gif_enjoyer/main.dart';
@@ -11,12 +14,16 @@ import 'package:animators_gif_enjoyer/utils/build_info.dart';
 import 'package:animators_gif_enjoyer/utils/download_file.dart';
 import 'package:animators_gif_enjoyer/utils/gif_frame_advancer.dart';
 import 'package:animators_gif_enjoyer/utils/open_file.dart';
+import 'package:animators_gif_enjoyer/utils/path_extensions.dart'
+    as path_extensions;
 import 'package:animators_gif_enjoyer/utils/phclipboard.dart' as phclipboard;
 import 'package:animators_gif_enjoyer/phlutter/value_notifier_extensions.dart';
 import 'package:animators_gif_enjoyer/utils/preferences.dart';
+import 'package:animators_gif_enjoyer/utils/save_image_as_png.dart';
 import 'package:contextual_menu/contextual_menu.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher_string.dart' as url_launcher;
 import 'package:window_manager/window_manager.dart';
 
 class MyApp extends StatelessWidget {
@@ -446,6 +453,7 @@ class _MyHomePageState extends State<MyHomePage>
                   copyImageHandler: () => tryCopyFrameToClipboard(),
                   openImageHandler: () => openNewFile(),
                   pasteHandler: () => openTextPanelAndPaste(),
+                  exportPngSequenceHandler: () => tryExportPngSequence(),
                 ),
               ),
             ),
@@ -764,6 +772,44 @@ class _MyHomePageState extends State<MyHomePage>
     );
   }
 
+  void tryExportPngSequence() async {
+    if (!isGifLoaded) return;
+
+    final gifPrefix = switch (gifImageProvider) {
+      FileImage _ => path_extensions.filenameFromFullPathWithoutExtensions(
+          loadedGifInfo.fileSource,
+        ),
+      _ => "gif_frame"
+    };
+
+    final imageList = gifController.frames
+        .map<ui.Image>((frame) => frame.imageInfo.image)
+        .toList(growable: false);
+
+    await savePngSequenceFromImageList(
+      imageList,
+      prefix: gifPrefix,
+      useSubfolder: true,
+      onSaveSuccess: (totalFiles, directory) {
+        showSnackbar(
+          label: 'PNG Sequence exported: $totalFiles images',
+          icon: const Icon(SnackbarShower.okIcon),
+          action: (directory == null)
+              ? null
+              : SnackBarAction(
+                  label: 'Open folder',
+                  onPressed: () {
+                    final launchPath = //
+                        'file:' // required by url_launcher to open platform file explorer
+                        '${directory.uri.toFilePath(windows: Platform.isWindows)}';
+                    url_launcher.launchUrlString(launchPath);
+                  },
+                ),
+        );
+      },
+    );
+  }
+
   void tryLoadGifFromFilePath(String path) {
     if (path.isEmpty) return;
     loadGifFromProvider(getFileImageFromPath(path), path);
@@ -796,14 +842,14 @@ class _MyHomePageState extends State<MyHomePage>
 
 class GifInfo {
   const GifInfo({
-    required this.filename,
+    required this.fileSource,
     required this.width,
     required this.height,
     required this.frameDuration,
   });
 
   GifInfo._fromFramesAndImageInfo({
-    required this.filename,
+    required this.fileSource,
     required List<GifFrame> frames,
     required ImageInfo imageInfo,
   })  : frameDuration = readFrameDuration(frames),
@@ -811,15 +857,15 @@ class GifInfo {
         height = imageInfo.image.height;
 
   GifInfo.fromFrames({
-    required filename,
+    required fileSource,
     required List<GifFrame> frames,
   }) : this._fromFramesAndImageInfo(
-          filename: filename,
+          fileSource: fileSource,
           frames: frames,
           imageInfo: frames[0].imageInfo,
         );
 
-  final String filename;
+  final String fileSource;
   final int width;
   final int height;
   final Duration? frameDuration;
@@ -860,7 +906,7 @@ mixin GifPlayer<T extends StatefulWidget> on State<T>, TickerProvider {
   final ValueNotifier<double> gifDownloadPercent = ValueNotifier(0.0);
 
   GifInfo loadedGifInfo = const GifInfo(
-    filename: '',
+    fileSource: '',
     width: 0,
     height: 0,
     frameDuration: Duration.zero,
@@ -965,7 +1011,7 @@ mixin GifPlayer<T extends StatefulWidget> on State<T>, TickerProvider {
             : null,
       );
       gifImageProvider = provider;
-      loadedGifInfo = GifInfo.fromFrames(filename: source, frames: frames);
+      loadedGifInfo = GifInfo.fromFrames(fileSource: source, frames: frames);
       gifController.load(frames);
       gifAdvancer.setFrames(frames);
 

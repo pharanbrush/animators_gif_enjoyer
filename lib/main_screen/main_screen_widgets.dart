@@ -17,6 +17,7 @@ class GifViewContainer extends StatelessWidget {
     required this.copyImageHandler,
     required this.openImageHandler,
     required this.pasteHandler,
+    required this.exportPngSequenceHandler,
   });
 
   final ImageProvider<Object>? gifImageProvider;
@@ -24,6 +25,7 @@ class GifViewContainer extends StatelessWidget {
   final VoidCallback copyImageHandler;
   final VoidCallback openImageHandler;
   final VoidCallback pasteHandler;
+  final VoidCallback exportPngSequenceHandler;
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +59,12 @@ class GifViewContainer extends StatelessWidget {
           MenuItem(
             label: 'Build $buildName',
             disabled: true,
-          )
+          ),
+        // MenuItem.separator(),
+        // MenuItem(
+        //   label: 'Export PNG Sequence...',
+        //   onClick: (_) => exportPngSequenceHandler(),
+        // ),
       ],
     );
   }
