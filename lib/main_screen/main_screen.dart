@@ -737,16 +737,12 @@ class _MyHomePageState extends State<MyHomePage>
   void tryExportPngSequence() async {
     if (!isGifLoaded) return;
 
-    final gifPrefix = switch (gifImageProvider) {
-      FileImage _ => path_extensions.filenameFromFullPathWithoutExtensions(
-          loadedGifInfo.fileSource,
-        ),
-      _ => "gif_frame"
-    };
-
     final imageList = gifController.frames
         .map<ui.Image>((frame) => frame.imageInfo.image)
         .toList(growable: false);
+
+    final gifPrefix =
+        tryGetNameFromGifImageProvider(defaultName: 'gif_enjoyer');
 
     await savePngSequenceFromImageList(
       imageList,
@@ -887,6 +883,25 @@ mixin GifPlayer<T extends StatefulWidget> on State<T>, TickerProvider {
   int get lastGifFrame => gifController.frameCount - 1;
 
   bool get isGifLoaded => gifImageProvider != null;
+
+  /// Tries to get the filename of the loaded GIF.
+  String tryGetNameFromGifImageProvider({required String defaultName}) {
+    final nameWithoutExtension = switch (gifImageProvider) {
+      FileImage _ => path_extensions.filenameFromFullPathWithoutExtensions(
+          loadedGifInfo.fileSource,
+        ),
+      NetworkImage _ => path_extensions.filenameFromUrlWithoutExtension(
+          loadedGifInfo.fileSource,
+        ),
+      _ => defaultName
+    };
+
+    if (nameWithoutExtension == null || nameWithoutExtension.trim().isEmpty) {
+      return defaultName;
+    }
+
+    return nameWithoutExtension;
+  }
 
   @override
   void initState() {
