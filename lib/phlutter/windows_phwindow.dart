@@ -13,6 +13,7 @@ class WindowsPhwindow extends StatelessWidget {
     this.iconWidget,
     this.addExtraResizingFrame = true,
     this.isAlwaysOnTopNotifier,
+    this.titleBarHeight = defaultTitleBarHeight,
     required this.child,
   });
 
@@ -22,6 +23,7 @@ class WindowsPhwindow extends StatelessWidget {
   final Widget child;
   final bool addExtraResizingFrame;
   final ValueNotifier<bool>? isAlwaysOnTopNotifier;
+  final double titleBarHeight;
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +32,7 @@ class WindowsPhwindow extends StatelessWidget {
       titleColor: titleColor,
       iconWidget: iconWidget,
       includeTopWindowResizer: !addExtraResizingFrame,
+      height: titleBarHeight,
       extraWidgets: [
         KeepWindowOnTopButton(notifier: isAlwaysOnTopNotifier),
       ],
@@ -40,9 +43,15 @@ class WindowsPhwindow extends StatelessWidget {
         children: [
           Column(
             children: [
-              titleBar,
+              SizedBox(height: titleBarHeight),
               Expanded(child: child),
             ],
+          ),
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: titleBar,
           ),
           if (addExtraResizingFrame) const WindowResizeFrame(),
         ],
