@@ -1,7 +1,9 @@
 import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
 import 'package:animators_gif_enjoyer/main_screen/theme.dart';
 import 'package:animators_gif_enjoyer/phlutter/scroll_listener.dart';
-import 'package:animators_gif_enjoyer/utils/build_info.dart';
+import 'package:animators_gif_enjoyer/utils/build_info.dart' as build_info;
+import 'package:animators_gif_enjoyer/utils/reveal_file_source.dart'
+    as reveal_file_source;
 import 'package:contextual_menu/contextual_menu.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +12,7 @@ const delayedTooltipDelay = Duration(milliseconds: 200);
 const slowTooltipDelay = Duration(milliseconds: 600);
 
 class GifViewContainer extends StatelessWidget {
-  const GifViewContainer({
+  GifViewContainer({
     super.key,
     required this.gifImageProvider,
     required this.gifController,
@@ -55,18 +57,45 @@ class GifViewContainer extends StatelessWidget {
           onClick: (_) => pasteHandler(),
         ),
         MenuItem.separator(),
-        if (packageInfo != null)
-          MenuItem(
-            label: 'Build $buildName',
-            disabled: true,
+        MenuItem.submenu(
+          label: 'File',
+          submenu: Menu(
+            items: [
+              revealMenuItem(),
+              MenuItem.separator(),
+              MenuItem(
+                label: 'Export PNG Sequence...',
+                onClick: (_) => exportPngSequenceHandler(),
+              ),
+            ],
           ),
-        // MenuItem.separator(),
-        // MenuItem(
-        //   label: 'Export PNG Sequence...',
-        //   onClick: (_) => exportPngSequenceHandler(),
-        // ),
+        ),
+        if (build_info.packageInfo != null) ...aboutItem
       ],
     );
+  }
+
+  late final aboutItem = <MenuItem>[
+    MenuItem.separator(),
+    MenuItem(
+      label: 'Build ${build_info.buildName}',
+      disabled: true,
+    ),
+  ];
+
+  MenuItem revealMenuItem() {
+    switch (gifImageProvider) {
+      case FileImage fi:
+        return MenuItem(
+            label: 'Reveal in File Explorer',
+            onClick: (_) => reveal_file_source.revealInExplorer(fi.file.path));
+      case NetworkImage ni:
+        return MenuItem(
+            label: 'Open original link in browser',
+            onClick: (_) => reveal_file_source.openInBrowser(ni.url));
+      default:
+        return MenuItem(label: 'Reveal in Explorer', disabled: true);
+    }
   }
 }
 
