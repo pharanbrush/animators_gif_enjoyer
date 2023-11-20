@@ -130,6 +130,10 @@ class _MyHomePageState extends State<MyHomePage>
     },
   );
 
+  final zoomLevelNotifier = ValueNotifier<double>(
+    ScrollZoomContainer.defaultZoom,
+  );
+
   //
   //  Lifecycle
   //
@@ -152,6 +156,12 @@ class _MyHomePageState extends State<MyHomePage>
     onSecondWindow = () => tryLoadFromWindowsOpenWith();
 
     initializePackageInfo();
+  }
+
+  @override
+  void onGifLoadSuccess() {
+    super.onGifLoadSuccess();
+    zoomLevelNotifier.value = ScrollZoomContainer.defaultZoom;
   }
 
   @override
@@ -416,6 +426,7 @@ class _MyHomePageState extends State<MyHomePage>
                   openImageHandler: () => openNewFile(),
                   pasteHandler: () => openTextPanelAndPaste(),
                   exportPngSequenceHandler: () => tryExportPngSequence(),
+                  zoomLevelNotifier: zoomLevelNotifier,
                 ),
               ),
             ),

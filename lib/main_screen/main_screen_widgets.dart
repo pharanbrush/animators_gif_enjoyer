@@ -20,6 +20,7 @@ class GifViewContainer extends StatelessWidget {
     required this.openImageHandler,
     required this.pasteHandler,
     required this.exportPngSequenceHandler,
+    this.zoomLevelNotifier,
   });
 
   final ImageProvider<Object>? gifImageProvider;
@@ -28,14 +29,18 @@ class GifViewContainer extends StatelessWidget {
   final VoidCallback openImageHandler;
   final VoidCallback pasteHandler;
   final VoidCallback exportPngSequenceHandler;
+  final ValueNotifier<double>? zoomLevelNotifier;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onSecondaryTap: () => popUpContextualMenu(menu(context)),
-      child: GifView(
-        image: gifImageProvider!,
-        controller: gifController,
+    return ScrollZoomContainer(
+      notifier: zoomLevelNotifier,
+      child: GestureDetector(
+        onSecondaryTap: () => popUpContextualMenu(menu(context)),
+        child: GifView(
+          image: gifImageProvider!,
+          controller: gifController,
+        ),
       ),
     );
   }
@@ -96,6 +101,103 @@ class GifViewContainer extends StatelessWidget {
       default:
         return MenuItem(label: 'Reveal in Explorer', disabled: true);
     }
+  }
+}
+
+class ScrollZoomContainer extends StatefulWidget {
+  const ScrollZoomContainer({
+    super.key,
+    required this.child,
+    this.notifier,
+  });
+
+  static const defaultZoom = 1.0;
+  final Widget child;
+  final ValueNotifier<double>? notifier;
+
+  @override
+  State<ScrollZoomContainer> createState() => _ScrollZoomContainerState();
+}
+
+class _ScrollZoomContainerState extends State<ScrollZoomContainer> {
+  static const zoomLevels = <double>[
+    0.5,
+    ScrollZoomContainer.defaultZoom,
+    1.5,
+    2,
+    3,
+    4
+  ];
+
+  late ValueNotifier<double> notifier;
+
+  @override
+  void initState() {
+    notifier = widget.notifier ??
+        ValueNotifier<double>(ScrollZoomContainer.defaultZoom);
+    super.initState();
+  }
+
+  double findZoomLevelAfter(double current) {
+    const epsilon = 0.001;
+    for (final level in zoomLevels) {
+      if (level > current + epsilon) return level;
+    }
+
+    return zoomLevels.last;
+  }
+
+  double findZoomLevelBefore(double current) {
+    const epsilon = 0.001;
+    for (final level in zoomLevels.reversed) {
+      if (level < current - epsilon) return level;
+    }
+
+    double.minPositive;
+
+    return zoomLevels.first;
+  }
+
+  void increment() {
+    notifier.value = findZoomLevelAfter(notifier.value);
+  }
+
+  void decrement() {
+    notifier.value = findZoomLevelBefore(notifier.value);
+  }
+
+  void reset() {
+    notifier.value = ScrollZoomContainer.defaultZoom;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTertiaryTapDown: (_) => reset(),
+      child: ScrollListener(
+        onScrollUp: increment,
+        onScrollDown: decrement,
+        child: Container(
+          color: Colors.transparent,
+          child: SizedBox.expand(
+            child: ValueListenableBuilder(
+              valueListenable: notifier,
+              builder: (_, value, ___) {
+                return FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: AnimatedScale(
+                    duration: Durations.medium1,
+                    scale: value,
+                    curve: Easing.standardDecelerate,
+                    child: widget.child,
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 
