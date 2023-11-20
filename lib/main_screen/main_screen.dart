@@ -19,6 +19,7 @@ import 'package:animators_gif_enjoyer/utils/path_extensions.dart'
     as path_extensions;
 import 'package:animators_gif_enjoyer/utils/phclipboard.dart' as phclipboard;
 import 'package:animators_gif_enjoyer/phlutter/value_notifier_extensions.dart';
+import 'package:animators_gif_enjoyer/utils/plural.dart';
 import 'package:animators_gif_enjoyer/utils/save_image_as_png.dart';
 import 'package:contextual_menu/contextual_menu.dart';
 import 'package:flutter/foundation.dart';
@@ -750,7 +751,8 @@ class _MyHomePageState extends State<MyHomePage>
       useSubfolder: true,
       onSaveSuccess: (totalFiles, directory) {
         showSnackbar(
-          label: 'PNG Sequence exported: $totalFiles images',
+          label:
+              'PNG Sequence exported: $totalFiles image${pluralS(totalFiles)}',
           icon: const Icon(SnackbarShower.okIcon),
           action: (directory == null)
               ? null
