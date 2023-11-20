@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
@@ -20,11 +19,11 @@ import 'package:animators_gif_enjoyer/utils/path_extensions.dart'
 import 'package:animators_gif_enjoyer/utils/phclipboard.dart' as phclipboard;
 import 'package:animators_gif_enjoyer/phlutter/value_notifier_extensions.dart';
 import 'package:animators_gif_enjoyer/utils/plural.dart';
+import 'package:animators_gif_enjoyer/utils/reveal_file_source.dart';
 import 'package:animators_gif_enjoyer/utils/save_image_as_png.dart';
 import 'package:contextual_menu/contextual_menu.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher_string.dart' as url_launcher;
 import 'package:window_manager/window_manager.dart';
 
 class MyApp extends StatelessWidget {
@@ -758,12 +757,7 @@ class _MyHomePageState extends State<MyHomePage>
               ? null
               : SnackBarAction(
                   label: 'Open folder',
-                  onPressed: () {
-                    final launchPath = //
-                        'file:' // required by url_launcher to open platform file explorer
-                        '${directory.uri.toFilePath(windows: Platform.isWindows)}';
-                    url_launcher.launchUrlString(launchPath);
-                  },
+                  onPressed: () => revealDirectoryInExplorer(directory),
                 ),
         );
       },

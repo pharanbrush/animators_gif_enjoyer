@@ -16,6 +16,13 @@ void revealInExplorer(String fullFilePath) {
   }
 }
 
+void revealDirectoryInExplorer(Directory directory) {
+  final launchPath = //
+      'file:' // required by url_launcher to open platform file explorer
+      '${directory.uri.toFilePath(windows: Platform.isWindows)}';
+  launchUrlString(launchPath);
+}
+
 void openInBrowser(String urlString) {
   launchUrlString(urlString);
 }
