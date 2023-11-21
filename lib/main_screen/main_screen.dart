@@ -13,7 +13,7 @@ import 'package:animators_gif_enjoyer/phlutter/windows_phwindow.dart';
 import 'package:animators_gif_enjoyer/utils/build_info.dart';
 import 'package:animators_gif_enjoyer/utils/download_file.dart';
 import 'package:animators_gif_enjoyer/utils/gif_frame_advancer.dart';
-import 'package:animators_gif_enjoyer/utils/open_file.dart';
+import 'package:animators_gif_enjoyer/utils/open_file.dart' as open_file;
 import 'package:animators_gif_enjoyer/utils/path_extensions.dart'
     as path_extensions;
 import 'package:animators_gif_enjoyer/utils/phclipboard.dart' as phclipboard;
@@ -603,7 +603,8 @@ class _MyHomePageState extends State<MyHomePage>
       dragImagesHandler: (details) {
         if (details.files.isEmpty) return;
         final file = details.files[0];
-        if (!file.name.endsWith('.gif')) {
+
+        if (!open_file.isAcceptedFile(filename: file.name)) {
           showSnackbar(label: 'Not a GIF');
         }
         tryLoadGifFromFilePath(file.path);
@@ -729,7 +730,7 @@ class _MyHomePageState extends State<MyHomePage>
   //
 
   void openNewFile() async {
-    var (gifImage, name) = await openGifImageFile();
+    var (gifImage, name) = await open_file.openGifImageFile();
     if (gifImage == null || name == null) return;
 
     loadGifFromProvider(gifImage, name);
@@ -776,12 +777,12 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   void tryLoadGifFromFilePath(String path) {
-    if (path.isEmpty) return;
-    loadGifFromProvider(getFileImageFromPath(path), path);
+    if (path.trim().isEmpty) return;
+    loadGifFromProvider(open_file.getFileImageFromPath(path), path);
   }
 
   void tryLoadGifFromUrl(String url, {String? errorMessage}) {
-    if (url.isEmpty) {
+    if (url.trim().isEmpty) {
       return;
     }
 

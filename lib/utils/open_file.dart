@@ -3,10 +3,12 @@ import 'dart:io';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 
+const acceptedExtensions = ['gif', 'webp'];
+
 Future<(FileImage? gifImage, String? fullFilePath)> openGifImageFile() async {
   const typeGroup = XTypeGroup(
     label: 'GIFs',
-    extensions: ['gif'],
+    extensions: acceptedExtensions,
   );
 
   final file = await openFile(acceptedTypeGroups: const [typeGroup]);
@@ -17,4 +19,12 @@ Future<(FileImage? gifImage, String? fullFilePath)> openGifImageFile() async {
 
 FileImage getFileImageFromPath(String path) {
   return FileImage(File(path));
+}
+
+bool isAcceptedFile({required String filename}) {
+  for (final extension in acceptedExtensions) {
+    if (filename.endsWith(extension)) return true;
+  }
+
+  return false;
 }
