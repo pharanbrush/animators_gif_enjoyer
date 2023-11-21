@@ -1,6 +1,19 @@
 Animator's GIF Enjoyer Deluxe Changelog
 ===
 
+### 1.0.6 (Coming soon)
+- Added zooming.
+- Added "Export PNG Sequence...".
+- Added "Reveal in File Explorer" or "Open original link in browser" to context menu. The menu will show the correct item based on the GIF source.
+- New button to change playback speed.
+- Allow scrolling on the primary slider to change frames
+- Shortened text format for the frame time info.
+- Added webp to explicitly-supported formats (it was already compatible anyway).
+- Change "Keep Window on Top" button style to be more prominent when activated.
+- Fix some tooltip settings to prevent them from blocking buttons on important mouse paths.
+- Indicate when the image isn't animated.
+- Updated to Dart 3.2 and Flutter 3.16
+
 ### 1.0.4 (2023 Nov 18)
 - Added 3 new brightness themes that's saved between sessions.
 - New quick interface brightness switch to quickly check what a gif looks like on different backgrounds.
