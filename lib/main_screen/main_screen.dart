@@ -708,6 +708,10 @@ class _MyHomePageState extends State<MyHomePage>
       return '';
     }
 
+    if (loadedGifInfo.isNonAnimated) {
+      return 'Not animated.';
+    }
+
     const millisecondsUnit = 'ms';
     const msPerFrameUnit = '$millisecondsUnit/frame';
 
@@ -823,6 +827,7 @@ class GifInfo {
     required this.width,
     required this.height,
     required this.frameDuration,
+    this.isNonAnimated = false,
   });
 
   GifInfo._fromFramesAndImageInfo({
@@ -831,7 +836,8 @@ class GifInfo {
     required ImageInfo imageInfo,
   })  : frameDuration = readFrameDuration(frames),
         width = imageInfo.image.width,
-        height = imageInfo.image.height;
+        height = imageInfo.image.height,
+        isNonAnimated = isNonMoving(frames);
 
   GifInfo.fromFrames({
     required fileSource,
@@ -846,6 +852,11 @@ class GifInfo {
   final int width;
   final int height;
   final Duration? frameDuration;
+  final bool isNonAnimated;
+
+  static bool isNonMoving(List<GifFrame> frames) {
+    return frames.length <= 1;
+  }
 
   static Duration? readFrameDuration(List<GifFrame> frames) {
     var duration = frames[0].duration;
