@@ -1,4 +1,4 @@
-import 'package:desktop_drop/desktop_drop.dart';
+import 'package:desktop_drop/desktop_drop.dart' as desktop_drop;
 import 'package:flutter/material.dart';
 
 class ImageDropTarget extends StatefulWidget {
@@ -7,7 +7,7 @@ class ImageDropTarget extends StatefulWidget {
     this.dragImagesHandler,
   });
 
-  final OnDragDoneCallback? dragImagesHandler;
+  final desktop_drop.OnDragDoneCallback? dragImagesHandler;
 
   @override
   State<ImageDropTarget> createState() => _ImageDropTargetState();
@@ -74,7 +74,7 @@ class _ImageDropTargetState extends State<ImageDropTarget> {
       ),
     );
 
-    return DropTarget(
+    return desktop_drop.DropTarget(
       onDragDone: (details) {
         _setDraggingActive(false);
         widget.dragImagesHandler?.call(details);

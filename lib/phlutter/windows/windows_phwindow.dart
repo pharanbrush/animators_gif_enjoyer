@@ -1,4 +1,4 @@
-import 'package:animators_gif_enjoyer/phlutter/windows/window_manager_titlebar.dart';
+import 'window_manager_titlebar.dart';
 import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
 
