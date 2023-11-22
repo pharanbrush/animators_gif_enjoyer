@@ -1,6 +1,6 @@
 import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
 import 'package:animators_gif_enjoyer/main_screen/theme.dart';
-import 'package:animators_gif_enjoyer/phlutter/scroll_listener.dart';
+import 'package:animators_gif_enjoyer/phlutter/windows/scroll_listener.dart';
 import 'package:animators_gif_enjoyer/utils/build_info.dart' as build_info;
 import 'package:animators_gif_enjoyer/utils/reveal_file_source.dart'
     as reveal_file_source;
