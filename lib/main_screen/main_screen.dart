@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
 import 'package:animators_gif_enjoyer/interface/shortcuts.dart';
 import 'package:animators_gif_enjoyer/main.dart';
+import 'package:animators_gif_enjoyer/main_screen/frame_base.dart';
 import 'package:animators_gif_enjoyer/phlutter/app_theme_cycler.dart';
 import 'package:animators_gif_enjoyer/main_screen/main_screen_widgets.dart';
 import 'package:animators_gif_enjoyer/main_screen/theme.dart' as app_theme;
@@ -36,32 +37,34 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ThemeContext(
-      initialThemeData: app_theme
-          .getThemeFromString(initialTheme ?? app_theme.defaultThemeString),
-      child: Builder(
-        builder: (context) {
-          Widget app(ThemeData themeData) {
-            return MaterialApp(
-              title: appName,
-              debugShowCheckedModeBanner: false,
-              theme: themeData,
-              home: MyHomePage(initialThemeString: initialTheme),
+    return FrameBaseContext(
+      child: ThemeContext(
+        initialThemeData: app_theme
+            .getThemeFromString(initialTheme ?? app_theme.defaultThemeString),
+        child: Builder(
+          builder: (context) {
+            Widget app(ThemeData themeData) {
+              return MaterialApp(
+                title: appName,
+                debugShowCheckedModeBanner: false,
+                theme: themeData,
+                home: MyHomePage(initialThemeString: initialTheme),
+              );
+            }
+
+            ThemeContext? themeContext = ThemeContext.of(context);
+
+            if (themeContext == null) {
+              return app(
+                  app_theme.getThemeFromString(app_theme.defaultThemeString));
+            }
+
+            return ValueListenableBuilder(
+              valueListenable: themeContext.themeData,
+              builder: (_, themeDataValue, ___) => app(themeDataValue),
             );
-          }
-
-          ThemeContext? themeContext = ThemeContext.of(context);
-
-          if (themeContext == null) {
-            return app(
-                app_theme.getThemeFromString(app_theme.defaultThemeString));
-          }
-
-          return ValueListenableBuilder(
-            valueListenable: themeContext.themeData,
-            builder: (_, themeDataValue, ___) => app(themeDataValue),
-          );
-        },
+          },
+        ),
       ),
     );
   }
@@ -85,6 +88,7 @@ class _MyHomePageState extends State<MyHomePage>
     with
         SingleTickerProviderStateMixin,
         SnackbarShower,
+        FrameBaseStorer,
         GifPlayer,
         ThemeCycler {
   final FocusNode mainWindowFocus = FocusNode(canRequestFocus: true);
@@ -434,6 +438,9 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   Widget loadedInterface(BuildContext context) {
+    final displayedFrameBaseOffset =
+        FrameBaseContext.of(context)?.frameBase.value ?? 0;
+
     return ValueListenableBuilder(
       valueListenable: isScrubMode,
       builder: (_, __, ___) {
@@ -476,17 +483,46 @@ class _MyHomePageState extends State<MyHomePage>
 
                     final separator = Text(' - ', style: bigStyleGray);
 
-                    return Wrap(
-                      alignment: WrapAlignment.center,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [
-                        separator,
-                        Text(
-                          displayedCurrentFrameString,
-                          style: isScrubMode.value ? bigStyle : bigStyleGray,
-                        ),
-                        separator,
-                      ],
+                    return GestureDetector(
+                      onSecondaryTap: () {
+                        final frameBaseContext = FrameBaseContext.of(context);
+                        final currentFrameBase = displayFrameBaseOffset;
+                        if (frameBaseContext == null) return;
+
+                        Menu menu(BuildContext context) {
+                          return Menu(
+                            items: currentFrameBase != 0
+                                ? [
+                                    MenuItem(
+                                      label: 'Switch to zero-based frames',
+                                      onClick: (_) => setDisplayFrameBase(0),
+                                      checked: currentFrameBase == 0,
+                                    )
+                                  ]
+                                : [
+                                    MenuItem(
+                                      label: 'Switch to one-based frames',
+                                      onClick: (_) => setDisplayFrameBase(1),
+                                      checked: currentFrameBase == 1,
+                                    ),
+                                  ],
+                          );
+                        }
+
+                        popUpContextualMenu(menu(context));
+                      },
+                      child: Wrap(
+                        alignment: WrapAlignment.center,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          separator,
+                          Text(
+                            displayedCurrentFrameString,
+                            style: isScrubMode.value ? bigStyle : bigStyleGray,
+                          ),
+                          separator,
+                        ],
+                      ),
                     );
                   },
                 ),
@@ -507,7 +543,7 @@ class _MyHomePageState extends State<MyHomePage>
                     gifController: gifController,
                     enabled: isPlayModeAvailable && isScrubMode.value,
                     onChange: clampCurrentFrameAndShow,
-                    displayedFrameOffset: GifPlayer.displayedFrameBaseOffset,
+                    displayedFrameOffset: displayedFrameBaseOffset,
                   ),
                 ),
               ),
@@ -536,8 +572,7 @@ class _MyHomePageState extends State<MyHomePage>
                   child: Column(
                     children: [
                       FrameRangeSlider(
-                        displayedFrameOffset:
-                            GifPlayer.displayedFrameBaseOffset,
+                        displayedFrameOffset: displayedFrameBaseOffset,
                         startEnd: focusFrameRange,
                         maxFrameIndex: maxFrameIndex,
                         enabled: isGifLoaded && isScrubMode.value,
@@ -823,6 +858,7 @@ class _MyHomePageState extends State<MyHomePage>
       imageList,
       prefix: gifPrefix,
       useSubfolder: true,
+      useBaseZero: displayFrameBaseOffset == 0,
       onSaveSuccess: (totalFiles, directory) {
         showSnackbar(
           label:
@@ -928,9 +964,8 @@ class GifInfo {
   }
 }
 
-mixin GifPlayer<T extends StatefulWidget> on State<T>, TickerProvider {
-  static const int displayedFrameBaseOffset = 0;
-
+mixin GifPlayer<T extends StatefulWidget>
+    on State<T>, TickerProvider, FrameBaseStorer<T> {
   final gifController = GifController();
   ImageProvider? gifImageProvider;
   late GifFrameAdvancer gifAdvancer;
@@ -942,7 +977,7 @@ mixin GifPlayer<T extends StatefulWidget> on State<T>, TickerProvider {
   final ValueNotifier<int> currentFrame = ValueNotifier(0);
 
   String get displayedCurrentFrameString {
-    return (currentFrame.value + displayedFrameBaseOffset).toString();
+    return (currentFrame.value + displayFrameBaseOffset).toString();
   }
 
   final ValueNotifier<RangeValues> focusFrameRange =
