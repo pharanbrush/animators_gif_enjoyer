@@ -2,7 +2,7 @@ Animator's GIF Enjoyer Deluxe Changelog
 ===
 
 ### 1.0.6 (Coming soon)
-- Added zooming.
+- Added zooming. Snaps to container size, then allows crazy zoom. Minimum zoom is the size of a Discord inline emote.
 - Added "Export PNG Sequence...".
 - Added "Reveal in File Explorer" or "Open original link in browser" to context menu. The menu will show the correct item based on the GIF source.
 - New button to change playback speed.
@@ -12,7 +12,7 @@ Animator's GIF Enjoyer Deluxe Changelog
 - Change "Keep Window on Top" button style to be more prominent when activated.
 - Fix some tooltip settings to prevent them from blocking buttons on important mouse paths.
 - Indicate when the image isn't animated.
-- Updated to Dart 3.2 and Flutter 3.16
+- Show the delay of each frame when the image doesn't have a framerate.
 
 ### 1.0.4 (2023 Nov 18)
 - Added 3 new brightness themes that's saved between sessions.
