@@ -115,6 +115,86 @@ class GifViewContainer extends StatelessWidget {
   }
 }
 
+class ZoomConstraintsContainerBuilder extends StatelessWidget {
+  const ZoomConstraintsContainerBuilder({
+    super.key,
+    required this.contentWidth,
+    required this.contentHeight,
+    required this.minPixelDimension,
+    this.maxZoomFillContainerFactor = 3,
+    required this.builder,
+  });
+
+  final double contentWidth;
+  final double contentHeight;
+  final double minPixelDimension;
+  final double maxZoomFillContainerFactor;
+  final Widget Function(
+    BuildContext context,
+    double Function() getFitZoom,
+    double Function() getMinZoom,
+    double Function() getMaxZoom,
+  ) builder;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final containerSize = constraints.biggest;
+
+        double getRawFitZoom() {
+          final fitWidthZoom = containerSize.width / contentWidth;
+          final fitHeightZoom = containerSize.height / contentHeight;
+          return math.min(fitWidthZoom, fitHeightZoom);
+        }
+
+        final rawFitZoom = getRawFitZoom();
+
+        double virtualContentWidth = contentWidth;
+        double virtualContentHeight = contentHeight;
+
+        // When content is set to fit,
+        // contentWidth and contentHeight will not be representative
+        // of the screen dimensions of the content.
+        if (rawFitZoom < 1) {
+          if (contentWidth > contentHeight) {
+            virtualContentWidth = containerSize.width;
+            virtualContentHeight =
+                virtualContentWidth * contentHeight / contentWidth;
+          } else {
+            virtualContentHeight = containerSize.height;
+            virtualContentWidth =
+                virtualContentHeight * contentWidth / contentHeight;
+          }
+        }
+
+        double getMinZoom() {
+          final minWidthZoom = minPixelDimension / virtualContentWidth;
+          final minHeightZoom = minPixelDimension / virtualContentHeight;
+          return math.min(minWidthZoom, minHeightZoom);
+        }
+
+        double getFitZoom() => (rawFitZoom < 1) ? 1 : rawFitZoom;
+
+        double getMaxZoom() {
+          bool isHeightShorter = virtualContentWidth > virtualContentHeight;
+          final fillZoom = isHeightShorter
+              ? (containerSize.height / virtualContentHeight)
+              : (containerSize.width / virtualContentWidth);
+          return fillZoom * maxZoomFillContainerFactor;
+        }
+
+        return builder(
+          context,
+          getFitZoom,
+          getMinZoom,
+          getMaxZoom,
+        );
+      },
+    );
+  }
+}
+
 class ScrollZoomContainer extends StatefulWidget {
   const ScrollZoomContainer({
     super.key,

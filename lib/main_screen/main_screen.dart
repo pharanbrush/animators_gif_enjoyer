@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
@@ -442,61 +441,11 @@ class _MyHomePageState extends State<MyHomePage>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Expanded(
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  const double minPixelDimension =
-                      22; // Pixel size of discord inline emote.
-
-                  final containerSize = constraints.biggest;
-                  final imageWidth = loadedGifInfo.width.toDouble();
-                  final imageHeight = loadedGifInfo.height.toDouble();
-
-                  double getRawFitZoom() {
-                    final fitWidthZoom = containerSize.width / imageWidth;
-                    final fitHeightZoom = containerSize.height / imageHeight;
-                    return math.min(fitWidthZoom, fitHeightZoom);
-                  }
-
-                  final rawFitZoom = getRawFitZoom();
-
-                  double virtualImageWidth = imageWidth;
-                  double virtualImageHeight = imageHeight;
-                  if (rawFitZoom < 1) {
-                    if (imageWidth > imageHeight) {
-                      virtualImageWidth = containerSize.width;
-                      virtualImageHeight =
-                          virtualImageWidth * imageHeight / imageWidth;
-                    } else {
-                      virtualImageHeight = containerSize.height;
-                      virtualImageWidth =
-                          virtualImageHeight * imageWidth / imageHeight;
-                    }
-                  }
-
-                  double getMinZoom() {
-                    final minWidthZoom = minPixelDimension / virtualImageWidth;
-                    final minHeightZoom =
-                        minPixelDimension / virtualImageHeight;
-
-                    final minimumZoom = math.min(minWidthZoom, minHeightZoom);
-
-                    return minimumZoom;
-                  }
-
-                  double getFitZoom() {
-                    return (rawFitZoom < 1) ? 1 : rawFitZoom;
-                  }
-
-                  double getMaxZoom() {
-                    const double maxZoomContainerSize = 3;
-                    bool isImageHeightShorter =
-                        virtualImageWidth > virtualImageHeight;
-                    final fillZoom = isImageHeightShorter
-                        ? (containerSize.height / virtualImageHeight)
-                        : (containerSize.width / virtualImageWidth);
-                    return fillZoom * maxZoomContainerSize;
-                  }
-
+              child: ZoomConstraintsContainerBuilder(
+                minPixelDimension: 22, // Size of a Discord inline emote
+                contentWidth: loadedGifInfo.width.toDouble(),
+                contentHeight: loadedGifInfo.height.toDouble(),
+                builder: (_, getFitZoom, getMinZoom, getMaxZoom) {
                   return GestureDetector(
                     onTap: () => togglePlayPause(),
                     child: GifViewContainer(
