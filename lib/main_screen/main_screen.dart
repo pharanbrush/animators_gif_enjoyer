@@ -321,21 +321,7 @@ class _MyHomePageState extends State<MyHomePage>
             valueListenable: isGifDownloading,
             builder: (_, isCurrentlyDownloading, __) {
               if (isCurrentlyDownloading) {
-                return Center(
-                  child: SizedBox.square(
-                    dimension: 150,
-                    child: ValueListenableBuilder(
-                      valueListenable: gifDownloadPercent,
-                      builder: (_, value, __) {
-                        return CircularProgressIndicator(
-                          value: value < 0.1 ? null : value,
-                          strokeWidth: 8,
-                          strokeCap: StrokeCap.round,
-                        );
-                      },
-                    ),
-                  ),
-                );
+                return gifDownloadingIndicator(context);
               }
 
               return isGifLoaded
@@ -346,6 +332,24 @@ class _MyHomePageState extends State<MyHomePage>
         ),
         bottomBarWidget()
       ],
+    );
+  }
+
+  Widget gifDownloadingIndicator(BuildContext context) {
+    return Center(
+      child: SizedBox.square(
+        dimension: 150,
+        child: ValueListenableBuilder(
+          valueListenable: gifDownloadPercent,
+          builder: (_, percentDownloaded, __) {
+            return CircularProgressIndicator(
+              value: percentDownloaded < 0.1 ? null : percentDownloaded,
+              strokeWidth: 8,
+              strokeCap: StrokeCap.round,
+            );
+          },
+        ),
+      ),
     );
   }
 
