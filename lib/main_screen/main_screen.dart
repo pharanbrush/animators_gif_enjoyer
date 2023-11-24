@@ -866,8 +866,8 @@ class GifInfo {
   }
 
   static Duration? readFrameDuration(List<GifFrame> frames) {
-    var duration = frames[0].duration;
-    for (var frame in frames) {
+    final duration = frames[0].duration;
+    for (final frame in frames) {
       if (duration != frame.duration) return null;
     }
     return duration;
