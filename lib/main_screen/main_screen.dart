@@ -702,7 +702,7 @@ class _MyHomePageState extends State<MyHomePage>
 
     String getFramerateLabel() {
       if (loadedGifInfo.isNonAnimated) {
-        return 'Not animated.';
+        return 'Not animated ';
       }
 
       const millisecondsUnit = 'ms';
