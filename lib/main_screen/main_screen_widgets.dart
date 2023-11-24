@@ -249,6 +249,7 @@ class FrameRangeSlider extends StatelessWidget {
     this.onChangeRangeStart,
     this.onChangeRangeEnd,
     this.onChangeTapUp,
+    this.displayedFrameOffset = 0,
   });
 
   final VoidCallback? onChange;
@@ -258,6 +259,7 @@ class FrameRangeSlider extends StatelessWidget {
   final ValueNotifier<RangeValues> startEnd;
   final ValueNotifier<int> maxFrameIndex;
   final bool enabled;
+  final int displayedFrameOffset;
 
   static const mainSliderTheme = SliderThemeData(
     trackHeight: 2,
@@ -273,7 +275,10 @@ class FrameRangeSlider extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 30),
       child: Row(
         children: [
-          Text('0', style: Theme.of(context).smallGrayStyle),
+          Text(
+            '$displayedFrameOffset',
+            style: Theme.of(context).smallGrayStyle,
+          ),
           Expanded(
             child: Theme(
               data: focusTheme,
@@ -288,8 +293,10 @@ class FrameRangeSlider extends StatelessWidget {
                       values: currentStartEnd,
                       min: 0,
                       max: maxFrameIndex.value.toDouble(),
-                      labels: RangeLabels('${currentStartEnd.startInt}',
-                          '${currentStartEnd.endInt}'),
+                      labels: RangeLabels(
+                        '${(currentStartEnd.startInt + displayedFrameOffset)}',
+                        '${(currentStartEnd.endInt + displayedFrameOffset)}',
+                      ),
                       onChanged: enabled
                           ? (newValue) {
                               final oldValue = startEnd.value;
@@ -317,8 +324,10 @@ class FrameRangeSlider extends StatelessWidget {
               ),
             ),
           ),
-          Text('${maxFrameIndex.value}',
-              style: Theme.of(context).smallGrayStyle),
+          Text(
+            '${(maxFrameIndex.value + displayedFrameOffset)}',
+            style: Theme.of(context).smallGrayStyle,
+          ),
         ],
       ),
     );
@@ -335,8 +344,10 @@ class MainSlider extends StatelessWidget {
     required this.gifController,
     required this.enabled,
     required this.onChange,
+    this.displayedFrameOffset = 0,
   });
 
+  final int displayedFrameOffset;
   final VoidCallback toggleUseFocus;
   final RangeValues primarySliderRange;
   final ValueNotifier<bool> isUsingFocusRange;
@@ -351,7 +362,7 @@ class MainSlider extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         ToggleFocusButton(
-          label: '${primarySliderRange.startInt}',
+          label: '${(primarySliderRange.startInt + displayedFrameOffset)}',
           handleToggle: () => toggleUseFocus(),
           isFocusing: isUsingFocusRange.value,
           enabled: enabled,
@@ -378,7 +389,7 @@ class MainSlider extends StatelessWidget {
               min: sliderMin,
               max: sliderMax,
               value: currentFrameValue.toDouble(),
-              label: '$currentFrameValue',
+              label: '${(currentFrameValue + displayedFrameOffset)}',
               onChanged: enabled
                   ? (newValue) {
                       currentFrame.value = newValue.toInt();
@@ -415,7 +426,7 @@ class MainSlider extends StatelessWidget {
           },
         ),
         ToggleFocusButton(
-          label: '${primarySliderRange.endInt}',
+          label: '${(primarySliderRange.endInt + displayedFrameOffset)}',
           handleToggle: () => toggleUseFocus(),
           isFocusing: isUsingFocusRange.value,
           enabled: enabled,

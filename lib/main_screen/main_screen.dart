@@ -438,7 +438,7 @@ class _MyHomePageState extends State<MyHomePage>
               children: [
                 ValueListenableBuilder(
                   valueListenable: currentFrame,
-                  builder: (_, currentFrameValue, __) {
+                  builder: (_, __, ___) {
                     final bigStyle = Theme.of(context).textTheme.headlineMedium;
                     final bigStyleGray = bigStyle?.copyWith(
                             color: Theme.of(context).colorScheme.grayColor) ??
@@ -452,7 +452,7 @@ class _MyHomePageState extends State<MyHomePage>
                       children: [
                         separator,
                         Text(
-                          '$currentFrameValue',
+                          displayedCurrentFrameString,
                           style: isScrubMode.value ? bigStyle : bigStyleGray,
                         ),
                         separator,
@@ -477,6 +477,7 @@ class _MyHomePageState extends State<MyHomePage>
                     gifController: gifController,
                     enabled: isGifLoaded && isScrubMode.value,
                     onChange: clampCurrentFrameAndShow,
+                    displayedFrameOffset: GifPlayer.displayedFrameBaseOffset,
                   ),
                 ),
               ),
@@ -505,6 +506,8 @@ class _MyHomePageState extends State<MyHomePage>
                   child: Column(
                     children: [
                       FrameRangeSlider(
+                        displayedFrameOffset:
+                            GifPlayer.displayedFrameBaseOffset,
                         startEnd: focusFrameRange,
                         maxFrameIndex: maxFrameIndex,
                         enabled: isGifLoaded && isScrubMode.value,
@@ -872,6 +875,8 @@ class GifInfo {
 }
 
 mixin GifPlayer<T extends StatefulWidget> on State<T>, TickerProvider {
+  static const int displayedFrameBaseOffset = 0;
+
   late final GifController gifController;
   ImageProvider? gifImageProvider;
   late GifFrameAdvancer gifAdvancer;
@@ -881,6 +886,10 @@ mixin GifPlayer<T extends StatefulWidget> on State<T>, TickerProvider {
 
   final ValueNotifier<int> displayedFrame = ValueNotifier(0);
   final ValueNotifier<int> currentFrame = ValueNotifier(0);
+
+  String get displayedCurrentFrameString {
+    return (currentFrame.value + displayedFrameBaseOffset).toString();
+  }
 
   final ValueNotifier<RangeValues> focusFrameRange =
       ValueNotifier(const RangeValues(0, 100));
