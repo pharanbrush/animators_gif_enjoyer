@@ -229,7 +229,6 @@ class GifView extends StatefulWidget {
 
 class GifViewState extends State<GifView> with TickerProviderStateMixin {
   late GifController controller;
-  //AnimationController? _loadingFadeAnimationController;
 
   @override
   void initState() {
