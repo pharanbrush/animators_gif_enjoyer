@@ -444,42 +444,57 @@ class _MyHomePageState extends State<MyHomePage>
             Expanded(
               child: LayoutBuilder(
                 builder: (context, constraints) {
-                  const double minimumPixelDimension =
+                  const double minPixelDimension =
                       22; // Pixel size of discord inline emote.
 
                   final containerSize = constraints.biggest;
                   final imageWidth = loadedGifInfo.width.toDouble();
                   final imageHeight = loadedGifInfo.height.toDouble();
 
-                  double getMinimumZoom() {
-                    final minWidthZoom = minimumPixelDimension / imageWidth;
-                    final minHeightZoom = minimumPixelDimension / imageHeight;
+                  double getRawFitZoom() {
+                    final fitWidthZoom = containerSize.width / imageWidth;
+                    final fitHeightZoom = containerSize.height / imageHeight;
+                    return math.min(fitWidthZoom, fitHeightZoom);
+                  }
 
-                    final minimumZoom = math.max(minWidthZoom, minHeightZoom);
+                  final rawFitZoom = getRawFitZoom();
+
+                  double virtualImageWidth = imageWidth;
+                  double virtualImageHeight = imageHeight;
+                  if (rawFitZoom < 1) {
+                    if (imageWidth > imageHeight) {
+                      virtualImageWidth = containerSize.width;
+                      virtualImageHeight =
+                          virtualImageWidth * imageHeight / imageWidth;
+                    } else {
+                      virtualImageHeight = containerSize.height;
+                      virtualImageWidth =
+                          virtualImageHeight * imageWidth / imageHeight;
+                    }
+                  }
+
+                  double getMinZoom() {
+                    final minWidthZoom = minPixelDimension / virtualImageWidth;
+                    final minHeightZoom =
+                        minPixelDimension / virtualImageHeight;
+
+                    final minimumZoom = math.min(minWidthZoom, minHeightZoom);
 
                     return minimumZoom;
                   }
 
-                  double getFilledZoom() {
-                    final fitWidthZoom = containerSize.width / imageWidth;
-                    final fitHeightZoom = containerSize.height / imageHeight;
-
-                    final fitZoom = math.min(fitWidthZoom, fitHeightZoom);
-
-                    return fitZoom;
+                  double getFitZoom() {
+                    return (rawFitZoom < 1) ? 1 : rawFitZoom;
                   }
 
-                  double getMaximumZoom() {
+                  double getMaxZoom() {
                     const double maxZoomContainerSize = 3;
-                    final fitWidthZoom =
-                        containerSize.width * maxZoomContainerSize / imageWidth;
-                    final fitHeightZoom = containerSize.height *
-                        maxZoomContainerSize /
-                        imageHeight;
-
-                    final maxZoom = math.min(fitWidthZoom, fitHeightZoom);
-
-                    return maxZoom;
+                    bool isImageHeightShorter =
+                        virtualImageWidth > virtualImageHeight;
+                    final fillZoom = isImageHeightShorter
+                        ? (containerSize.height / virtualImageHeight)
+                        : (containerSize.width / virtualImageWidth);
+                    return fillZoom * maxZoomContainerSize;
                   }
 
                   return GestureDetector(
@@ -492,9 +507,9 @@ class _MyHomePageState extends State<MyHomePage>
                       pasteHandler: () => openTextPanelAndPaste(),
                       exportPngSequenceHandler: () => tryExportPngSequence(),
                       zoomLevelNotifier: zoomLevelNotifier,
-                      fitZoomGetter: getFilledZoom,
-                      hardMaximumZoomGetter: getMaximumZoom,
-                      hardMinimumZoomGetter: getMinimumZoom,
+                      fitZoomGetter: getFitZoom,
+                      hardMaxZoomGetter: getMaxZoom,
+                      hardMinZoomGetter: getMinZoom,
                     ),
                   );
                 },
