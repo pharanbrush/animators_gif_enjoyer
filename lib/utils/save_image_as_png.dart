@@ -15,6 +15,7 @@ Future<void> savePngSequenceFromImageList(
   List<ui.Image> images, {
   required String prefix,
   bool useSubfolder = true,
+  bool useBaseZero = true,
   AccumulatedFilesCallback? onFileSaveProgress,
   ui.VoidCallback? onSomeFilesNotSaved,
   FilesDoneCheckCallback? onSaveSuccess,
@@ -28,7 +29,7 @@ Future<void> savePngSequenceFromImageList(
   final saveFolderPathWithoutFinalSeparator =
       '$selectedFolderPath${useSubfolder ? '$separator$prefix' : ''}';
 
-  int index = 0;
+  int index = useBaseZero ? 0 : 1;
 
   int digits = images.length.toString().length + 1;
   bool someFilesWereNotSaved = false;
