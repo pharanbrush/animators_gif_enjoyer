@@ -278,10 +278,26 @@ class _MyHomePageState extends State<MyHomePage>
       },
     );
 
+    final zoomButton = ValueListenableBuilder(
+      valueListenable: zoomLevelNotifier,
+      builder: (_, __, ___) {
+        if (zoomLevelNotifier.value != 1) {
+          return IconButton(
+            icon: const Icon(Icons.youtube_searched_for),
+            tooltip: 'Reset zoom',
+            onPressed: () => zoomLevelNotifier.value = 1.0,
+          );
+        } else {
+          return const SizedBox.shrink();
+        }
+      },
+    );
+
     final List<Widget> buttons = isGifLoaded
         ? [
             cycleThemeButton,
             cyclePlaybackSpeedButton,
+            zoomButton,
           ]
         : [
             cycleThemeButton,
