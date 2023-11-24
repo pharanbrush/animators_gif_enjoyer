@@ -877,7 +877,7 @@ class GifInfo {
 mixin GifPlayer<T extends StatefulWidget> on State<T>, TickerProvider {
   static const int displayedFrameBaseOffset = 0;
 
-  late final GifController gifController;
+  final gifController = GifController();
   ImageProvider? gifImageProvider;
   late GifFrameAdvancer gifAdvancer;
   late PlaybackSpeedController playSpeedController = PlaybackSpeedController(
@@ -941,10 +941,6 @@ mixin GifPlayer<T extends StatefulWidget> on State<T>, TickerProvider {
       tickerProvider: this,
       onFrame: (frameIndex) => onGifFrameAdvance(frameIndex),
     );
-    gifController = GifController(
-      autoPlay: false,
-      loop: true,
-    );
     super.initState();
   }
 
@@ -954,6 +950,7 @@ mixin GifPlayer<T extends StatefulWidget> on State<T>, TickerProvider {
 
   @override
   void dispose() {
+    gifController.dispose();
     gifAdvancer.dispose();
     super.dispose();
   }

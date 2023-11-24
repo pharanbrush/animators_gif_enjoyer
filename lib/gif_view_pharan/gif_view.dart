@@ -18,6 +18,10 @@ import 'package:http/http.dart' as http;
 /// on 23/09/21
 ///
 
+/// tbh I deleted most of the methods, members and functionality
+/// since I'm handling a lot of the actual controls in the app code.
+/// -Pharan
+
 enum GifStatus { loading, playing, stopped, paused, reversing }
 
 class GifFrame {
@@ -31,21 +35,12 @@ class GifFrame {
 /// to [GifController.load].
 Future<List<GifFrame>> loadGifFrames({
   required ImageProvider provider,
-  int? customFrameRate,
   ValueChanged<Object?>? onError,
   ValueChanged<double>? onProgressPercent,
 }) async {
   List<GifFrame> frameList = [];
   try {
     Uint8List? data;
-
-    // if (_providerIsCacheable(provider)) {
-    //   String key = _getImageKeyFor(provider);
-    //   if (_cache.containsKey(key)) {
-    //     frameList = _cache[key]!;
-    //     return frameList;
-    //   }
-    // }
 
     switch (provider) {
       case NetworkImage ni:
@@ -110,34 +105,15 @@ Future<List<GifFrame>> loadGifFrames({
       allowUpscaling: false,
     );
 
-    if (customFrameRate == null) {
-      for (int i = 0, n = codec.frameCount; i < n; i++) {
-        FrameInfo frameInfo = await codec.getNextFrame();
-        frameList.add(
-          GifFrame(
-            ImageInfo(image: frameInfo.image),
-            frameInfo.duration,
-          ),
-        );
-      }
-    } else {
-      final customFrameDuration =
-          Duration(milliseconds: (1000.0 / customFrameRate).ceil());
-      for (int i = 0, n = codec.frameCount; i < n; i++) {
-        FrameInfo frameInfo = await codec.getNextFrame();
-        frameList.add(
-          GifFrame(
-            ImageInfo(image: frameInfo.image),
-            customFrameDuration,
-          ),
-        );
-      }
+    for (int i = 0, n = codec.frameCount; i < n; i++) {
+      FrameInfo frameInfo = await codec.getNextFrame();
+      frameList.add(
+        GifFrame(
+          ImageInfo(image: frameInfo.image),
+          frameInfo.duration,
+        ),
+      );
     }
-
-    // if (_providerIsCacheable(provider)) {
-    //   String key = _getImageKeyFor(provider);
-    //   _cache.putIfAbsent(key, () => frameList);
-    // }
   } catch (e) {
     if (onError == null) {
       rethrow;
@@ -145,43 +121,12 @@ Future<List<GifFrame>> loadGifFrames({
       onError(e);
     }
   }
+
   return frameList;
 }
 
-// final Map<String, List<GifFrame>> _cache = {};
-
-// bool _providerIsCacheable(ImageProvider provider) {
-//   switch (provider) {
-//     // ignore: unused_local_variable
-//     case NetworkImage n:
-//     // ignore: unused_local_variable
-//     case AssetImage a:
-//     // ignore: unused_local_variable
-//     case MemoryImage m:
-//       return true;
-//     default:
-//       return false;
-//   }
-// }
-
-// String _getImageKeyFor(ImageProvider provider) {
-//   switch (provider) {
-//     case NetworkImage ni:
-//       return ni.url;
-//     case AssetImage ai:
-//       return ai.assetName;
-//     case MemoryImage mi:
-//       return mi.bytes.toString();
-//     case FileImage fi:
-//       return fi.file.path;
-//     default:
-//       return "";
-//   }
-// }
-
 class GifView extends StatefulWidget {
   final GifController? controller;
-  final int? frameRate;
   final ImageProvider image;
   final double? height;
   final double? width;
@@ -197,16 +142,10 @@ class GifView extends StatefulWidget {
   final bool isAntiAlias;
   final ValueChanged<Object?>? onError;
 
-  /// The widget shown while the image data is still being loaded or processed.
-  // final Widget? loadingWidget;
-  // final bool useLoadingFadeAnimation;
-  // final Duration? loadingFadeDuration;
-
   GifView.network(
     String url, {
     super.key,
     this.controller,
-    this.frameRate,
     this.height,
     this.width,
     this.fit,
@@ -220,9 +159,6 @@ class GifView extends StatefulWidget {
     this.filterQuality = FilterQuality.low,
     this.isAntiAlias = false,
     this.onError,
-    // this.loadingWidget,
-    // this.useLoadingFadeAnimation = true,
-    // this.loadingFadeDuration,
     double scale = 1.0,
     Map<String, String>? headers,
   }) : image = NetworkImage(url, scale: scale, headers: headers);
@@ -231,7 +167,6 @@ class GifView extends StatefulWidget {
     String asset, {
     super.key,
     this.controller,
-    this.frameRate,
     this.height,
     this.width,
     this.fit,
@@ -245,9 +180,6 @@ class GifView extends StatefulWidget {
     this.filterQuality = FilterQuality.low,
     this.isAntiAlias = false,
     this.onError,
-    // this.loadingWidget,
-    // this.useLoadingFadeAnimation = true,
-    // this.loadingFadeDuration,
     String? package,
     AssetBundle? bundle,
   }) : image = AssetImage(asset, package: package, bundle: bundle);
@@ -256,7 +188,6 @@ class GifView extends StatefulWidget {
     Uint8List bytes, {
     super.key,
     this.controller,
-    this.frameRate = 15,
     this.height,
     this.width,
     this.fit,
@@ -270,9 +201,6 @@ class GifView extends StatefulWidget {
     this.filterQuality = FilterQuality.low,
     this.isAntiAlias = false,
     this.onError,
-    // this.loadingWidget,
-    // this.useLoadingFadeAnimation = true,
-    // this.loadingFadeDuration,
     double scale = 1.0,
   }) : image = MemoryImage(bytes, scale: scale);
 
@@ -280,7 +208,6 @@ class GifView extends StatefulWidget {
     super.key,
     required this.image,
     this.controller,
-    this.frameRate = 15,
     this.height,
     this.width,
     this.fit,
@@ -294,9 +221,6 @@ class GifView extends StatefulWidget {
     this.filterQuality = FilterQuality.low,
     this.isAntiAlias = false,
     this.onError,
-    //this.useLoadingFadeAnimation = true,
-    // this.loadingWidget,
-    // this.loadingFadeDuration,
   });
 
   @override
@@ -309,13 +233,6 @@ class GifViewState extends State<GifView> with TickerProviderStateMixin {
 
   @override
   void initState() {
-    // if (widget.useLoadingFadeAnimation) {
-    //   _loadingFadeAnimationController = AnimationController(
-    //     vsync: this,
-    //     duration:
-    //         widget.loadingFadeDuration ?? const Duration(milliseconds: 150),
-    //   );
-    // }
     controller = widget.controller ?? GifController();
     controller.addListener(_listener);
     Future.delayed(Duration.zero, _loadImage);
@@ -332,14 +249,6 @@ class GifViewState extends State<GifView> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    if (controller.status == GifStatus.loading) {
-      return SizedBox(
-        width: widget.width,
-        height: widget.height,
-        child: const SizedBox.shrink(), //widget.loadingWidget,
-      );
-    }
-
     return RawImage(
       image: controller.currentFrameData.imageInfo.image,
       width: widget.width,
@@ -355,26 +264,20 @@ class GifViewState extends State<GifView> with TickerProviderStateMixin {
       invertColors: widget.invertColors,
       filterQuality: widget.filterQuality,
       isAntiAlias: widget.isAntiAlias,
-      //opacity: _loadingFadeAnimationController,
     );
   }
 
   FutureOr _loadImage({bool updateFrames = false}) async {
     final frames = await loadGifFrames(
       provider: widget.image,
-      customFrameRate: widget.frameRate,
       onError: widget.onError,
     );
     controller.load(frames, updateFrames: updateFrames);
-    //_loadingFadeAnimationController?.forward(from: 0);
   }
 
   @override
   void dispose() {
-    controller.stop();
     controller.removeListener(_listener);
-    // _loadingFadeAnimationController?.dispose();
-    // _loadingFadeAnimationController = null;
     super.dispose();
   }
 
@@ -387,6 +290,7 @@ class GifViewState extends State<GifView> with TickerProviderStateMixin {
 
 class GifController extends ChangeNotifier {
   List<GifFrame> _frames = [];
+  int _currentFrame = 0;
 
   List<GifFrame> get frames => _frames;
   int get currentFrame => _currentFrame;
@@ -394,101 +298,13 @@ class GifController extends ChangeNotifier {
     _currentFrame = newValue.clamp(0, frameCount);
   }
 
-  int _currentFrame = 0;
-
   GifFrame get currentFrameData => _frames[currentFrame];
   int get frameCount => _frames.length;
 
-  GifStatus status = GifStatus.loading;
-
-  final bool autoPlay;
-  final VoidCallback? onFinish;
-  final VoidCallback? onStart;
-  final ValueChanged<int>? onFrame;
-
-  bool loop;
-  bool _inverted;
-
-  GifController({
-    this.autoPlay = true,
-    this.loop = true,
-    bool inverted = false,
-    this.onStart,
-    this.onFinish,
-    this.onFrame,
-  }) : _inverted = inverted;
-
-  void _run() {
-    switch (status) {
-      case GifStatus.playing:
-      case GifStatus.reversing:
-        _runNextFrame();
-        break;
-
-      case GifStatus.stopped:
-        onFinish?.call();
-        _currentFrame = 0;
-        break;
-      case GifStatus.loading:
-      case GifStatus.paused:
-    }
-  }
-
-  void _runNextFrame() async {
-    await Future.delayed(_frames[_currentFrame].duration);
-
-    if (status == GifStatus.reversing) {
-      if (_currentFrame > 0) {
-        _currentFrame--;
-      } else if (loop) {
-        _currentFrame = _frames.length - 1;
-      } else {
-        status = GifStatus.stopped;
-      }
-    } else {
-      if (_currentFrame < _frames.length - 1) {
-        _currentFrame++;
-      } else if (loop) {
-        _currentFrame = 0;
-      } else {
-        status = GifStatus.stopped;
-      }
-    }
-
-    onFrame?.call(_currentFrame);
-    notifyListeners();
-    _run();
-  }
-
-  void play({bool? inverted, int? initialFrame}) {
-    if (status == GifStatus.loading) return;
-    _inverted = inverted ?? _inverted;
-
-    if (status == GifStatus.stopped || status == GifStatus.paused) {
-      status = _inverted ? GifStatus.reversing : GifStatus.playing;
-
-      bool isValidInitialFrame = initialFrame != null &&
-          initialFrame > 0 &&
-          initialFrame < _frames.length - 1;
-
-      if (isValidInitialFrame) {
-        _currentFrame = initialFrame;
-      } else {
-        _currentFrame = status == GifStatus.reversing ? _frames.length - 1 : 0;
-      }
-      onStart?.call();
-      _run();
-    } else {
-      status = _inverted ? GifStatus.reversing : GifStatus.playing;
-    }
-  }
-
-  void stop() {
-    status = GifStatus.stopped;
-  }
-
-  void pause() {
-    status = GifStatus.paused;
+  @override
+  void dispose() {
+    tryDisposeFrames();
+    super.dispose();
   }
 
   void seek(int index) {
@@ -508,10 +324,6 @@ class GifController extends ChangeNotifier {
     _frames = frames;
     currentFrame = 0;
     if (!updateFrames) {
-      status = GifStatus.stopped;
-      if (autoPlay) {
-        play();
-      }
       notifyListeners();
     }
   }
