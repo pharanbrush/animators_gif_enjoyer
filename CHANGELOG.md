@@ -3,9 +3,10 @@ Animator's GIF Enjoyer Deluxe Changelog
 
 ### 1.0.6 (Coming soon)
 - Added zooming. Snaps to container size, then allows crazy zoom. Minimum zoom is the size of a Discord inline emote.
-- Added "Export PNG Sequence...".
-- Added "Reveal in File Explorer" or "Open original link in browser" to context menu. The menu will show the correct item based on the GIF source.
 - New button to change playback speed.
+- Added "Export PNG Sequence...".
+- Allow switching between zero-based and one-based display frames in the current frame number's context menu. This also affects the PNG sequence export filenames.
+- Added "Reveal in File Explorer" or "Open original link in browser" to context menu. The menu will show the correct item based on the GIF source.
 - Allow scrolling on the primary slider to change frames
 - Shortened text format for the frame time info.
 - Added webp to explicitly-supported formats (it was already compatible anyway).
@@ -13,6 +14,7 @@ Animator's GIF Enjoyer Deluxe Changelog
 - Fix some tooltip settings to prevent them from blocking buttons on important mouse paths.
 - Indicate when the image isn't animated.
 - Show the delay of each frame when the image doesn't have a framerate.
+
 
 ### 1.0.4 (2023 Nov 18)
 - Added 3 new brightness themes that's saved between sessions.

@@ -28,6 +28,7 @@ See LICENSE file for more info.
 - Change the playback speed.
 - Zoom in. And then zoom some more. Maximum zoom out results in the size of a Discord inline emote (22px).
 - Export GIF as a PNG Sequence (so you can use them in Blender or other apps that don't support GIFs).
+- New switch for zero-based or one-based frames in the right-click menu on the frame number.
 
 ---
   
