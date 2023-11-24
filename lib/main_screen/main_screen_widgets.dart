@@ -186,9 +186,10 @@ class _ScrollZoomContainerState extends State<ScrollZoomContainer> {
                 return FittedBox(
                   fit: BoxFit.scaleDown,
                   child: AnimatedScale(
-                    duration: Durations.medium1,
+                    duration:
+                        const Duration(milliseconds: 300), //Durations.medium1,
                     scale: value,
-                    curve: Easing.standardDecelerate,
+                    curve: Curves.easeOutQuart, //Easing.standardDecelerate,
                     child: widget.child,
                   ),
                 );
