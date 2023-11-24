@@ -572,10 +572,7 @@ class _MyHomePageState extends State<MyHomePage>
               spacing: 4,
               children: [
                 getFramerateTooltip(),
-                Text(
-                  getGifInfoBottomLabel(),
-                  style: Theme.of(context).smallGrayStyle,
-                ),
+                bottomBarGifInfo(context),
               ],
             ),
             const Spacer(),
@@ -602,6 +599,66 @@ class _MyHomePageState extends State<MyHomePage>
           ],
         ),
       ),
+    );
+  }
+
+  Widget bottomBarGifInfo(BuildContext context) {
+    if (!isGifLoaded) return const SizedBox.shrink();
+    final smallGrayStyle = Theme.of(context).smallGrayStyle;
+
+    final isAnimatedWithVariableFps = //
+        !loadedGifInfo.isNonAnimated && //
+            loadedGifInfo.frameDuration == null;
+
+    String getImageDimensionsLabel() {
+      return '${loadedGifInfo.width}x${loadedGifInfo.height}px';
+    }
+
+    if (isAnimatedWithVariableFps) {
+      return DefaultTextStyle(
+        style: smallGrayStyle,
+        child: Row(
+          children: [
+            const Text('Variable frame times. '),
+            ValueListenableBuilder(
+              valueListenable: currentFrame,
+              builder: (_, __, ___) {
+                return Text(
+                  '(current: ${gifController.currentFrameData.duration.inMilliseconds} ms)',
+                );
+              },
+            ),
+            Text('- ${getImageDimensionsLabel()}'),
+          ],
+        ),
+      );
+    }
+
+    String getFramerateLabel() {
+      if (loadedGifInfo.isNonAnimated) {
+        return 'Not animated.';
+      }
+
+      const millisecondsUnit = 'ms';
+      const msPerFrameUnit = '$millisecondsUnit/frame';
+
+      final frameDuration = loadedGifInfo.frameDuration;
+      switch (frameDuration) {
+        case null:
+          return 'Variable frame durations';
+        case <= const Duration(milliseconds: 10):
+          return '${frameDuration.inMilliseconds} $msPerFrameUnit';
+        default:
+          final frameInterval = frameDuration.inMilliseconds;
+          final fps = 1000.0 / frameInterval;
+          return '~${fps.toStringAsFixed(2)} fps '
+              '($frameInterval $msPerFrameUnit) ';
+      }
+    }
+
+    return Text(
+      '${getFramerateLabel()}- ${getImageDimensionsLabel()}',
+      style: smallGrayStyle,
     );
   }
 
@@ -666,8 +723,13 @@ class _MyHomePageState extends State<MyHomePage>
   //
 
   Widget getFramerateTooltip() {
-    if (!isGifLoaded) return const SizedBox.shrink();
-    if (loadedGifInfo.frameDuration == null) return const SizedBox.shrink();
+    if (!isGifLoaded || loadedGifInfo.isNonAnimated) {
+      return const SizedBox.shrink();
+    }
+
+    if (loadedGifInfo.frameDuration == null) {
+      return const SizedBox.shrink();
+    }
 
     final frameMilliseconds = loadedGifInfo.frameDuration!.inMilliseconds;
     final fpsDouble = 1000.0 / frameMilliseconds;
@@ -692,48 +754,6 @@ class _MyHomePageState extends State<MyHomePage>
         color: Theme.of(context).colorScheme.grayColor,
       ),
     );
-  }
-
-  String getGifInfoBottomLabel() {
-    if (!isGifLoaded) {
-      return '';
-    }
-
-    return '${getFramerateLabel()}- ${getImageDimensionsLabel()}';
-  }
-
-  String getImageDimensionsLabel() {
-    if (!isGifLoaded) {
-      return '';
-    }
-
-    return '${loadedGifInfo.width}x${loadedGifInfo.height}px';
-  }
-
-  String getFramerateLabel() {
-    if (!isGifLoaded) {
-      return '';
-    }
-
-    if (loadedGifInfo.isNonAnimated) {
-      return 'Not animated.';
-    }
-
-    const millisecondsUnit = 'ms';
-    const msPerFrameUnit = '$millisecondsUnit/frame';
-
-    final frameDuration = loadedGifInfo.frameDuration;
-    switch (frameDuration) {
-      case null:
-        return 'Variable frame durations';
-      case <= const Duration(milliseconds: 10):
-        return '${frameDuration.inMilliseconds} $msPerFrameUnit';
-      default:
-        final frameInterval = frameDuration.inMilliseconds;
-        final fps = 1000.0 / frameInterval;
-        return '~${fps.toStringAsFixed(2)} fps '
-            '($frameInterval $msPerFrameUnit) ';
-    }
   }
 
   //
