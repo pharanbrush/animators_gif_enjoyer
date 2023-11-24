@@ -1,9 +1,8 @@
-// import 'package:animators_gif_enjoyer/main_screen/theme.dart';
-// import 'package:flutter/material.dart';
 
 //
 // Theme preferences
 //
+
 const themeModePreferenceKey = 'theme_mode';
 
 //
@@ -39,4 +38,3 @@ const systemMode = 'system';
 
 //   return toThemeModeFromString(retrievedModeString);
 // }
-
