@@ -7,6 +7,11 @@ Pharan's simple frame-by-frame GIF inspection utility app.
 
 ---
 
+Modified GIF handling library originally based on gif_view by Rafaelbarbosatec
+See LICENSE file for more info.
+
+---
+
 - Fast, lightweight and instant-launch
 - Scrub GIFs!
 - Play and pause freely
@@ -24,5 +29,6 @@ Pharan's simple frame-by-frame GIF inspection utility app.
 - Export GIF as a PNG Sequence (so you can use them in Blender or other apps that don't support GIFs).
 
 ---
-
-With GIF handling library based on gif_view by Rafaelbarbosatec
+  
+If you find this app useful in your work, please consider a contribution!  
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/U7U5ADA8W)
