@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
 import 'package:animators_gif_enjoyer/main_screen/theme.dart';
 import 'package:animators_gif_enjoyer/phlutter/windows/scroll_listener.dart';
@@ -21,6 +23,9 @@ class GifViewContainer extends StatelessWidget {
     required this.pasteHandler,
     required this.exportPngSequenceHandler,
     this.zoomLevelNotifier,
+    this.fitZoomGetter,
+    this.hardMinimumZoomGetter,
+    this.hardMaximumZoomGetter,
   });
 
   final ImageProvider<Object>? gifImageProvider;
@@ -29,12 +34,18 @@ class GifViewContainer extends StatelessWidget {
   final VoidCallback openImageHandler;
   final VoidCallback pasteHandler;
   final VoidCallback exportPngSequenceHandler;
+  final double Function()? fitZoomGetter;
+  final double Function()? hardMinimumZoomGetter;
+  final double Function()? hardMaximumZoomGetter;
   final ValueNotifier<double>? zoomLevelNotifier;
 
   @override
   Widget build(BuildContext context) {
     return ScrollZoomContainer(
       notifier: zoomLevelNotifier,
+      fitZoomGetter: fitZoomGetter,
+      hardMaximumZoomGetter: hardMaximumZoomGetter,
+      hardMinimumZoomGetter: hardMinimumZoomGetter,
       child: GestureDetector(
         onSecondaryTap: () => popUpContextualMenu(menu(context)),
         child: GifView(
@@ -109,11 +120,19 @@ class ScrollZoomContainer extends StatefulWidget {
     super.key,
     required this.child,
     this.notifier,
+    this.overzoomThreshold = 10,
+    this.fitZoomGetter,
+    this.hardMinimumZoomGetter,
+    this.hardMaximumZoomGetter,
   });
 
   static const defaultZoom = 1.0;
+  final double Function()? fitZoomGetter;
+  final double Function()? hardMinimumZoomGetter;
+  final double Function()? hardMaximumZoomGetter;
   final Widget child;
   final ValueNotifier<double>? notifier;
+  final int overzoomThreshold;
 
   @override
   State<ScrollZoomContainer> createState() => _ScrollZoomContainerState();
@@ -121,14 +140,19 @@ class ScrollZoomContainer extends StatefulWidget {
 
 class _ScrollZoomContainerState extends State<ScrollZoomContainer> {
   static const zoomLevels = <double>[
+    0.1,
+    0.25,
     0.5,
     ScrollZoomContainer.defaultZoom,
     1.5,
     2,
     3,
-    4
+    4,
+    8,
+    16
   ];
 
+  int overZoomIntentionCount = 0;
   late ValueNotifier<double> notifier;
 
   @override
@@ -159,10 +183,41 @@ class _ScrollZoomContainerState extends State<ScrollZoomContainer> {
   }
 
   void increment() {
-    notifier.value = findZoomLevelAfter(notifier.value);
+    final currentValue = notifier.value;
+    final possibleNextZoom = findZoomLevelAfter(currentValue);
+    if (widget.fitZoomGetter != null) {
+      final fitZoom = widget.fitZoomGetter!.call();
+      if (currentValue <= fitZoom && possibleNextZoom > fitZoom) {
+        if (overZoomIntentionCount < widget.overzoomThreshold) {
+          overZoomIntentionCount++;
+          notifier.value = fitZoom;
+          return;
+        }
+      }
+    }
+
+    overZoomIntentionCount = 0;
+    if (widget.hardMaximumZoomGetter != null) {
+      notifier.value = math.min(
+        possibleNextZoom,
+        widget.hardMaximumZoomGetter!.call(),
+      );
+      return;
+    }
+
+    notifier.value = possibleNextZoom;
   }
 
   void decrement() {
+    final possibleNextZoom = findZoomLevelBefore(notifier.value);
+    if (widget.hardMinimumZoomGetter != null) {
+      notifier.value = math.max(
+        possibleNextZoom,
+        widget.hardMinimumZoomGetter!.call(),
+      );
+      return;
+    }
+
     notifier.value = findZoomLevelBefore(notifier.value);
   }
 

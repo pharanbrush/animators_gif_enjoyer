@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
@@ -421,17 +422,62 @@ class _MyHomePageState extends State<MyHomePage>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Expanded(
-              child: GestureDetector(
-                onTap: () => togglePlayPause(),
-                child: GifViewContainer(
-                  gifImageProvider: gifImageProvider,
-                  gifController: gifController,
-                  copyImageHandler: () => tryCopyFrameToClipboard(),
-                  openImageHandler: () => openNewFile(),
-                  pasteHandler: () => openTextPanelAndPaste(),
-                  exportPngSequenceHandler: () => tryExportPngSequence(),
-                  zoomLevelNotifier: zoomLevelNotifier,
-                ),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  const double minimumPixelDimension =
+                      22; // Pixel size of discord inline emote.
+
+                  final containerSize = constraints.biggest;
+                  final imageWidth = loadedGifInfo.width.toDouble();
+                  final imageHeight = loadedGifInfo.height.toDouble();
+
+                  double getMinimumZoom() {
+                    final minWidthZoom = minimumPixelDimension / imageWidth;
+                    final minHeightZoom = minimumPixelDimension / imageHeight;
+
+                    final minimumZoom = math.max(minWidthZoom, minHeightZoom);
+
+                    return minimumZoom;
+                  }
+
+                  double getFilledZoom() {
+                    final fitWidthZoom = containerSize.width / imageWidth;
+                    final fitHeightZoom = containerSize.height / imageHeight;
+
+                    final fitZoom = math.min(fitWidthZoom, fitHeightZoom);
+
+                    return fitZoom;
+                  }
+
+                  double getMaximumZoom() {
+                    const double maxZoomContainerSize = 3;
+                    final fitWidthZoom =
+                        containerSize.width * maxZoomContainerSize / imageWidth;
+                    final fitHeightZoom = containerSize.height *
+                        maxZoomContainerSize /
+                        imageHeight;
+
+                    final maxZoom = math.min(fitWidthZoom, fitHeightZoom);
+
+                    return maxZoom;
+                  }
+
+                  return GestureDetector(
+                    onTap: () => togglePlayPause(),
+                    child: GifViewContainer(
+                      gifImageProvider: gifImageProvider,
+                      gifController: gifController,
+                      copyImageHandler: () => tryCopyFrameToClipboard(),
+                      openImageHandler: () => openNewFile(),
+                      pasteHandler: () => openTextPanelAndPaste(),
+                      exportPngSequenceHandler: () => tryExportPngSequence(),
+                      zoomLevelNotifier: zoomLevelNotifier,
+                      fitZoomGetter: getFilledZoom,
+                      hardMaximumZoomGetter: getMaximumZoom,
+                      hardMinimumZoomGetter: getMinimumZoom,
+                    ),
+                  );
+                },
               ),
             ),
             Column(
@@ -880,6 +926,8 @@ class GifInfo {
   final int height;
   final Duration? frameDuration;
   final bool isNonAnimated;
+
+  Size get imageSize => Size(width.toDouble(), height.toDouble());
 
   static bool isNonMoving(List<GifFrame> frames) {
     return frames.length <= 1;
