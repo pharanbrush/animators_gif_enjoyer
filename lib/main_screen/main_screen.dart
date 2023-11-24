@@ -263,6 +263,10 @@ class _MyHomePageState extends State<MyHomePage>
     final cyclePlaybackSpeedButton = ValueListenableBuilder(
       valueListenable: playSpeedController.valueListenable,
       builder: (_, __, ___) {
+        if (!isPlayModeAvailable) {
+          return const SizedBox.shrink();
+        }
+
         return Tooltip(
           message: 'Change playback speed',
           child: GestureDetector(
@@ -537,7 +541,7 @@ class _MyHomePageState extends State<MyHomePage>
                     isUsingFocusRange: isUsingFocusRange,
                     currentFrame: currentFrame,
                     gifController: gifController,
-                    enabled: isGifLoaded && isScrubMode.value,
+                    enabled: isPlayModeAvailable && isScrubMode.value,
                     onChange: clampCurrentFrameAndShow,
                     displayedFrameOffset: GifPlayer.displayedFrameBaseOffset,
                   ),
@@ -999,6 +1003,7 @@ mixin GifPlayer<T extends StatefulWidget> on State<T>, TickerProvider {
   int get lastGifFrame => gifController.frameCount - 1;
 
   bool get isGifLoaded => gifImageProvider != null;
+  bool get isPlayModeAvailable => isGifLoaded && !loadedGifInfo.isNonAnimated;
 
   /// Tries to get the filename of the loaded GIF.
   String tryGetNameFromGifImageProvider({required String defaultName}) {
@@ -1061,7 +1066,10 @@ mixin GifPlayer<T extends StatefulWidget> on State<T>, TickerProvider {
   }
 
   void setPlayMode(bool active) {
-    if (!isGifLoaded) return;
+    if (!isPlayModeAvailable) {
+      isScrubMode.value = true;
+      return;
+    }
 
     isScrubMode.value = !active;
     if (active) {
