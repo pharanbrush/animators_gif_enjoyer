@@ -222,6 +222,7 @@ class _ScrollZoomContainerState extends State<ScrollZoomContainer> {
   }
 
   void reset() {
+    overZoomIntentionCount = 0;
     notifier.value = ScrollZoomContainer.defaultZoom;
   }
 
