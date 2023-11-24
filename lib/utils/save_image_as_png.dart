@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:file_selector/file_selector.dart' as file_selector;
+import 'package:sanitize_filename/sanitize_filename.dart';
 
 typedef AccumulatedFilesCallback = void Function(int totalFilesSaved);
 typedef FilesDoneCheckCallback = void Function(
@@ -25,9 +26,10 @@ Future<void> savePngSequenceFromImageList(
           'Export Here'); // Doesn't have an end Platform.pathSeparator
   if (selectedFolderPath == null) return;
 
+  final cleanPrefix = sanitizeFilename(prefix);
   final separator = Platform.pathSeparator;
   final saveFolderPathWithoutFinalSeparator =
-      '$selectedFolderPath${useSubfolder ? '$separator$prefix' : ''}';
+      '$selectedFolderPath${useSubfolder ? '$separator$cleanPrefix' : ''}';
 
   int index = useBaseZero ? 0 : 1;
 
@@ -36,7 +38,7 @@ Future<void> savePngSequenceFromImageList(
   for (final image in images) {
     final fullFilePath = //
         '$saveFolderPathWithoutFinalSeparator$separator' //
-        '${prefix}_' //
+        '${cleanPrefix}_' //
         '${index.toString().padLeft(digits, '0')}' //
         '.png';
 
