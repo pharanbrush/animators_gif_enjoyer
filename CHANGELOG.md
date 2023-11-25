@@ -2,7 +2,7 @@ Animator's GIF Enjoyer Deluxe Changelog
 ===
 
 ### 1.0.6 (Coming soon)
-- Added zooming. Snaps to container size, then allows crazy zoom. Minimum zoom is the size of a Discord inline emote.
+- Added zooming. Snaps to container size, then allows silly zoom. Minimum zoom is the size of a Discord inline emote.
 - New button to change playback speed.
 - Added "Export PNG Sequence...".
 - Allow switching between zero-based and one-based display frames in the current frame number's context menu. This also affects the PNG sequence export filenames.
