@@ -1,0 +1,115 @@
+Tests
+===
+
+- Icons
+  - [ ] Windows 10 
+    - [ ] Start Menu
+    - [ ] Taskbar
+    - [ ] Task Manager
+  - [ ] Windows 11
+    - [ ] Start Menu
+    - [ ] Taskbar
+    - [ ] Task Manager
+  - [ ] File association
+- Opening files
+  - [ ] Right-click > Open GIF...
+  - [ ] Bottom-right "Open GIF" button
+    - [ ] Tooltip is correct
+  - [ ] Drag a file into the window
+  - [ ] Double-click file in File Explorer while associated in Windows.
+  - [ ] Download
+    - [ ] Ctrl+V to paste a link.
+    - [ ] Edit the text box link before sending
+    - [ ] F2 to open link bar.
+    - [ ] Loading indicator shows
+    - [ ] Surface-level reject links with incorrect format and show error.
+    - [ ] Right-click>Paste to address bar...
+      - [ ] Loaded
+      - [ ] Unloaded
+- Playback
+  - [ ] Click on the viewport to play and pause
+  - [ ] Click on the play button to play and pause.
+    - [ ] Tooltip is correct
+  - [ ] Play button reacts to play/pause state.
+  - [ ] Click on the playing slider to stop playing.
+  - [ ] Scroll on the slider to move up and down
+  - [ ] Keyboard shortcuts
+    - [ ] `,` and `.`
+    - [ ] `left arrow` and `right arrow`
+    - [ ] `home` and `end`
+  - [ ] Dragging slider updates shown frame without lag
+  - [ ] Custom frame range
+    - [ ] Clicking start frame opens and closes frame range options
+    - [ ] Clicking end frame opens and closes frame range options
+    - [ ] Clicking X next to the frame range closes range options
+    - [ ] Dragging start and end previews the frame
+    - [ ] Dragging switches back to current frame when released
+    - [ ] Return to frame range after moving slider outside of frame range. Should clamp.
+    - [ ] Try to drag outside of frame range.
+    - [ ] Load another file while frame range is enabled
+    - [ ] Play gif while frame range is enabled
+    - [ ] Play gif after frame range was set and then disabled
+    - [ ] Bottom shows number of frames in frame range
+    - [ ] Bottom shows frame range in seconds based on framerate.
+  - [ ] Playback speed
+    - [ ] Clicking the speed button repeatedly should cycle.
+    - [ ] Speed button should affect playback, while playing, and while paused.
+    - [ ] Speed button should be highlighted when speed is not 1x.
+    - [ ] Middle-click on speed button to reset to 1x.
+    - [ ] >30fps gifs should frameskip correctly at 4x.
+- Zooming
+  - [ ] Zoom in and out works
+  - [ ] Middle-click the viewport to reset
+  - [ ] Click the reset button on the left to reset
+  - [ ] Zooming pauses at container size
+  - [ ] Zooming in caps 3x after container is filled.
+  - [ ] Max zooming does not obscure other interface elements and titlebar.
+  - [ ] Zooming out caps at 22px.
+  - [ ] Zoom should reset when opening a new file.
+- Custom window
+  - [ ] Minimizes and restore
+  - [ ] Maximize and restore
+  - [ ] X to Close
+  - [ ] `Esc` to close
+  - [ ] Double-click on titlebar to maximize and restore
+  - [ ] Window menu by clicking on the icon
+  - [ ] Window menu by right-clicking on the titlebar
+  - [ ] Resize top of window
+  - [ ] Resize all other sides of window
+  - [ ] Keep window on top
+    - [ ] Window is not on top of the file browse window when opening a file.
+    - [ ] Button should be highlighted when enabled.
+- Export
+  - [ ] Copy image pastes properly
+    - [ ] with transparency...
+    - [ ] in Discord
+    - [ ] in Clip Studio Paint
+    - [ ] on Tumblr
+    - [ ] on Twitter
+  - [ ] Export PNG Sequence...
+    - [ ] Lets user cancel
+    - [ ] Exports using the filename.
+    - [ ] Exports using the filename from a URL, even with extra parameters in the link, nor no .gif at the end.
+    - [ ] Numbering should follow currently-displayed zero-based or one-based frames.
+- Menu options
+  - [ ] Reveal in explorer works for files
+  - [ ] Open original link in browser (for downloaded GIFs)
+  - [ ] Shows correct build number
+- Formats
+  - File info
+    - Shows frame interval
+    - Shows FPS conversion
+    - Shows tooltip symbol when FPS is not a whole number
+    - Shows image dimensions
+  - [ ] Variable delay GIFs (eg, from ShareX recordings)
+    - [ ] Show variable frame intervals.
+  - [ ] Non-moving images
+    - [ ] Disable playback controls
+    - [ ] Show "not animated" indicator.
+    - [ ] Still show size
+    - [ ] Still zoom
+  - [ ] WebP works fine (when opened or served alternatively by a host)
+
+- Preferences
+  - [ ] Theme persists between loads
+  - [ ] Base frame persists between loads
