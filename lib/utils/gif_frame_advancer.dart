@@ -64,6 +64,10 @@ class GifFrameAdvancer {
 
     onFrame?.call(_current);
   }
+  
+  void setCurrent(int frame) {
+    _current = frame;
+  }
 
   void pause() {
     enabled = false;

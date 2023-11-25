@@ -37,6 +37,9 @@ class Phshortcuts {
     //shift: true,
   );
 
+  static const firstFrame = SingleActivator(LogicalKeyboardKey.home);
+  static const lastFrame = SingleActivator(LogicalKeyboardKey.end);
+
   static const openFile =
       SingleActivator(LogicalKeyboardKey.keyO, control: true);
   static const openFolder =
@@ -74,6 +77,8 @@ class Phshortcuts {
     Phshortcuts.playPause2: PlayPauseIntent(),
     Phshortcuts.openTextMenu: OpenTextMenu(),
     Phshortcuts.restart: RestartIntent(),
+    Phshortcuts.firstFrame: FirstFrameIntent(),
+    Phshortcuts.lastFrame: LastFrameIntent(),
     // Phshortcuts.help: HelpIntent(),
     // Phshortcuts.toggleSimplifiedInterface: SimpleInterfaceToggleIntent(),
     // Phshortcuts.alwaysOnTop: AlwaysOnTopIntent(),
@@ -108,6 +113,14 @@ class NextIntent extends Intent {
 
 class PreviousIntent extends Intent {
   const PreviousIntent();
+}
+
+class FirstFrameIntent extends Intent {
+  const FirstFrameIntent();
+}
+
+class LastFrameIntent extends Intent {
+  const LastFrameIntent();
 }
 
 class PlayPauseIntent extends Intent {

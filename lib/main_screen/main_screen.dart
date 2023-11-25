@@ -102,6 +102,8 @@ class _MyHomePageState extends State<MyHomePage>
     (PasteAndGoIntent, (_) => openTextPanelAndPaste()),
     (PlayPauseIntent, (_) => togglePlayPause()),
     (EscapeIntent, (_) => handleEscapeIntent()),
+    (FirstFrameIntent, (_) => setCurrentFrameToFirst()),
+    (LastFrameIntent, (_) => setCurrentFrameToLast()),
   ];
 
   late final ModalTextPanel bottomTextPanel = ModalTextPanel(
@@ -1161,6 +1163,7 @@ mixin GifPlayer<T extends StatefulWidget>
 
   void setDisplayedFrame(int frame) {
     gifController.seek(frame);
+    gifAdvancer.setCurrent(frame);
     displayedFrame.value = gifController.currentFrame;
   }
 
@@ -1171,6 +1174,14 @@ mixin GifPlayer<T extends StatefulWidget>
   void incrementFrame(int incrementSign) {
     if (incrementSign == 0) return;
     setCurrentFrameClamped(currentFrame.value + incrementSign.sign);
+  }
+
+  void setCurrentFrameToFirst() {
+    setCurrentFrameClamped(primarySliderRange.startInt);
+  }
+
+  void setCurrentFrameToLast() {
+    setCurrentFrameClamped(primarySliderRange.endInt);
   }
 
   void setCurrentFrameClamped(int newFrame) {
