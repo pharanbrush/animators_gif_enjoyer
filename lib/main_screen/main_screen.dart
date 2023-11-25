@@ -737,7 +737,10 @@ class _MyHomePageState extends State<MyHomePage>
 
         if (!open_file.isAcceptedFile(filename: file.name)) {
           showSnackbar(label: 'Not a GIF');
-          return;
+
+          if (!open_file.isInformallyAcceptedFile(filename: file.name)) {
+            return;
+          }
         }
 
         tryLoadGifFromFilePath(file.path);

@@ -28,3 +28,18 @@ bool isAcceptedFile({required String filename}) {
 
   return false;
 }
+
+const informallyAcceptedExtensions = [
+  'jpg',
+  'jfif',
+  'jpeg',
+  'png',
+];
+
+bool isInformallyAcceptedFile({required String filename}) {
+  for (final extension in informallyAcceptedExtensions) {
+    if (filename.endsWith(extension)) return true;
+  }
+
+  return false;
+}
