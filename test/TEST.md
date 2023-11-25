@@ -33,6 +33,7 @@ Tests
   - [ ] Play button reacts to play/pause state.
   - [ ] Click on the playing slider to stop playing.
   - [ ] Scroll on the slider to move up and down
+    - [ ] Should pull the playback when in play mode.
   - [ ] Keyboard shortcuts
     - [ ] `,` and `.`
     - [ ] `left arrow` and `right arrow`
@@ -42,15 +43,16 @@ Tests
     - [ ] Clicking start frame opens and closes frame range options
     - [ ] Clicking end frame opens and closes frame range options
     - [ ] Clicking X next to the frame range closes range options
+    - [ ] Bottom shows number of frames in frame range
+    - [ ] Bottom shows frame range in seconds based on framerate.
     - [ ] Dragging start and end previews the frame
-    - [ ] Dragging switches back to current frame when released
+    - [ ] Dragging start and end switches back to current frame when released
     - [ ] Return to frame range after moving slider outside of frame range. Should clamp.
     - [ ] Try to drag outside of frame range.
     - [ ] Load another file while frame range is enabled
     - [ ] Play gif while frame range is enabled
-    - [ ] Play gif after frame range was set and then disabled
-    - [ ] Bottom shows number of frames in frame range
-    - [ ] Bottom shows frame range in seconds based on framerate.
+    - [ ] Play gif after frame range was enabled and then disabled
+    - [ ] Play mode should disable frame range adjustments.
   - [ ] Playback speed
     - [ ] Clicking the speed button repeatedly should cycle.
     - [ ] Speed button should affect playback, while playing, and while paused.
@@ -63,11 +65,12 @@ Tests
   - [ ] Click the reset button on the left to reset
   - [ ] Zooming pauses at container size
   - [ ] Zooming in caps 3x after container is filled.
-  - [ ] Max zooming does not obscure other interface elements and titlebar.
+  - [ ] Max zooming does not block other interface elements and titlebar.
   - [ ] Zooming out caps at 22px.
+  - [ ] Resizing the window should adjust the minimums and maximums correctly.
   - [ ] Zoom should reset when opening a new file.
 - Custom window
-  - [ ] Minimizes and restore
+  - [ ] Minimize and restore
   - [ ] Maximize and restore
   - [ ] X to Close
   - [ ] `Esc` to close
@@ -93,11 +96,12 @@ Tests
     - [ ] "Open folder" action should open folder in explorer.
     - [ ] Numbering should follow currently-displayed zero-based or one-based frames.
     - [ ] Long exports should show and update progress correctly.
-    - [ ] Long exports should block file open operations.
-      - [ ] right-click open
-      - [ ] open button
-      - [ ] double-click open from OS.
-    - [ ] Long exports should block other exports.
+    - [ ] Long exports should block someoperations.
+      - [ ] block right-click open
+      - [ ] block open button
+      - [ ] block double-click open from OS.
+      - [ ] block another export
+      - [ ] block quick window exit using 'esc'
     - [ ] Canceled exports should offer to show folder.
 - Menu options
   - [ ] Reveal in explorer works for files
