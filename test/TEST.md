@@ -90,7 +90,15 @@ Tests
     - [ ] Lets user cancel
     - [ ] Exports using the filename.
     - [ ] Exports using the filename from a URL, even with extra parameters in the link, nor no .gif at the end.
+    - [ ] "Open folder" action should open folder in explorer.
     - [ ] Numbering should follow currently-displayed zero-based or one-based frames.
+    - [ ] Long exports should show and update progress correctly.
+    - [ ] Long exports should block file open operations.
+      - [ ] right-click open
+      - [ ] open button
+      - [ ] double-click open from OS.
+    - [ ] Long exports should block other exports.
+    - [ ] Canceled exports should offer to show folder.
 - Menu options
   - [ ] Reveal in explorer works for files
   - [ ] Open original link in browser (for downloaded GIFs)

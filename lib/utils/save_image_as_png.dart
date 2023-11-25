@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:file_selector/file_selector.dart' as file_selector;
+import 'package:flutter/foundation.dart';
 import 'package:sanitize_filename/sanitize_filename.dart';
 
 typedef AccumulatedFilesCallback = void Function(int totalFilesSaved);
@@ -18,8 +19,11 @@ Future<void> savePngSequenceFromImageList(
   bool useSubfolder = true,
   bool useBaseZero = true,
   AccumulatedFilesCallback? onFileSaveProgress,
+  ui.VoidCallback? onExportStart,
   ui.VoidCallback? onSomeFilesNotSaved,
-  FilesDoneCheckCallback? onSaveSuccess,
+  FilesDoneCheckCallback? onExportCanceled,
+  ValueListenable? exportCancel,
+  FilesDoneCheckCallback? onExportSuccess,
 }) async {
   final selectedFolderPath = await file_selector.getDirectoryPath(
       confirmButtonText:
@@ -35,6 +39,8 @@ Future<void> savePngSequenceFromImageList(
 
   int digits = images.length.toString().length + 1;
   bool someFilesWereNotSaved = false;
+  onExportStart?.call();
+  bool canceled = false;
   for (final image in images) {
     final fullFilePath = //
         '$saveFolderPathWithoutFinalSeparator$separator' //
@@ -52,19 +58,37 @@ Future<void> savePngSequenceFromImageList(
     }
     index++;
     onFileSaveProgress?.call(index);
+    if (exportCancel != null && exportCancel.value) {
+      canceled = true;
+      break;
+    }
+  }
+
+  if (canceled) {
+    if (onExportCanceled != null) {
+      final outputDirectory = Directory(saveFolderPathWithoutFinalSeparator);
+      final exists = await outputDirectory.exists();
+      if (exists) {
+        onExportCanceled.call(index, outputDirectory);
+      } else {
+        onExportCanceled.call(index, null);
+      }
+    }
+
+    return;
   }
 
   if (someFilesWereNotSaved) {
     onSomeFilesNotSaved?.call();
   }
 
-  if (onSaveSuccess != null) {
+  if (onExportSuccess != null) {
     final outputDirectory = Directory(saveFolderPathWithoutFinalSeparator);
     final exists = await outputDirectory.exists();
     if (exists) {
-      onSaveSuccess.call(index, outputDirectory);
+      onExportSuccess.call(index, outputDirectory);
     } else {
-      onSaveSuccess.call(index, null);
+      onExportSuccess.call(index, null);
     }
   }
   //print('dummy: saving done');

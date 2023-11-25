@@ -22,6 +22,7 @@ class GifViewContainer extends StatelessWidget {
     required this.openImageHandler,
     required this.pasteHandler,
     required this.exportPngSequenceHandler,
+    this.isAppBusy = false,
     this.zoomLevelNotifier,
     this.fitZoomGetter,
     this.hardMinZoomGetter,
@@ -38,6 +39,7 @@ class GifViewContainer extends StatelessWidget {
   final double Function()? hardMinZoomGetter;
   final double Function()? hardMaxZoomGetter;
   final ValueNotifier<double>? zoomLevelNotifier;
+  final bool isAppBusy;
 
   @override
   Widget build(BuildContext context) {
@@ -67,10 +69,12 @@ class GifViewContainer extends StatelessWidget {
         MenuItem(
           label: 'Open GIF...',
           onClick: (_) => openImageHandler(),
+          disabled: isAppBusy,
         ),
         MenuItem(
           label: 'Paste to address bar...',
           onClick: (_) => pasteHandler(),
+          disabled: isAppBusy,
         ),
         MenuItem.separator(),
         MenuItem.submenu(
@@ -82,6 +86,7 @@ class GifViewContainer extends StatelessWidget {
               MenuItem(
                 label: 'Export PNG Sequence...',
                 onClick: (_) => exportPngSequenceHandler(),
+                disabled: isAppBusy,
               ),
             ],
           ),

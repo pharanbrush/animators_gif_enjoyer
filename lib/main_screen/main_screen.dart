@@ -90,7 +90,8 @@ class _MyHomePageState extends State<MyHomePage>
         SnackbarShower,
         FrameBaseStorer,
         GifPlayer,
-        ThemeCycler {
+        ThemeCycler,
+        Exporter {
   final FocusNode mainWindowFocus = FocusNode(canRequestFocus: true);
 
   final Map<Type, Action<Intent>> shortcutActions = {};
@@ -465,6 +466,7 @@ class _MyHomePageState extends State<MyHomePage>
                       pasteHandler: () => openTextPanelAndPaste(),
                       exportPngSequenceHandler: () => tryExportPngSequence(),
                       zoomLevelNotifier: zoomLevelNotifier,
+                      isAppBusy: inProgressExport != null,
                       fitZoomGetter: getFitZoom,
                       hardMaxZoomGetter: getMaxZoom,
                       hardMinZoomGetter: getMinZoom,
@@ -777,6 +779,8 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   void openTextPanelAndPaste() async {
+    if (inProgressExport != null) return;
+
     final pastedText = await phclipboard.getStringFromClipboard();
     if (pastedText != null) {
       bottomTextPanel.openWithText(pastedText);
@@ -833,6 +837,8 @@ class _MyHomePageState extends State<MyHomePage>
   //
 
   void openNewFile() async {
+    if (inProgressExport != null) return;
+
     var (gifImage, name) = await open_file.openGifImageFile();
     if (gifImage == null || name == null) return;
 
@@ -851,6 +857,7 @@ class _MyHomePageState extends State<MyHomePage>
 
   void tryExportPngSequence() async {
     if (!isGifLoaded) return;
+    if (inProgressExport != null) return;
 
     final imageList = gifController.frames
         .map<ui.Image>((frame) => frame.imageInfo.image)
@@ -859,12 +866,43 @@ class _MyHomePageState extends State<MyHomePage>
     final gifPrefix =
         tryGetNameFromGifImageProvider(defaultName: 'gif_enjoyer');
 
-    await savePngSequenceFromImageList(
+    final totalFramesDouble = imageList.length.toDouble();
+    inProgressExport = savePngSequenceFromImageList(
       imageList,
       prefix: gifPrefix,
       useSubfolder: true,
       useBaseZero: displayFrameBaseOffset == 0,
-      onSaveSuccess: (totalFiles, directory) {
+      exportCancel: isExportCancelled,
+      onExportStart: () {
+        exportPercentProgress.value = 0;
+        showProgressSnackbar(
+          icon: const Icon(Icons.save_alt),
+          label: 'Exporting PNGs...',
+          progressListenable: exportPercentProgress,
+          action: SnackBarAction(
+            label: 'Cancel',
+            onPressed: () => cancelExport(),
+          ),
+        );
+      },
+      onFileSaveProgress: (totalFilesSaved) {
+        updateExportPercentProgress(
+          totalFilesSaved.toDouble() / totalFramesDouble,
+        );
+      },
+      onExportCanceled: (totalFiles, directory) {
+        showSnackbar(
+          icon: const Icon(SnackbarShower.canceledIcon),
+          label: 'Export canceled.',
+          action: (directory == null)
+              ? null
+              : SnackBarAction(
+                  label: 'Open folder',
+                  onPressed: () => revealDirectoryInExplorer(directory),
+                ),
+        );
+      },
+      onExportSuccess: (totalFiles, directory) {
         showSnackbar(
           label:
               'PNG Sequence exported: $totalFiles image${pluralS(totalFiles)}',
@@ -877,15 +915,36 @@ class _MyHomePageState extends State<MyHomePage>
                 ),
         );
       },
-    );
+    )
+      ..onError(
+        (error, stackTrace) {
+          setState(() {
+            clearExportStatus();
+          });
+          showSnackbar(
+            icon: const Icon(SnackbarShower.errorIcon),
+            label: 'Error exporting PNG sequence.',
+          );
+        },
+      )
+      ..whenComplete(
+        () => setState(() {
+          clearExportStatus();
+        }),
+      );
+    setState(() {});
   }
 
   void tryLoadGifFromFilePath(String path) {
+    if (inProgressExport != null) return;
+
     if (path.trim().isEmpty) return;
     loadGifFromProvider(open_file.getFileImageFromPath(path), path);
   }
 
   void tryLoadGifFromUrl(String url, {String? errorMessage}) {
+    if (inProgressExport != null) return;
+
     if (url.trim().isEmpty) {
       return;
     }
@@ -1279,6 +1338,26 @@ class PlaybackSpeedController {
   }
 }
 
+mixin Exporter {
+  Future? inProgressExport;
+  ValueNotifier<double> exportPercentProgress = ValueNotifier(0);
+  ValueNotifier<bool> isExportCancelled = ValueNotifier(false);
+
+  void updateExportPercentProgress(double percent) {
+    exportPercentProgress.value = percent;
+  }
+
+  void cancelExport() {
+    isExportCancelled.value = true;
+  }
+
+  void clearExportStatus() {
+    inProgressExport = null;
+    exportPercentProgress.value = 0;
+    isExportCancelled.value = false;
+  }
+}
+
 mixin SnackbarShower<T extends StatefulWidget> on State<T> {
   static const IconData emptyIcon = Icons.check_box_outline_blank;
   static const IconData errorIcon = Icons.error_outline;
@@ -1287,6 +1366,7 @@ mixin SnackbarShower<T extends StatefulWidget> on State<T> {
   static const IconData undoIcon = Icons.undo;
   static const IconData saveIcon = Icons.save_alt;
   static const IconData copyIcon = Icons.copy;
+  static const IconData canceledIcon = Icons.cancel;
 
   void showSnackbar({
     required String label,
@@ -1314,6 +1394,51 @@ mixin SnackbarShower<T extends StatefulWidget> on State<T> {
           ),
         ),
         action: action,
+      ),
+    );
+  }
+
+  void showProgressSnackbar({
+    Icon? icon,
+    required String label,
+    required ValueListenable<double> progressListenable,
+    SnackBarAction? action,
+  }) {
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.clearSnackBars();
+    messenger.showSnackBar(
+      SnackBar(
+        duration: const Duration(days: 1),
+        action: action,
+        content: IconTheme(
+          data: IconThemeData(
+            color: Theme.of(context).colorScheme.onInverseSurface,
+          ),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  if (icon != null)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 10),
+                      child: icon,
+                    ),
+                  Flexible(child: Text(label)),
+                ],
+              ),
+              ValueListenableBuilder(
+                valueListenable: progressListenable,
+                builder: (context, value, child) {
+                  return LinearProgressIndicator(
+                    borderRadius: const BorderRadius.all(Radius.circular(2)),
+                    value: value,
+                  );
+                },
+              ),
+              const SizedBox(height: 10),
+            ],
+          ),
+        ),
       ),
     );
   }
