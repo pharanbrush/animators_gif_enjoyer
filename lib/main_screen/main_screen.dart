@@ -183,6 +183,9 @@ class _MyHomePageState extends State<MyHomePage>
 
   void handleEscapeIntent() {
     if (bottomTextPanel.isOpen) return;
+    if (inProgressExport != null) {
+      return;
+    }
     _exitApplication();
   }
 
