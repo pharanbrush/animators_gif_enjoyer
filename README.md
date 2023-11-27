@@ -20,11 +20,9 @@ See LICENSE file for more info.
 - Pronounce GIF correctly!
 - Drag and drop GIF files into the window.
 - Paste GIF links to download it. (Embed links like from Tenor are not supported)
-
-#### 1.0.4  
 - Quickly switch the interface brightness to check what the GIF looks like on different backgrounds.
 
-#### COMING SOON: 1.0.6  
+#### 1.0.6  
 - Change the playback speed.
 - Zoom in. And then zoom some more. Maximum zoom out results in the size of a Discord inline emote (22px).
 - Export GIF as a PNG Sequence (so you can use them in Blender or other apps that don't support GIFs).
