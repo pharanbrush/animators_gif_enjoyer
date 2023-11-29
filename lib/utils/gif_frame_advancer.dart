@@ -64,7 +64,7 @@ class GifFrameAdvancer {
 
     onFrame?.call(_current);
   }
-  
+
   void setCurrent(int frame) {
     _current = frame;
   }
@@ -83,12 +83,14 @@ class GifFrameAdvancer {
     final deltaTime = unscaledDeltaTime * timeScale;
     _accumulatedDuration += deltaTime;
 
-    const maxTimeSkip = Duration(milliseconds: 300);
-    if (_accumulatedDuration > maxTimeSkip) {
-      _accumulatedDuration = maxTimeSkip;
+    const maxFrameSkip = 4;
+    final maxAccumulation =
+        (_frames[_current].duration + const Duration(milliseconds: 100)) *
+            maxFrameSkip;
+    if (_accumulatedDuration > maxAccumulation) {
+      _accumulatedDuration = maxAccumulation;
     }
 
-    const maxFrameSkip = 4;
     bool wasUpdatedFrame = false;
     for (var i = 0; i < maxFrameSkip; i++) {
       final currentFrameDuration = _frames[_current].duration;

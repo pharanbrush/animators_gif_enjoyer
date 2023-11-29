@@ -1,6 +1,10 @@
 Animator's GIF Enjoyer Deluxe Changelog
 ===
 
+### 1.0.7 (Coming soon)
+- Added option to allow multiple windows.
+- Fixed playback of GIFs with slow frames (above 300ms delay).
+
 ### 1.0.6 (2023 Nov 27)
 - Added zooming. Snaps to container size, then allows silly zoom. Minimum zoom is the size of a Discord inline emote.
 - New button to change playback speed.
