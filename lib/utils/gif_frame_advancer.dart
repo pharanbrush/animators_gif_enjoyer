@@ -84,19 +84,14 @@ class GifFrameAdvancer {
     _accumulatedDuration += deltaTime;
 
     const maxFrameSkip = 4;
-
-    const zeroSafetyDuration = Duration(milliseconds: 100);
-    final maxAccumulation =
-        (_frames[_current].duration + zeroSafetyDuration) * maxFrameSkip;
-    if (_accumulatedDuration > maxAccumulation) {
-      _accumulatedDuration = maxAccumulation;
-    }
+    const lastFrameSkip = maxFrameSkip - 1;
 
     bool wasUpdatedFrame = false;
     for (var i = 0; i < maxFrameSkip; i++) {
       final currentFrameDuration = _frames[_current].duration;
       if (_accumulatedDuration >= currentFrameDuration) {
         _accumulatedDuration -= currentFrameDuration;
+        if (i == lastFrameSkip) _accumulatedDuration = Duration.zero;
 
         _current++;
         if (_current > _last) {
