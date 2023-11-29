@@ -4,6 +4,8 @@ import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
 import 'package:animators_gif_enjoyer/interface/shortcuts.dart';
 import 'package:animators_gif_enjoyer/main.dart';
 import 'package:animators_gif_enjoyer/main_screen/frame_base.dart';
+import 'package:animators_gif_enjoyer/main_screen/menu_items.dart'
+    as menu_items;
 import 'package:animators_gif_enjoyer/phlutter/app_theme_cycler.dart';
 import 'package:animators_gif_enjoyer/main_screen/main_screen_widgets.dart';
 import 'package:animators_gif_enjoyer/main_screen/theme.dart' as app_theme;
@@ -150,11 +152,11 @@ class _MyHomePageState extends State<MyHomePage>
     super.initState();
 
     void tryLoadFromWindowsOpenWith() {
-      if (fileToLoadFromMainArgs.isNotEmpty) {
+      if (appFileToLoadFromMainArgs.isNotEmpty) {
         try {
-          tryLoadGifFromFilePath(fileToLoadFromMainArgs);
+          tryLoadGifFromFilePath(appFileToLoadFromMainArgs);
         } finally {
-          fileToLoadFromMainArgs = '';
+          appFileToLoadFromMainArgs = '';
         }
       }
     }
@@ -394,6 +396,15 @@ class _MyHomePageState extends State<MyHomePage>
           MenuItem(
             label: 'Paste to address bar...',
             onClick: (_) => openTextPanelAndPaste(),
+          ),
+          MenuItem.separator(),
+          MenuItem.submenu(
+            label: 'Advanced',
+            submenu: Menu(
+              items: [
+                menu_items.allowMultipleWindowsMenuItem(),
+              ],
+            ),
           ),
           MenuItem.separator(),
           if (packageInfo != null)
