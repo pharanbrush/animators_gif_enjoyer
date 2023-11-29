@@ -84,9 +84,10 @@ class GifFrameAdvancer {
     _accumulatedDuration += deltaTime;
 
     const maxFrameSkip = 4;
+
+    const zeroSafetyDuration = Duration(milliseconds: 100);
     final maxAccumulation =
-        (_frames[_current].duration + const Duration(milliseconds: 100)) *
-            maxFrameSkip;
+        (_frames[_current].duration + zeroSafetyDuration) * maxFrameSkip;
     if (_accumulatedDuration > maxAccumulation) {
       _accumulatedDuration = maxAccumulation;
     }
