@@ -17,6 +17,8 @@ Tests
     - [ ] Tooltip is correct
   - [ ] Drag a file into the window
   - [ ] Double-click file in File Explorer while associated in Windows.
+    - [ ] Should reuse the same window when "Allow multiple windows" is disabled
+    - [ ] Should create a new window when "Allow multiple windows" is enabled
   - [ ] Download
     - [ ] Ctrl+V to paste a link.
     - [ ] Edit the text box link before sending
@@ -125,3 +127,4 @@ Tests
 - Preferences
   - [ ] Theme persists between loads
   - [ ] Base frame persists between loads
+  - [ ] Allow multiple windows persists between loads.
