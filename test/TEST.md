@@ -115,6 +115,9 @@ Tests
     - Shows FPS conversion
     - Shows tooltip symbol when FPS is not a whole number
     - Shows image dimensions
+  - [ ] Very slow GIFs should play normally.
+    - [ ] above 300ms delays (eg, retro sprites)
+    - [ ] above 1 second delays
   - [ ] Variable delay GIFs (eg, from ShareX recordings)
     - [ ] Show variable frame intervals.
   - [ ] Non-moving images
