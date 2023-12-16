@@ -11,8 +11,8 @@ Future<bool> getAllowMultipleInstancePreference({
   bool defaultAllowMultipleInstances = false,
 }) async {
   final prefs = await SharedPreferences.getInstance();
-  final retrievedThemeString = prefs.getBool(allowMultipleInstancesKey);
-  if (retrievedThemeString == null) return defaultAllowMultipleInstances;
+  final storedValue = prefs.getBool(allowMultipleInstancesKey);
+  if (storedValue == null) return defaultAllowMultipleInstances;
 
-  return retrievedThemeString;
+  return storedValue;
 }
