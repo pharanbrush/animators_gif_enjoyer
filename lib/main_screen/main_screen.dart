@@ -9,6 +9,7 @@ import 'package:animators_gif_enjoyer/main_screen/menu_items.dart'
 import 'package:animators_gif_enjoyer/phlutter/app_theme_cycler.dart';
 import 'package:animators_gif_enjoyer/main_screen/main_screen_widgets.dart';
 import 'package:animators_gif_enjoyer/main_screen/theme.dart' as app_theme;
+import 'package:animators_gif_enjoyer/phlutter/remember_window_size.dart';
 import 'package:animators_gif_enjoyer/phlutter/windows/image_drop_target.dart';
 import 'package:animators_gif_enjoyer/phlutter/material_state_property_utils.dart';
 import 'package:animators_gif_enjoyer/phlutter/modal_panel.dart';
@@ -89,10 +90,12 @@ const bool isPlayOnLoad = true;
 class _MyHomePageState extends State<MyHomePage>
     with
         SingleTickerProviderStateMixin,
+        WindowListener,
         SnackbarShower,
         FrameBaseStorer,
         GifPlayer,
         ThemeCycler,
+        WindowSizeRememberer,
         Exporter {
   final FocusNode mainWindowFocus = FocusNode(canRequestFocus: true);
 

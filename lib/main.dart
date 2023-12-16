@@ -1,6 +1,7 @@
 import 'package:animators_gif_enjoyer/phlutter/app_theme_cycler.dart';
 import 'package:animators_gif_enjoyer/main_screen/main_screen.dart';
 import 'package:animators_gif_enjoyer/main_screen/theme.dart' as app_theme;
+import 'package:animators_gif_enjoyer/phlutter/remember_window_size.dart';
 import 'package:animators_gif_enjoyer/phlutter/single_instance.dart';
 import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
@@ -11,6 +12,8 @@ const appName = "Animator's GIF Enjoyer Deluxe";
 bool appAllowMultipleInstances = false;
 String appFileToLoadFromMainArgs = '';
 Function()? onSecondWindow;
+
+bool appRememberSize = false;
 
 const appWindowIdentifier = 'animators_gif_enjoyer';
 
@@ -38,11 +41,19 @@ void main(List<String> args) async {
     );
   }
 
+  appRememberSize = await getRememberWindowSizePreference();
+  final Size startingWindowSize;
+  if (appRememberSize) {
+    startingWindowSize = await getWindowSizePreference();
+  } else {
+    startingWindowSize = const Size(500, 540);
+  }
+
   await windowManager.ensureInitialized();
 
-  WindowOptions windowOptions = const WindowOptions(
-    minimumSize: Size.square(460),
-    size: Size(500, 540),
+  final windowOptions = WindowOptions(
+    minimumSize: const Size.square(460),
+    size: startingWindowSize,
     title: appName,
     center: true,
     titleBarStyle: TitleBarStyle.hidden,
