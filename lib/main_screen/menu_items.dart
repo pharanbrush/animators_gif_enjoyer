@@ -1,4 +1,6 @@
 import 'package:animators_gif_enjoyer/main.dart';
+import 'package:animators_gif_enjoyer/phlutter/remember_window_size.dart'
+    as remember_window_size;
 import 'package:animators_gif_enjoyer/phlutter/single_instance.dart'
     as single_instance;
 import 'package:contextual_menu/contextual_menu.dart';
@@ -19,6 +21,23 @@ MenuItem allowMultipleWindowsMenuItem() {
 
       appAllowMultipleInstances =
           await single_instance.getAllowMultipleInstancePreference();
+    },
+  );
+}
+
+MenuItem rememberWindowSizeMenuItem() {
+  return MenuItem.checkbox(
+    label: 'Remember window size',
+    checked: appRememberSize,
+    key: 'appRememberSize',
+    onClick: (menuItem) async {
+      remember_window_size.storeRememberWindowSizePreference(!appRememberSize);
+      appRememberSize =
+          await remember_window_size.getRememberWindowSizePreference();
+
+      if (appRememberSize) {
+        remember_window_size.storeCurrentWindowSize();
+      }
     },
   );
 }

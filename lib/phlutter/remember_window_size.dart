@@ -41,6 +41,14 @@ Future<Size> getWindowSizePreference({
   return Size(width.toDouble(), height.toDouble());
 }
 
+Future<void> storeCurrentWindowSize() async {
+  if (await windowManager.isMaximized()) return;
+
+  final size = await windowManager.getSize();
+  storeWindowSizePreference(size.width.toInt(), size.height.toInt());
+  //print('window size saved $size');
+}
+
 mixin WindowSizeRememberer<T extends StatefulWidget>
     on State<T>, WindowListener {
   int _windowSizeSaveCommandId = 0;
@@ -64,6 +72,7 @@ mixin WindowSizeRememberer<T extends StatefulWidget>
   }
 
   void _handleWindowResize() {
+    //print('handleWindowResize');
     void queueSavetoPreferences() async {
       if (!appRememberSize) return;
       int getLatestSaveCommandId() => _windowSizeSaveCommandId;
@@ -76,14 +85,14 @@ mixin WindowSizeRememberer<T extends StatefulWidget>
       for (final waitDuration in checkDurations) {
         await Future.delayed(waitDuration);
         if (getLatestSaveCommandId() != saveCommandId) {
+          //print('save canceled.');
           return;
         }
       }
 
       if (getLatestSaveCommandId() == saveCommandId) {
         if (appRememberSize) {
-          final size = await windowManager.getSize();
-          storeWindowSizePreference(size.width.toInt(), size.height.toInt());
+          storeCurrentWindowSize();
         }
       }
     }

@@ -89,6 +89,7 @@ class GifViewContainer extends StatelessWidget {
               ),
               MenuItem.separator(),
               menu_items.allowMultipleWindowsMenuItem(),
+              menu_items.rememberWindowSizeMenuItem(),
             ],
           ),
         ),

@@ -406,6 +406,7 @@ class _MyHomePageState extends State<MyHomePage>
             submenu: Menu(
               items: [
                 menu_items.allowMultipleWindowsMenuItem(),
+                menu_items.rememberWindowSizeMenuItem(),
               ],
             ),
           ),
