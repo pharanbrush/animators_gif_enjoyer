@@ -130,4 +130,10 @@ Tests
 - Preferences
   - [ ] Theme persists between loads
   - [ ] Base frame persists between loads
-  - [ ] Allow multiple windows persists between loads.
+  - [ ] "Allow multiple windows" preference persists between loads.
+  - [ ] A new window is opened when a new file is opened when "Allow multiple windows" preference is enabled.
+  - [ ] A new window is opened when opening the app icon when "Allow multiple windows" preference is enabled.
+  - [ ] Window is reused when "Allow multiple windows" preference is disabled.
+  - [ ] "Remember window size" preference persists between loads
+  - [ ] Window size persists between loads when enabled.
+  - [ ] Window size resets between loads when disabled.
