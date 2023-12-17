@@ -1,7 +1,10 @@
 Animator's GIF Enjoyer Deluxe Changelog
 ===
 
-### 1.0.7 (Coming soon)
+### 1.0.8 (Coming soon)
+- Added option to remember window size. (opt-in) 
+
+### 1.0.7 (2023 Nov 31)
 - Added option to allow multiple windows.
 - Fixed playback of GIFs with slow frames (above 300ms delay).
 
