@@ -1,7 +1,7 @@
 Animator's GIF Enjoyer Deluxe Changelog
 ===
 
-### 1.0.8 (Coming soon)
+### 1.0.8 (203 Dec 19)
 - Added option to remember window size. (opt-in) 
 
 ### 1.0.7 (2023 Dec 1)
