@@ -26,6 +26,7 @@ import 'package:animators_gif_enjoyer/utils/plural.dart';
 import 'package:animators_gif_enjoyer/utils/reveal_file_source.dart';
 import 'package:animators_gif_enjoyer/utils/save_image_as_png.dart';
 import 'package:contextual_menu/contextual_menu.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
@@ -678,7 +679,7 @@ class _MyHomePageState extends State<MyHomePage>
                   child: IconButton(
                     onPressed: () => openNewFile(),
                     color: Theme.of(context).colorScheme.mutedSurfaceColor,
-                    icon: const Icon(Icons.file_open_outlined),
+                    icon: const Icon(FluentIcons.folder_open_24_regular),
                   ),
                 ),
               ],
