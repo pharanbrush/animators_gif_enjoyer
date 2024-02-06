@@ -1,7 +1,10 @@
 Animator's GIF Enjoyer Deluxe Changelog
 ===
 
-### 1.0.8 (203 Dec 19)
+### 1.0.9 (2024 Feb 6)
+- Replaced "Open file..." button icon
+
+### 1.0.8 (2023 Dec 19)
 - Added option to remember window size. (opt-in) 
 
 ### 1.0.7 (2023 Dec 1)
