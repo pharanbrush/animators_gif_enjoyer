@@ -1,6 +1,9 @@
 Animator's GIF Enjoyer Deluxe Changelog
 ===
 
+### 1.0.10 (2024 Feb 28)
+- Fixed zero-duration frames playing too fast. Now uses the 100ms browser-like default.
+
 ### 1.0.9 (2024 Feb 6)
 - Replaced "Open file..." button icon
 

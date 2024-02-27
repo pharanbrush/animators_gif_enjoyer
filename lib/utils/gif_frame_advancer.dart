@@ -85,10 +85,16 @@ class GifFrameAdvancer {
 
     const maxFrameSkip = 4;
     const lastFrameSkip = maxFrameSkip - 1;
+    const zeroDefaultDuration = Duration(milliseconds: 100);
 
     bool wasUpdatedFrame = false;
+
     for (var i = 0; i < maxFrameSkip; i++) {
-      final currentFrameDuration = _frames[_current].duration;
+      final currentDurationData = _frames[_current].duration;
+      final currentFrameDuration = currentDurationData > Duration.zero
+          ? currentDurationData
+          : zeroDefaultDuration;
+          
       if (_accumulatedDuration >= currentFrameDuration) {
         _accumulatedDuration -= currentFrameDuration;
         if (i == lastFrameSkip) _accumulatedDuration = Duration.zero;

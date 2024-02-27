@@ -118,6 +118,7 @@ Tests
   - [ ] Very slow GIFs should play normally.
     - [ ] above 300ms delays (eg, retro sprites)
     - [ ] above 1 second delays
+  - [ ] GIFs with zero-delay frames should use a 100ms (like browsers)
   - [ ] Variable delay GIFs (eg, from ShareX recordings)
     - [ ] Show variable frame intervals.
   - [ ] Non-moving images
