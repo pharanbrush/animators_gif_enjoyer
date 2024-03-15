@@ -28,7 +28,7 @@ See LICENSE file for more info.
 - Export GIF as a PNG Sequence (so you can use them in Blender or other apps that don't support GIFs).
 - New switch for zero-based or one-based frames in the right-click menu on the frame number.
 
-See [CHANGELOG.md](/CHANGELOG.md) for more detailed changes
+See [CHANGELOG.md](/CHANGELOG.md) for more detailed changes and bug fixes.
 
 ---
   
