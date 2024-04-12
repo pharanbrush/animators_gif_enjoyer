@@ -127,6 +127,7 @@ Tests
     - [ ] Still show size
     - [ ] Still zoom
   - [ ] WebP works fine (when opened or served alternatively by a host)
+  - [ ] APNG works fine
 
 - Preferences
   - [ ] Theme persists between loads

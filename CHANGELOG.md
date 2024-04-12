@@ -1,6 +1,9 @@
 Animator's GIF Enjoyer Deluxe Changelog
 ===
 
+### 1.0.11 (2024 Apr 12)
+- Added PNG and APNG (Animated PNG) to formally supported format list.
+
 ### 1.0.10 (2024 Feb 28)
 - Fixed zero-duration frames playing too fast. Now uses the 100ms browser-like default.
 

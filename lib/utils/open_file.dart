@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 
-const acceptedExtensions = ['gif', 'webp'];
+const acceptedExtensions = ['gif', 'webp', 'apng', 'png'];
 
 Future<(FileImage? gifImage, String? fullFilePath)> openGifImageFile() async {
   const typeGroup = XTypeGroup(
@@ -33,7 +33,6 @@ const informallyAcceptedExtensions = [
   'jpg',
   'jfif',
   'jpeg',
-  'png',
 ];
 
 bool isInformallyAcceptedFile({required String filename}) {
