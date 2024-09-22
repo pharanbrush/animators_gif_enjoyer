@@ -30,7 +30,7 @@ const OutlinedBorder appButtonShape = RoundedRectangleBorder(
 );
 
 const ButtonStyle buttonStyle = ButtonStyle(
-  shape: MaterialStatePropertyAll(appButtonShape),
+  shape: WidgetStatePropertyAll(appButtonShape),
 );
 
 ThemeData focusTheme = ThemeData(

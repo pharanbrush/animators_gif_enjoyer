@@ -235,7 +235,7 @@ class _MyHomePageState extends State<MyHomePage>
     const double iconSize = 16;
     const double buttonSize = 34;
     const Size size = Size(buttonSize, buttonSize);
-    const buttonSizeProperty = MaterialStatePropertyAll(size);
+    const buttonSizeProperty = WidgetStatePropertyAll(size);
 
     final buttonContentColor = Theme.of(context).colorScheme.faintGrayColor;
     final contentColorProperty = hoverColors(
@@ -246,16 +246,16 @@ class _MyHomePageState extends State<MyHomePage>
       minimumSize: buttonSizeProperty,
       maximumSize: buttonSizeProperty,
       fixedSize: buttonSizeProperty,
-      shape: const MaterialStatePropertyAll(app_theme.appButtonShape),
-      iconSize: const MaterialStatePropertyAll(iconSize),
+      shape: const WidgetStatePropertyAll(app_theme.appButtonShape),
+      iconSize: const WidgetStatePropertyAll(iconSize),
       iconColor: contentColorProperty,
       foregroundColor: contentColorProperty,
-      textStyle: MaterialStatePropertyAll(
+      textStyle: WidgetStatePropertyAll(
         Theme.of(context).textTheme.labelSmall!.copyWith(
               overflow: TextOverflow.visible,
             ),
       ),
-      padding: const MaterialStatePropertyAll(
+      padding: const WidgetStatePropertyAll(
         EdgeInsets.symmetric(horizontal: 0),
       ),
     );
@@ -624,7 +624,7 @@ class _MyHomePageState extends State<MyHomePage>
                                       const EdgeInsets.only(left: buttonSpace),
                                   child: IconButton(
                                     style: const ButtonStyle(
-                                      minimumSize: MaterialStatePropertyAll(
+                                      minimumSize: WidgetStatePropertyAll(
                                         Size(buttonSize, buttonSize),
                                       ),
                                     ),

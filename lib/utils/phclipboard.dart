@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/services.dart';
 import 'package:super_clipboard/super_clipboard.dart'
-    show DataWriterItem, ClipboardWriter, Formats;
+    show DataWriterItem, Formats, SystemClipboard;
 
 void copyImageToClipboardAsPng(Image image, String suggestedName) async {
   final byteData = await image.toByteData(format: ImageByteFormat.png);
@@ -12,7 +12,7 @@ void copyImageToClipboardAsPng(Image image, String suggestedName) async {
 
   final item = DataWriterItem(suggestedName: suggestedName);
   item.add(Formats.png(data));
-  await ClipboardWriter.instance.write([item]);
+  await SystemClipboard.instance?.write([item]);
 }
 
 Future<String?> getStringFromClipboard() async {

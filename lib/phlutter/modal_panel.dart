@@ -204,10 +204,12 @@ class ModalTextPanel extends ModalPanel {
         return Focus(
           focusNode: textFocusNode,
           autofocus: true,
-          onKey: (node, event) {
-            if (event.isKeyPressed(LogicalKeyboardKey.escape)) {
-              close();
-              return KeyEventResult.handled;
+          onKeyEvent: (node, event) {
+            if (event is KeyDownEvent) {
+              if (event.logicalKey == LogicalKeyboardKey.escape) {
+                close();
+                return KeyEventResult.handled;
+              }
             }
             return KeyEventResult.ignored;
           },

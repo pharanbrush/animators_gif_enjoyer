@@ -188,10 +188,10 @@ class ExtraTitlebarButtonsContainer extends StatelessWidget {
 
     final iconButtonStyle = ButtonStyle(
       alignment: Alignment.topCenter,
-      iconSize: MaterialStatePropertyAll(iconSize),
-      minimumSize: const MaterialStatePropertyAll(Size(buttonSize, buttonSize)),
-      padding: const MaterialStatePropertyAll(EdgeInsets.all(4)),
-      shape: const MaterialStatePropertyAll(_extraButtonShape),
+      iconSize: WidgetStatePropertyAll(iconSize),
+      minimumSize: const WidgetStatePropertyAll(Size(buttonSize, buttonSize)),
+      padding: const WidgetStatePropertyAll(EdgeInsets.all(4)),
+      shape: const WidgetStatePropertyAll(_extraButtonShape),
       iconColor: _hoverActiveColors(
         idle: buttonColor,
         hover: buttonColor.withOpacity(1),
@@ -291,8 +291,8 @@ class DefaultWindowButtonSet extends StatelessWidget {
   Widget build(BuildContext context) {
     final iconButtonStyle = ButtonStyle(
       alignment: Alignment.topCenter,
-      iconSize: MaterialStatePropertyAll(iconSize),
-      shape: const MaterialStatePropertyAll(LinearBorder()),
+      iconSize: WidgetStatePropertyAll(iconSize),
+      shape: const WidgetStatePropertyAll(LinearBorder()),
     );
 
     final themeData = IconButtonThemeData(style: iconButtonStyle);
@@ -315,7 +315,7 @@ class DefaultWindowButtonSet extends StatelessWidget {
             icon: const Icon(Icons.close),
             style: iconButtonStyle.copyWith(
                 overlayColor:
-                    const MaterialStatePropertyAll(Colors.transparent),
+                    const WidgetStatePropertyAll(Colors.transparent),
                 backgroundColor: _hoverPressedColors(
                   idle: Colors.transparent,
                   hover: _closeButttonHoverBgColor,
@@ -419,15 +419,15 @@ void _closeWindow() {
   windowManager.close();
 }
 
-MaterialStateProperty<Color> _hoverPressedColors({
+WidgetStateProperty<Color> _hoverPressedColors({
   required Color idle,
   required Color hover,
   required Color pressed,
 }) {
-  return MaterialStateProperty.resolveWith((states) {
-    if (states.contains(MaterialState.pressed)) {
+  return WidgetStateProperty.resolveWith((states) {
+    if (states.contains(WidgetState.pressed)) {
       return pressed;
-    } else if (states.contains(MaterialState.hovered)) {
+    } else if (states.contains(WidgetState.hovered)) {
       return hover;
     }
 
@@ -435,23 +435,23 @@ MaterialStateProperty<Color> _hoverPressedColors({
   });
 }
 
-MaterialStateProperty<Color> _hoverColors({
+WidgetStateProperty<Color> _hoverColors({
   required Color idle,
   required Color hover,
 }) {
-  return MaterialStateProperty.resolveWith(
-      (states) => states.contains(MaterialState.hovered) ? hover : idle);
+  return WidgetStateProperty.resolveWith(
+      (states) => states.contains(WidgetState.hovered) ? hover : idle);
 }
 
-MaterialStateProperty<Color> _hoverActiveColors({
+WidgetStateProperty<Color> _hoverActiveColors({
   required Color idle,
   required Color hover,
   required Color active,
 }) {
-  return MaterialStateProperty.resolveWith((states) {
-    if (states.contains(MaterialState.hovered)) {
+  return WidgetStateProperty.resolveWith((states) {
+    if (states.contains(WidgetState.hovered)) {
       return hover;
-    } else if (states.contains(MaterialState.selected)) {
+    } else if (states.contains(WidgetState.selected)) {
       return active;
     }
 

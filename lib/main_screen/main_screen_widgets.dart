@@ -346,7 +346,7 @@ class BottomPlayPauseButton extends StatelessWidget {
           waitDuration: slowTooltipDelay,
           child: IconButton(
             style: const ButtonStyle(
-              maximumSize: MaterialStatePropertyAll(Size(100, 100)),
+              maximumSize: WidgetStatePropertyAll(Size(100, 100)),
             ),
             onPressed: onPressed,
             icon: Padding(
@@ -593,7 +593,7 @@ class ToggleFocusButton extends StatelessWidget {
       child: TextButton(
         style: const ButtonStyle(
           padding:
-              MaterialStatePropertyAll(EdgeInsets.symmetric(horizontal: 0)),
+              WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 0)),
         ),
         onPressed: enabled ? handleToggle : null,
         child: Text(
@@ -639,7 +639,7 @@ class EnjoyerBottomTextPanel extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   child: Material(
                     type: MaterialType.canvas,
-                    color: Theme.of(context).colorScheme.surfaceVariant,
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
                     borderRadius: const BorderRadius.all(Radius.circular(8)),
                     child: Row(
                       children: [

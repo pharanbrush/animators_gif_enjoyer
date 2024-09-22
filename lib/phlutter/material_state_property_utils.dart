@@ -1,33 +1,33 @@
 import 'package:flutter/material.dart';
 
-MaterialStateProperty<Color> hoverColors({
+WidgetStateProperty<Color> hoverColors({
   required Color idle,
   required Color hover,
 }) {
-  return MaterialStateProperty.resolveWith(
-      (states) => states.contains(MaterialState.hovered) ? hover : idle);
+  return WidgetStateProperty.resolveWith(
+      (states) => states.contains(WidgetState.hovered) ? hover : idle);
 }
 
-MaterialStateProperty<T> hoverProperty<T>({
+WidgetStateProperty<T> hoverProperty<T>({
   required T idle,
   required T hover,
 }) {
-  return MaterialStateProperty.resolveWith(
-      (states) => states.contains(MaterialState.hovered) ? hover : idle);
+  return WidgetStateProperty.resolveWith(
+      (states) => states.contains(WidgetState.hovered) ? hover : idle);
 }
 
-MaterialStateProperty<T> hoverActiveDisabledProperty<T>({
+WidgetStateProperty<T> hoverActiveDisabledProperty<T>({
   required T idle,
   required T hover,
   required T active,
   required T disabled,
 }) {
-  return MaterialStateProperty.resolveWith((states) {
-    if (states.contains(MaterialState.hovered)) {
+  return WidgetStateProperty.resolveWith((states) {
+    if (states.contains(WidgetState.hovered)) {
       return hover;
-    } else if (states.contains(MaterialState.selected)) {
+    } else if (states.contains(WidgetState.selected)) {
       return active;
-    } else if (states.contains(MaterialState.disabled)) {
+    } else if (states.contains(WidgetState.disabled)) {
       return disabled;
     }
 
@@ -35,15 +35,15 @@ MaterialStateProperty<T> hoverActiveDisabledProperty<T>({
   });
 }
 
-MaterialStateProperty<Color> hoverActiveColors({
+WidgetStateProperty<Color> hoverActiveColors({
   required Color idle,
   required Color hover,
   required Color active,
 }) {
-  return MaterialStateProperty.resolveWith((states) {
-    if (states.contains(MaterialState.hovered)) {
+  return WidgetStateProperty.resolveWith((states) {
+    if (states.contains(WidgetState.hovered)) {
       return hover;
-    } else if (states.contains(MaterialState.selected)) {
+    } else if (states.contains(WidgetState.selected)) {
       return active;
     }
 
