@@ -621,8 +621,7 @@ class ToggleFocusButton extends StatelessWidget {
               : 'Click to use custom frame range',
       child: TextButton(
         style: const ButtonStyle(
-          padding:
-              WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 0)),
+          padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 0)),
         ),
         onPressed: enabled ? handleToggle : null,
         child: Text(
@@ -668,7 +667,8 @@ class EnjoyerBottomTextPanel extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   child: Material(
                     type: MaterialType.canvas,
-                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    color:
+                        Theme.of(context).colorScheme.surfaceContainerHighest,
                     borderRadius: const BorderRadius.all(Radius.circular(8)),
                     child: Row(
                       children: [
