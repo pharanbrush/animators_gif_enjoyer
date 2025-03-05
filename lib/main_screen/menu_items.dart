@@ -1,4 +1,6 @@
 import 'package:animators_gif_enjoyer/main.dart';
+import 'package:animators_gif_enjoyer/main_screen/gif_enjoyer_preferences.dart'
+    as gif_enjoyer_preferences;
 import 'package:animators_gif_enjoyer/phlutter/remember_window_size.dart'
     as remember_window_size;
 import 'package:animators_gif_enjoyer/phlutter/single_instance.dart'
@@ -21,6 +23,18 @@ MenuItem allowMultipleWindowsMenuItem() {
 
       appAllowMultipleInstances =
           await single_instance.getAllowMultipleInstancePreference();
+    },
+  );
+}
+
+MenuItem allowWideSliderMenuItem(ValueNotifier<bool> allowWideSliderNotifier) {
+  return MenuItem.checkbox(
+    label: 'Allow wide frame slider',
+    checked: allowWideSliderNotifier.value,
+    key: 'allowWideSlider',
+    onClick: (menuItem) async {
+      gif_enjoyer_preferences
+          .toggleAllowWideSliderPreference(allowWideSliderNotifier);
     },
   );
 }

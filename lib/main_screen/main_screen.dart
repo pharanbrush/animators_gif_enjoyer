@@ -4,6 +4,7 @@ import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
 import 'package:animators_gif_enjoyer/interface/shortcuts.dart';
 import 'package:animators_gif_enjoyer/main.dart';
 import 'package:animators_gif_enjoyer/main_screen/frame_base.dart';
+import 'package:animators_gif_enjoyer/main_screen/gif_enjoyer_preferences.dart';
 import 'package:animators_gif_enjoyer/main_screen/menu_items.dart'
     as menu_items;
 import 'package:animators_gif_enjoyer/phlutter/app_theme_cycler.dart';
@@ -96,6 +97,7 @@ class _MyHomePageState extends State<MyHomePage>
         FrameBaseStorer,
         GifPlayer,
         ThemeCycler,
+        GifEnjoyerWindowPreferences,
         WindowSizeRememberer,
         Exporter {
   final FocusNode mainWindowFocus = FocusNode(canRequestFocus: true);
@@ -486,6 +488,7 @@ class _MyHomePageState extends State<MyHomePage>
                       exportPngSequenceHandler: () => tryExportPngSequence(),
                       zoomLevelNotifier: zoomLevelNotifier,
                       isAppBusy: inProgressExport != null,
+                      allowWideSliderNotifier: allowWideSliderNotifier,
                       fitZoomGetter: getFitZoom,
                       hardMaxZoomGetter: getMaxZoom,
                       hardMinZoomGetter: getMinZoom,
@@ -565,6 +568,7 @@ class _MyHomePageState extends State<MyHomePage>
                     currentFrame: currentFrame,
                     gifController: gifController,
                     enabled: isPlayModeAvailable && isScrubMode.value,
+                    allowWideNotifier: allowWideSliderNotifier,
                     onChange: clampCurrentFrameAndShow,
                     displayedFrameOffset: displayedFrameBaseOffset,
                   ),

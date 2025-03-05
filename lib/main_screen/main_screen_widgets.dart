@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 
 import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
+import 'package:animators_gif_enjoyer/main_screen/gif_enjoyer_preferences.dart'
+    as gif_enjoyer_preferences;
 import 'package:animators_gif_enjoyer/main_screen/menu_items.dart'
     as menu_items;
 import 'package:animators_gif_enjoyer/main_screen/theme.dart';
@@ -22,6 +24,7 @@ class GifViewContainer extends StatelessWidget {
     required this.openImageHandler,
     required this.pasteHandler,
     required this.exportPngSequenceHandler,
+    this.allowWideSliderNotifier,
     this.isAppBusy = false,
     this.zoomLevelNotifier,
     this.fitZoomGetter,
@@ -39,6 +42,7 @@ class GifViewContainer extends StatelessWidget {
   final double Function()? hardMinZoomGetter;
   final double Function()? hardMaxZoomGetter;
   final ValueNotifier<double>? zoomLevelNotifier;
+  final ValueNotifier<bool>? allowWideSliderNotifier;
   final bool isAppBusy;
 
   @override
@@ -88,6 +92,8 @@ class GifViewContainer extends StatelessWidget {
                 disabled: isAppBusy,
               ),
               MenuItem.separator(),
+              if (allowWideSliderNotifier != null)
+                menu_items.allowWideSliderMenuItem(allowWideSliderNotifier!),
               menu_items.allowMultipleWindowsMenuItem(),
               menu_items.rememberWindowSizeMenuItem(),
             ],
@@ -468,6 +474,7 @@ class MainSlider extends StatelessWidget {
     required this.gifController,
     required this.enabled,
     required this.onChange,
+    required this.allowWideNotifier,
     this.displayedFrameOffset = 0,
   });
 
@@ -476,87 +483,109 @@ class MainSlider extends StatelessWidget {
   final RangeValues primarySliderRange;
   final ValueNotifier<bool> isUsingFocusRange;
   final ValueNotifier<int> currentFrame;
+  final ValueNotifier<bool> allowWideNotifier;
   final GifController gifController;
   final VoidCallback onChange;
   final bool enabled;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        ToggleFocusButton(
-          label: '${(primarySliderRange.startInt + displayedFrameOffset)}',
-          handleToggle: () => toggleUseFocus(),
-          isFocusing: isUsingFocusRange.value,
-          enabled: enabled,
-        ),
-        ValueListenableBuilder(
-          valueListenable: currentFrame,
-          builder: (_, currentFrameValue, __) {
-            final sliderMin = primarySliderRange.start;
-            final sliderMax = primarySliderRange.end;
+    return LayoutBuilder(builder: (context, BoxConstraints boxConstraints) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          ToggleFocusButton(
+            label: '${(primarySliderRange.startInt + displayedFrameOffset)}',
+            handleToggle: () => toggleUseFocus(),
+            isFocusing: isUsingFocusRange.value,
+            enabled: enabled,
+          ),
+          ValueListenableBuilder(
+              valueListenable: allowWideNotifier,
+              builder: (_, allowWideValue, __) {
+                return ValueListenableBuilder(
+                  valueListenable: currentFrame,
+                  builder: (_, currentFrameValue, __) {
+                    final sliderMin = primarySliderRange.start;
+                    final sliderMax = primarySliderRange.end;
 
-            const int minFramesBeforeShrink = 7;
-            const int reallyShortFrames = 4;
-            const double maximumSpacePerFrame = 40;
-            final limitedFrameCount = sliderMax - sliderMin;
+                    const int minFramesBeforeShrink = 7;
+                    const int reallyFewFrames = 4;
+                    const double maximumSpacePerFrame = 40;
+                    final limitedFrameCount = sliderMax - sliderMin;
 
-            final double width = switch (limitedFrameCount) {
-              (< reallyShortFrames) => reallyShortFrames * maximumSpacePerFrame,
-              (< minFramesBeforeShrink) =>
-                limitedFrameCount * maximumSpacePerFrame,
-              _ => minFramesBeforeShrink * maximumSpacePerFrame
-            };
+                    final double wideWidth = boxConstraints.maxWidth - 180;
 
-            var slider = Slider(
-              min: sliderMin,
-              max: sliderMax,
-              value: currentFrameValue.toDouble(),
-              label: '${(currentFrameValue + displayedFrameOffset)}',
-              onChanged: enabled
-                  ? (newValue) {
-                      currentFrame.value = newValue.toInt();
-                      onChange();
-                    }
-                  : null,
-            );
+                    final double width = allowWideValue
+                        ? wideWidth
+                        : switch (limitedFrameCount) {
+                            (< reallyFewFrames) =>
+                              reallyFewFrames * maximumSpacePerFrame,
+                            (< minFramesBeforeShrink) =>
+                              limitedFrameCount * maximumSpacePerFrame,
+                            _ => minFramesBeforeShrink * maximumSpacePerFrame
+                          };
 
-            return SliderTheme(
-              data: SliderThemeData(
-                thumbColor: Theme.of(context).colorScheme.secondary,
-                trackHeight: enabled ? 10 : 2,
-                thumbShape: const RoundSliderThumbShape(
-                  disabledThumbRadius: 0,
-                  elevation: 2,
-                ),
-              ),
-              child: SizedBox(
-                width: width,
-                child: Focus(
-                  canRequestFocus: false,
-                  autofocus: false,
-                  skipTraversal: true,
-                  descendantsAreFocusable: false,
-                  descendantsAreTraversable: false,
-                  child: ScrollListener(
-                    onScrollUp: () => increment(currentFrame, 1),
-                    onScrollDown: () => increment(currentFrame, -1),
-                    child: slider,
-                  ),
-                ),
-              ),
-            );
-          },
-        ),
-        ToggleFocusButton(
-          label: '${(primarySliderRange.endInt + displayedFrameOffset)}',
-          handleToggle: () => toggleUseFocus(),
-          isFocusing: isUsingFocusRange.value,
-          enabled: enabled,
-        ),
-      ],
-    );
+                    var slider = Slider(
+                      min: sliderMin,
+                      max: sliderMax,
+                      value: currentFrameValue.toDouble(),
+                      label: '${(currentFrameValue + displayedFrameOffset)}',
+                      onChanged: enabled
+                          ? (newValue) {
+                              currentFrame.value = newValue.toInt();
+                              onChange();
+                            }
+                          : null,
+                    );
+
+                    return SliderTheme(
+                      data: SliderThemeData(
+                        thumbColor: Theme.of(context).colorScheme.secondary,
+                        trackHeight: enabled ? 10 : 2,
+                        thumbShape: const RoundSliderThumbShape(
+                          disabledThumbRadius: 0,
+                          elevation: 2,
+                        ),
+                      ),
+                      child: GestureDetector(
+                        onTertiaryTapDown: (_) async {
+                          gif_enjoyer_preferences
+                              .storeAllowWideSliderPreference(
+                                  !allowWideNotifier.value);
+                          allowWideNotifier.value =
+                              await gif_enjoyer_preferences
+                                  .getAllowWideSliderPreference();
+                        },
+                        child: SizedBox(
+                          width: width,
+                          child: Focus(
+                            canRequestFocus: false,
+                            autofocus: false,
+                            skipTraversal: true,
+                            descendantsAreFocusable: false,
+                            descendantsAreTraversable: false,
+                            child: ScrollListener(
+                              onScrollUp: () => increment(currentFrame, 1),
+                              onScrollDown: () => increment(currentFrame, -1),
+                              child: slider,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              }),
+          ToggleFocusButton(
+            label: '${(primarySliderRange.endInt + displayedFrameOffset)}',
+            handleToggle: () => toggleUseFocus(),
+            isFocusing: isUsingFocusRange.value,
+            enabled: enabled,
+          ),
+        ],
+      );
+    });
   }
 
   void increment(ValueNotifier<int> notifier, int incrementSign) {
