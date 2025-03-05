@@ -150,6 +150,7 @@ ThemeData getPhriendsTheme() {
   const Color appBackground = Color(0xFF313338);
   const Color tooltipBackgroundColor = Color(0xFF111214);
   const Color tooltipTextColor = Color(0xEEDBDEE1);
+  const Color sliderInactiveTrackColor = Color(0xFF46464F);
 
   const tooltipTheme = TooltipThemeData(
     verticalOffset: 26,
@@ -178,6 +179,9 @@ ThemeData getPhriendsTheme() {
       scrim: const Color(0xDD000000),
     ),
     tooltipTheme: tooltipTheme,
+    sliderTheme: const SliderThemeData(
+      inactiveTrackColor: sliderInactiveTrackColor,
+    ),
     textButtonTheme: const TextButtonThemeData(style: buttonStyle),
     iconButtonTheme: const IconButtonThemeData(style: buttonStyle),
     buttonTheme: const ButtonThemeData(shape: appButtonShape),

@@ -539,8 +539,9 @@ class MainSlider extends StatelessWidget {
                           : null,
                     );
 
+                    var originalSliderThemeData = Theme.of(context).sliderTheme;
                     return SliderTheme(
-                      data: SliderThemeData(
+                      data: originalSliderThemeData.copyWith(
                         thumbColor: Theme.of(context).colorScheme.secondary,
                         trackHeight: enabled ? 10 : 2,
                         thumbShape: const RoundSliderThumbShape(
