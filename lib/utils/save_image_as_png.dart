@@ -5,7 +5,7 @@ import 'package:file_selector/file_selector.dart' as file_selector;
 import 'package:flutter/foundation.dart';
 import 'package:sanitize_filename/sanitize_filename.dart';
 
-typedef AccumulatedFilesCallback = void Function(int totalFilesSaved);
+typedef AccumulatedFilesCallback = void Function(int totalFilesAccumulated);
 typedef FilesDoneCheckCallback = void Function(
     int totalFiles, Directory? directory);
 
