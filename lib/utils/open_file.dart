@@ -44,15 +44,12 @@ bool isInformallyAcceptedFile({required String filename}) {
   return false;
 }
 
-Future<(List<FileImage>? images, String? folderName)>
-    openFolderSelectorForFileImages() async {
-  var folderPath = await getDirectoryPath();
-  if (folderPath == null || folderPath.isEmpty) return (null, null);
+Future<String?> openFolderSelectorForFileImages() {
+  return getDirectoryPath(confirmButtonText: "Import folder");
+}
 
-  var fileImages = await loadFolderAsFileImages(folderPath);
-  if (fileImages == null) return (null, null);
-
-  return (fileImages, folderPath);
+bool isFolder(String path) {
+  return Directory(path).existsSync();
 }
 
 Future<int> tryGetFramerateFromFolder(

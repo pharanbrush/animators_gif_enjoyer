@@ -414,7 +414,7 @@ class _MyHomePageState extends State<MyHomePage>
               items: [
                 MenuItem(
                   label: menu_items.openImageSequenceFolderLabel,
-                  onClick: (_) => openImageSequenceFolder(),
+                  onClick: (_) => userOpenImageSequenceFolder(),
                 ),
                 MenuItem.separator(),
                 menu_items.allowMultipleWindowsMenuItem(),
@@ -504,7 +504,7 @@ class _MyHomePageState extends State<MyHomePage>
               ),
               MenuItem(
                 label: menu_items.openImageSequenceFolderLabel,
-                onClick: (_) => openImageSequenceFolder(),
+                onClick: (_) => userOpenImageSequenceFolder(),
                 disabled: isAppBusy,
               ),
               MenuItem.separator(),
@@ -818,6 +818,12 @@ class _MyHomePageState extends State<MyHomePage>
         if (details.files.isEmpty) return;
         final file = details.files[0];
 
+        final mimeType = file.mimeType;
+        if (mimeType == null && open_file.isFolder(file.path)) {
+          openImageSequenceFolder(file.path);
+          return;
+        }
+
         if (!open_file.isAcceptedFile(filename: file.name)) {
           showSnackbar(label: 'Not a GIF');
 
@@ -1016,13 +1022,38 @@ class _MyHomePageState extends State<MyHomePage>
     setState(() {});
   }
 
-  void openImageSequenceFolder() async {
+  void userOpenImageSequenceFolder() async {
     if (isAppBusy) return;
 
     try {
-      var openFolderProcess = open_file.openFolderSelectorForFileImages();
-      inProgressLoadingProcess = openFolderProcess;
-      var (fileImages, folderPath) = await openFolderProcess;
+      var folderPath = await open_file.openFolderSelectorForFileImages();
+      if (folderPath == null) return;
+      openImageSequenceFolder(folderPath);
+    } catch (e) {
+      inProgressLoadingProcess = null;
+      showSnackbar(
+        label: e.toString(),
+        icon: const Icon(SnackbarShower.errorIcon),
+      );
+    }
+  }
+
+  void openImageSequenceFolder(String folderPath) async {
+    if (isAppBusy) return;
+    if (folderPath.isEmpty || !open_file.isFolder(folderPath)) {
+      inProgressLoadingProcess = null;
+      showSnackbar(
+        label: "Could not find folder : '$folderPath'",
+        icon: const Icon(SnackbarShower.errorIcon),
+      );
+      return;
+    }
+
+    try {
+      var fileImagesProcess = open_file.loadFolderAsFileImages(folderPath);
+
+      inProgressLoadingProcess = fileImagesProcess;
+      var fileImages = await fileImagesProcess;
       inProgressLoadingProcess = null;
 
       if (fileImages == null) return;
@@ -1035,15 +1066,13 @@ class _MyHomePageState extends State<MyHomePage>
       }
 
       var frameDuration = const Duration(milliseconds: 40);
-      if (folderPath != null) {
-        var framerateProcess = open_file.tryGetFramerateFromFolder(folderPath);
-        inProgressLoadingProcess = framerateProcess;
-        var possibleFramerate = await framerateProcess;
-        inProgressLoadingProcess = null;
-        
-        final frameMilliseconds = (1000 / possibleFramerate).round();
-        frameDuration = Duration(milliseconds: frameMilliseconds);
-      }
+      var framerateProcess = open_file.tryGetFramerateFromFolder(folderPath);
+      inProgressLoadingProcess = framerateProcess;
+      int possibleFramerate = await framerateProcess;
+      inProgressLoadingProcess = null;
+
+      final frameMilliseconds = (1000 / possibleFramerate).round();
+      frameDuration = Duration(milliseconds: frameMilliseconds);
 
       var gifFrameLoading = loadGifFramesFromImages(
         fileImages: fileImages,
@@ -1051,10 +1080,17 @@ class _MyHomePageState extends State<MyHomePage>
       );
 
       inProgressLoadingProcess = gifFrameLoading;
-      var gifFrames = await inProgressLoadingProcess;
+      var gifFrames = await gifFrameLoading;
       inProgressLoadingProcess = null;
 
-      loadGifFromGifFrames(gifFrames, folderPath ?? '');
+      await loadGifFromGifFrames(gifFrames, folderPath);
+
+      final frameCount = gifFrames.length;
+      showSnackbar(
+        label:
+            'Loaded image sequence with $frameCount frame${pluralS(frameCount)} at $possibleFramerate fps.',
+        icon: const Icon(SnackbarShower.okIcon),
+      );
     } catch (e) {
       inProgressLoadingProcess = null;
       showSnackbar(
@@ -1370,7 +1406,7 @@ mixin GifLoader on GifPlayer<MyHomePage> {
   void onGifDownloadSuccess();
   void onGifLoadError(String errorMessage);
 
-  void loadGifFromGifFrames(List<GifFrame> frames, String source) async {
+  Future loadGifFromGifFrames(List<GifFrame> frames, String source) async {
     onStartLoadNewGif();
 
     try {
