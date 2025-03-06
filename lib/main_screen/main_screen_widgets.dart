@@ -92,8 +92,10 @@ class GifViewContainer extends StatelessWidget {
                 disabled: isAppBusy,
               ),
               MenuItem.separator(),
-              if (allowWideSliderNotifier != null)
+              if (allowWideSliderNotifier != null) ...[
                 menu_items.allowWideSliderMenuItem(allowWideSliderNotifier!),
+                MenuItem.separator(),
+              ],
               menu_items.allowMultipleWindowsMenuItem(),
               menu_items.rememberWindowSizeMenuItem(),
             ],
