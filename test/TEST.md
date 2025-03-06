@@ -122,6 +122,7 @@ Tests
   - [ ] Image sequence opens fine
     - [ ] Rejects folder when the images have different sizes
     - [ ] Rejects empty folder
+    - [ ] Drag a folder into the window
 
 - Preferences
   - [ ] Theme persists between loads
