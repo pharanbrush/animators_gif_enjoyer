@@ -4,12 +4,8 @@ import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
 import 'package:animators_gif_enjoyer/main_screen/gif_enjoyer_preferences.dart'
     as gif_enjoyer_preferences;
 import 'package:animators_gif_enjoyer/main_screen/main_screen.dart';
-import 'package:animators_gif_enjoyer/main_screen/menu_items.dart'
-    as menu_items;
 import 'package:animators_gif_enjoyer/main_screen/theme.dart';
 import 'package:animators_gif_enjoyer/phlutter/windows/scroll_listener.dart';
-import 'package:animators_gif_enjoyer/utils/build_info.dart' as build_info;
-import 'package:contextual_menu/contextual_menu.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -21,11 +17,6 @@ class GifViewContainer extends StatelessWidget {
     super.key,
     required this.gifImageProvider,
     required this.gifController,
-    required this.copyImageHandler,
-    required this.openImageHandler,
-    required this.openImageSequenceFolderHandler,
-    required this.pasteHandler,
-    required this.exportPngSequenceHandler,
     required this.loadedGifInfo,
     this.allowWideSliderNotifier,
     this.isAppBusy = false,
@@ -37,11 +28,6 @@ class GifViewContainer extends StatelessWidget {
 
   final ImageProvider<Object>? gifImageProvider;
   final GifController gifController;
-  final VoidCallback copyImageHandler;
-  final VoidCallback openImageHandler;
-  final VoidCallback openImageSequenceFolderHandler;
-  final VoidCallback pasteHandler;
-  final VoidCallback exportPngSequenceHandler;
   final GifInfo loadedGifInfo;
   final double Function()? fitZoomGetter;
   final double Function()? hardMinZoomGetter;
@@ -57,65 +43,10 @@ class GifViewContainer extends StatelessWidget {
       fitZoomGetter: fitZoomGetter,
       hardMaxZoomGetter: hardMaxZoomGetter,
       hardMinZoomGetter: hardMinZoomGetter,
-      child: GestureDetector(
-        onSecondaryTap: () => popUpContextualMenu(menu(context)),
-        child: GifView(
-          image: gifImageProvider,
-          controller: gifController,
-        ),
+      child: GifView(
+        image: gifImageProvider,
+        controller: gifController,
       ),
-    );
-  }
-
-  Menu menu(BuildContext context) {
-    return Menu(
-      items: [
-        MenuItem(
-          label: 'Copy frame image',
-          onClick: (_) => copyImageHandler(),
-        ),
-        menu_items.revealMenuItem(
-          gifImageProvider,
-          source: loadedGifInfo.fileSource,
-        ),
-        MenuItem.separator(),
-        MenuItem(
-          label: 'Open GIF...',
-          onClick: (_) => openImageHandler(),
-          disabled: isAppBusy,
-        ),
-        MenuItem(
-          label: 'Paste to address bar...',
-          onClick: (_) => pasteHandler(),
-          disabled: isAppBusy,
-        ),
-        MenuItem.separator(),
-        MenuItem.submenu(
-          label: 'Advanced',
-          submenu: Menu(
-            items: [
-              MenuItem(
-                label: 'Export PNG Sequence...',
-                onClick: (_) => exportPngSequenceHandler(),
-                disabled: isAppBusy,
-              ),
-              MenuItem(
-                label: menu_items.openImageSequenceFolderLabel,
-                onClick: (_) => openImageSequenceFolderHandler(),
-                disabled: isAppBusy,
-              ),
-              MenuItem.separator(),
-              if (allowWideSliderNotifier != null) ...[
-                menu_items.allowWideSliderMenuItem(allowWideSliderNotifier!),
-                MenuItem.separator(),
-              ],
-              menu_items.allowMultipleWindowsMenuItem(),
-              menu_items.rememberWindowSizeMenuItem(),
-            ],
-          ),
-        ),
-        if (build_info.packageInfo != null) ...menu_items.aboutItem
-      ],
     );
   }
 }

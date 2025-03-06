@@ -15,7 +15,7 @@ import 'package:animators_gif_enjoyer/phlutter/windows/image_drop_target.dart';
 import 'package:animators_gif_enjoyer/phlutter/material_state_property_utils.dart';
 import 'package:animators_gif_enjoyer/phlutter/modal_panel.dart';
 import 'package:animators_gif_enjoyer/phlutter/windows/windows_phwindow.dart';
-import 'package:animators_gif_enjoyer/utils/build_info.dart';
+import 'package:animators_gif_enjoyer/utils/build_info.dart' as build_info;
 import 'package:animators_gif_enjoyer/utils/download_file.dart';
 import 'package:animators_gif_enjoyer/utils/gif_frame_advancer.dart';
 import 'package:animators_gif_enjoyer/utils/open_file.dart' as open_file;
@@ -174,7 +174,7 @@ class _MyHomePageState extends State<MyHomePage>
     tryLoadFromWindowsOpenWith();
     onSecondWindow = () => tryLoadFromWindowsOpenWith();
 
-    initializePackageInfo();
+    build_info.initializePackageInfo();
   }
 
   @override
@@ -423,9 +423,9 @@ class _MyHomePageState extends State<MyHomePage>
             ),
           ),
           MenuItem.separator(),
-          if (packageInfo != null)
+          if (build_info.packageInfo != null)
             MenuItem(
-              label: 'Build $buildName',
+              label: 'Build ${build_info.buildName}',
               disabled: true,
             )
         ],
@@ -470,6 +470,56 @@ class _MyHomePageState extends State<MyHomePage>
     );
   }
 
+  Menu loadedMenu(BuildContext context) {
+    return Menu(
+      items: [
+        MenuItem(
+          label: 'Copy frame image',
+          onClick: (_) => tryCopyFrameToClipboard(),
+        ),
+        menu_items.revealMenuItem(
+          gifImageProvider,
+          source: loadedGifInfo.fileSource,
+        ),
+        MenuItem.separator(),
+        MenuItem(
+          label: 'Open GIF...',
+          onClick: (_) => openNewFile(),
+          disabled: isAppBusy,
+        ),
+        MenuItem(
+          label: 'Paste to address bar...',
+          onClick: (_) => openTextPanelAndPaste(),
+          disabled: isAppBusy,
+        ),
+        MenuItem.separator(),
+        MenuItem.submenu(
+          label: 'Advanced',
+          submenu: Menu(
+            items: [
+              MenuItem(
+                label: 'Export PNG Sequence...',
+                onClick: (_) => tryExportPngSequence(),
+                disabled: isAppBusy,
+              ),
+              MenuItem(
+                label: menu_items.openImageSequenceFolderLabel,
+                onClick: (_) => openImageSequenceFolder(),
+                disabled: isAppBusy,
+              ),
+              MenuItem.separator(),
+              menu_items.allowWideSliderMenuItem(allowWideSliderNotifier),
+              MenuItem.separator(),
+              menu_items.allowMultipleWindowsMenuItem(),
+              menu_items.rememberWindowSizeMenuItem(),
+            ],
+          ),
+        ),
+        if (build_info.packageInfo != null) ...menu_items.aboutItem
+      ],
+    );
+  }
+
   Widget loadedInterface(BuildContext context) {
     final displayedFrameBaseOffset =
         FrameBaseContext.of(context)?.frameBase.value ?? 0;
@@ -488,16 +538,12 @@ class _MyHomePageState extends State<MyHomePage>
                 builder: (_, getFitZoom, getMinZoom, getMaxZoom) {
                   return GestureDetector(
                     onTap: () => togglePlayPause(),
+                    onSecondaryTap: () =>
+                        popUpContextualMenu(loadedMenu(context)),
                     child: GifViewContainer(
                       gifImageProvider: gifImageProvider,
                       gifController: gifController,
                       loadedGifInfo: loadedGifInfo,
-                      copyImageHandler: () => tryCopyFrameToClipboard(),
-                      openImageHandler: () => openNewFile(),
-                      openImageSequenceFolderHandler: () =>
-                          openImageSequenceFolder(),
-                      pasteHandler: () => openTextPanelAndPaste(),
-                      exportPngSequenceHandler: () => tryExportPngSequence(),
                       zoomLevelNotifier: zoomLevelNotifier,
                       isAppBusy: isAppBusy,
                       allowWideSliderNotifier: allowWideSliderNotifier,
