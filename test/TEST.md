@@ -1,16 +1,6 @@
 Tests
 ===
 
-- Icons
-  - [ ] Windows 10 
-    - [ ] Start Menu
-    - [ ] Taskbar
-    - [ ] Task Manager
-  - [ ] Windows 11
-    - [ ] Start Menu
-    - [ ] Taskbar
-    - [ ] Task Manager
-  - [ ] File association
 - Opening files
   - [ ] Right-click > Open GIF...
   - [ ] Bottom-right "Open GIF" button
@@ -99,7 +89,7 @@ Tests
     - [ ] "Open folder" action should open folder in explorer.
     - [ ] Numbering should follow currently-displayed zero-based or one-based frames.
     - [ ] Long exports should show and update progress correctly.
-    - [ ] Long exports should block someoperations.
+    - [ ] Long exports should block some operations.
       - [ ] block right-click open
       - [ ] block open button
       - [ ] block double-click open from OS.
@@ -146,4 +136,14 @@ Tests
   - [ ] "Remember window size" preference persists between loads
   - [ ] Window size persists between loads when enabled.
   - [ ] Window size resets between loads when disabled.
+- Icons
+  - [ ] Windows 10 
+    - [ ] Start Menu
+    - [ ] Taskbar
+    - [ ] Task Manager
+  - [ ] Windows 11
+    - [ ] Start Menu
+    - [ ] Taskbar
+    - [ ] Task Manager
+  - [ ] File association
   
