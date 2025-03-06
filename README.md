@@ -22,11 +22,17 @@ See LICENSE file for more info.
 - Paste GIF links to download it. (Embed links like from Tenor are not supported)
 - Quickly switch the interface brightness to check what the GIF looks like on different backgrounds.
 
-#### 1.0.6  
-- Change the playback speed.
-- Zoom in. And then zoom some more. Maximum zoom out results in the size of a Discord inline emote (22px).
-- Export GIF as a PNG Sequence (so you can use them in Blender or other apps that don't support GIFs).
-- New switch for zero-based or one-based frames in the right-click menu on the frame number.
+### 1.0.12 (2025 Mar 6)
+- Added option to make the frame slider fill the width of the window. (toggle this in the context menu or by middle-clicking the frame slider)
+- Added "Open image sequence folder..."
+- Fixed not being able to right-click in the empty area around a loaded gif to access the context menu.
+
+### 1.0.8 (2023 Dec 19)
+- Added option to remember window size.
+
+### 1.0.7 (2023 Dec 1)
+- Added option to allow multiple windows.
+
 
 See [CHANGELOG.md](/CHANGELOG.md) for more detailed changes and bug fixes.
 
