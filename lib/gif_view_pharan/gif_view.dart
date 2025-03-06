@@ -31,6 +31,62 @@ class GifFrame {
   const GifFrame(this.imageInfo, this.duration);
 }
 
+/// Loads a List<GifFrame> from a List<FileImage> that can then be passed
+/// to [GifController.load].
+Future<List<GifFrame>> loadGifFramesFromImages({
+  required List<FileImage> fileImages,
+  ValueChanged<Object?>? onError,
+}) async {
+  const defaultDuration = Duration(milliseconds: 40); // 40ms is 25 fps
+  List<GifFrame> frameList = [];
+
+  try {
+    int width = 0;
+    int height = 0;
+
+    for (var fileImage in fileImages) {
+      Uint8List? data;
+
+      data = await fileImage.file.readAsBytes();
+      Codec codec = await instantiateImageCodec(
+        data,
+        allowUpscaling: false,
+      );
+
+      for (int i = 0, n = codec.frameCount; i < n; i++) {
+        FrameInfo frameInfo = await codec.getNextFrame();
+
+        if (width == 0) {
+          width = frameInfo.image.width;
+          height = frameInfo.image.height;
+        } else {
+          if (frameInfo.image.width != width ||
+              frameInfo.image.height != height) {
+            throw const FormatException(
+              "Folder containing images of varying sizes was rejected.",
+            );
+          }
+        }
+
+        frameList.add(
+          GifFrame(
+            ImageInfo(image: frameInfo.image),
+            defaultDuration,
+          ),
+        );
+      }
+    }
+  } catch (e) {
+    if (onError == null) {
+      rethrow;
+    } else {
+      onError(e);
+    }
+  }
+
+  return frameList;
+}
+
 /// Loads a List<GifFrame> from an ImageProvider which can then be passed
 /// to [GifController.load].
 Future<List<GifFrame>> loadGifFrames({
@@ -127,7 +183,7 @@ Future<List<GifFrame>> loadGifFrames({
 
 class GifView extends StatefulWidget {
   final GifController? controller;
-  final ImageProvider image;
+  final ImageProvider? image;
   final double? height;
   final double? width;
   final BoxFit? fit;
@@ -238,13 +294,13 @@ class GifViewState extends State<GifView> with TickerProviderStateMixin {
     super.initState();
   }
 
-  @override
-  void didUpdateWidget(covariant GifView oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.image != widget.image) {
-      _loadImage(updateFrames: true);
-    }
-  }
+  // @override
+  // void didUpdateWidget(covariant GifView oldWidget) {
+  //   super.didUpdateWidget(oldWidget);
+  //   if (oldWidget.image != widget.image) {
+  //     _loadImage(updateFrames: true);
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -267,8 +323,11 @@ class GifViewState extends State<GifView> with TickerProviderStateMixin {
   }
 
   FutureOr _loadImage({bool updateFrames = false}) async {
+    final imageProvider = widget.image;
+
+    if (imageProvider == null) return;
     final frames = await loadGifFrames(
-      provider: widget.image,
+      provider: imageProvider,
       onError: widget.onError,
     );
     controller.load(frames, updateFrames: updateFrames);

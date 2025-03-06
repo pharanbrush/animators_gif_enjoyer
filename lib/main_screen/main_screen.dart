@@ -412,6 +412,11 @@ class _MyHomePageState extends State<MyHomePage>
             label: 'Advanced',
             submenu: Menu(
               items: [
+                MenuItem(
+                  label: menu_items.openImageSequenceFolderLabel,
+                  onClick: (_) => openImageSequenceFolder(),
+                ),
+                MenuItem.separator(),
                 menu_items.allowMultipleWindowsMenuItem(),
                 menu_items.rememberWindowSizeMenuItem(),
               ],
@@ -486,8 +491,11 @@ class _MyHomePageState extends State<MyHomePage>
                     child: GifViewContainer(
                       gifImageProvider: gifImageProvider,
                       gifController: gifController,
+                      loadedGifInfo: loadedGifInfo,
                       copyImageHandler: () => tryCopyFrameToClipboard(),
                       openImageHandler: () => openNewFile(),
+                      openImageSequenceFolderHandler: () =>
+                          openImageSequenceFolder(),
                       pasteHandler: () => openTextPanelAndPaste(),
                       exportPngSequenceHandler: () => tryExportPngSequence(),
                       zoomLevelNotifier: zoomLevelNotifier,
@@ -962,6 +970,39 @@ class _MyHomePageState extends State<MyHomePage>
     setState(() {});
   }
 
+  void openImageSequenceFolder() async {
+    if (isAppBusy) return;
+
+    try {
+      var openFolderProcess = open_file.openFolderSelectorForFileImages();
+      inProgressLoadingProcess = openFolderProcess;
+      var (fileImages, folderPath) = await openFolderProcess;
+      inProgressLoadingProcess = null;
+
+      if (fileImages == null) return;
+      if (fileImages.isEmpty) {
+        showSnackbar(
+          label: 'Could not find any images in folder.',
+          icon: const Icon(SnackbarShower.errorIcon),
+        );
+        return;
+      }
+
+      var gifFrameLoading = loadGifFramesFromImages(fileImages: fileImages);
+      inProgressLoadingProcess = gifFrameLoading;
+      var gifFrames = await inProgressLoadingProcess;
+      inProgressLoadingProcess = null;
+
+      loadGifFromGifFrames(gifFrames, folderPath ?? '');
+    } catch (e) {
+      inProgressLoadingProcess = null;
+      showSnackbar(
+        label: e.toString(),
+        icon: const Icon(SnackbarShower.errorIcon),
+      );
+    }
+  }
+
   void tryLoadGifFromFilePath(String path) {
     if (isAppBusy) return;
 
@@ -1013,6 +1054,7 @@ class GifInfo {
     required this.width,
     required this.height,
     required this.frameDuration,
+    required this.isLoaded,
     this.isNonAnimated = false,
   });
 
@@ -1023,7 +1065,8 @@ class GifInfo {
   })  : frameDuration = readFrameDuration(frames),
         width = imageInfo.image.width,
         height = imageInfo.image.height,
-        isNonAnimated = isNonMoving(frames);
+        isNonAnimated = isNonMoving(frames),
+        isLoaded = true;
 
   GifInfo.fromFrames({
     required fileSource,
@@ -1039,6 +1082,7 @@ class GifInfo {
   final int height;
   final Duration? frameDuration;
   final bool isNonAnimated;
+  final bool isLoaded;
 
   Size get imageSize => Size(width.toDouble(), height.toDouble());
 
@@ -1088,10 +1132,11 @@ mixin GifPlayer<T extends StatefulWidget>
     width: 0,
     height: 0,
     frameDuration: Duration.zero,
+    isLoaded: false,
   );
   int get lastGifFrame => gifController.frameCount - 1;
 
-  bool get isGifLoaded => gifImageProvider != null;
+  bool get isGifLoaded => loadedGifInfo.isLoaded;
   bool get isPlayModeAvailable => isGifLoaded && !loadedGifInfo.isNonAnimated;
 
   /// Tries to get the filename of the loaded GIF.

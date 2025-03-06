@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
 import 'package:animators_gif_enjoyer/main_screen/gif_enjoyer_preferences.dart'
     as gif_enjoyer_preferences;
+import 'package:animators_gif_enjoyer/main_screen/main_screen.dart';
 import 'package:animators_gif_enjoyer/main_screen/menu_items.dart'
     as menu_items;
 import 'package:animators_gif_enjoyer/main_screen/theme.dart';
@@ -22,8 +23,10 @@ class GifViewContainer extends StatelessWidget {
     required this.gifController,
     required this.copyImageHandler,
     required this.openImageHandler,
+    required this.openImageSequenceFolderHandler,
     required this.pasteHandler,
     required this.exportPngSequenceHandler,
+    required this.loadedGifInfo,
     this.allowWideSliderNotifier,
     this.isAppBusy = false,
     this.zoomLevelNotifier,
@@ -36,8 +39,10 @@ class GifViewContainer extends StatelessWidget {
   final GifController gifController;
   final VoidCallback copyImageHandler;
   final VoidCallback openImageHandler;
+  final VoidCallback openImageSequenceFolderHandler;
   final VoidCallback pasteHandler;
   final VoidCallback exportPngSequenceHandler;
+  final GifInfo loadedGifInfo;
   final double Function()? fitZoomGetter;
   final double Function()? hardMinZoomGetter;
   final double Function()? hardMaxZoomGetter;
@@ -55,7 +60,7 @@ class GifViewContainer extends StatelessWidget {
       child: GestureDetector(
         onSecondaryTap: () => popUpContextualMenu(menu(context)),
         child: GifView(
-          image: gifImageProvider!,
+          image: gifImageProvider,
           controller: gifController,
         ),
       ),
@@ -69,7 +74,10 @@ class GifViewContainer extends StatelessWidget {
           label: 'Copy frame image',
           onClick: (_) => copyImageHandler(),
         ),
-        menu_items.revealMenuItem(gifImageProvider),
+        menu_items.revealMenuItem(
+          gifImageProvider,
+          source: loadedGifInfo.fileSource,
+        ),
         MenuItem.separator(),
         MenuItem(
           label: 'Open GIF...',
@@ -89,6 +97,11 @@ class GifViewContainer extends StatelessWidget {
               MenuItem(
                 label: 'Export PNG Sequence...',
                 onClick: (_) => exportPngSequenceHandler(),
+                disabled: isAppBusy,
+              ),
+              MenuItem(
+                label: menu_items.openImageSequenceFolderLabel,
+                onClick: (_) => openImageSequenceFolderHandler(),
                 disabled: isAppBusy,
               ),
               MenuItem.separator(),

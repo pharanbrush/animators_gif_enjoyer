@@ -34,6 +34,7 @@ Tests
     - [ ] Tooltip is correct
   - [ ] Play button reacts to play/pause state.
   - [ ] Click on the playing slider to stop playing.
+  - [ ] Middle-click slider toggles wide mode.
   - [ ] Scroll on the slider to move up and down
     - [ ] Should pull the playback when in play mode.
   - [ ] Keyboard shortcuts
@@ -128,14 +129,21 @@ Tests
     - [ ] Still zoom
   - [ ] WebP works fine (when opened or served alternatively by a host)
   - [ ] APNG works fine
+  - [ ] Image sequence opens fine
+    - [ ] Rejects folder when the images have different sizes
+    - [ ] Rejects empty folder
 
 - Preferences
   - [ ] Theme persists between loads
   - [ ] Base frame persists between loads
   - [ ] "Allow multiple windows" preference persists between loads.
+  - [ ] Slider wide mode is remembered between loads.
+  - [ ] Slider wide mode changes when preference in menu is chosen.
+  - [ ] Slider wide mode checkmark is updated when preference in menu is chosen.
   - [ ] A new window is opened when a new file is opened when "Allow multiple windows" preference is enabled.
   - [ ] A new window is opened when opening the app icon when "Allow multiple windows" preference is enabled.
   - [ ] Window is reused when "Allow multiple windows" preference is disabled.
   - [ ] "Remember window size" preference persists between loads
   - [ ] Window size persists between loads when enabled.
   - [ ] Window size resets between loads when disabled.
+  

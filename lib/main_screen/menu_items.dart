@@ -11,6 +11,8 @@ import 'package:animators_gif_enjoyer/utils/reveal_file_source.dart'
 import 'package:animators_gif_enjoyer/utils/build_info.dart' as build_info;
 import 'package:flutter/material.dart';
 
+const String openImageSequenceFolderLabel = 'Open image sequence folder...';
+
 MenuItem allowMultipleWindowsMenuItem() {
   return MenuItem.checkbox(
     label: 'Allow multiple windows',
@@ -56,17 +58,29 @@ MenuItem rememberWindowSizeMenuItem() {
   );
 }
 
-MenuItem revealMenuItem(ImageProvider? imageProvider) {
+MenuItem revealMenuItem(
+  ImageProvider? imageProvider, {
+  String? source,
+}) {
   switch (imageProvider) {
     case FileImage fi:
       return MenuItem(
-          label: 'Reveal in File Explorer',
-          onClick: (_) => reveal_file_source.revealInExplorer(fi.file.path));
+        label: 'Reveal in File Explorer',
+        onClick: (_) => reveal_file_source.revealInExplorer(fi.file.path),
+      );
     case NetworkImage ni:
       return MenuItem(
-          label: 'Open original link in browser',
-          onClick: (_) => reveal_file_source.openInBrowser(ni.url));
+        label: 'Open original link in browser',
+        onClick: (_) => reveal_file_source.openInBrowser(ni.url),
+      );
     default:
+      if (source != null && source.isNotEmpty) {
+        return MenuItem(
+          label: 'Reveal in File Explorer',
+          onClick: (_) => reveal_file_source.revealInExplorer(source),
+        );
+      }
+
       return MenuItem(label: 'Reveal in Explorer', disabled: true);
   }
 }
