@@ -36,8 +36,10 @@ class GifFrame {
 Future<List<GifFrame>> loadGifFramesFromImages({
   required List<FileImage> fileImages,
   ValueChanged<Object?>? onError,
+  Duration? frameDuration,
 }) async {
   const defaultDuration = Duration(milliseconds: 40); // 40ms is 25 fps
+  final appliedFrameDuration = frameDuration ?? defaultDuration;
   List<GifFrame> frameList = [];
 
   try {
@@ -71,7 +73,7 @@ Future<List<GifFrame>> loadGifFramesFromImages({
         frameList.add(
           GifFrame(
             ImageInfo(image: frameInfo.image),
-            defaultDuration,
+            appliedFrameDuration,
           ),
         );
       }

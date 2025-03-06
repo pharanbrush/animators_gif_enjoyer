@@ -55,6 +55,45 @@ Future<(List<FileImage>? images, String? folderName)>
   return (fileImages, folderPath);
 }
 
+Future<int> tryGetFramerateFromFolder(
+  String folderPath, {
+  int defaultFrameRate = 25,
+  int maxFramerate = 120,
+}) async {
+  if (folderPath.isEmpty) return defaultFrameRate;
+
+  try {
+    final directory = Directory(folderPath);
+    final directoryContents = directory.list(recursive: false);
+
+    await for (final FileSystemEntity entry in directoryContents) {
+      if (entry is File) {
+        final fileName = entry.name;
+
+        if (!fileName.endsWith(' fps.txt')) continue;
+
+        var splitName = fileName.split(' ');
+        if (splitName.length != 2) continue;
+
+        var possibleNumber = splitName[0].trim();
+        if (possibleNumber.isEmpty) continue;
+
+        var possibleInt = int.tryParse(possibleNumber);
+        if (possibleInt == null) continue;
+
+        if (possibleInt > maxFramerate) possibleInt = maxFramerate;
+        if (possibleInt <= 1) possibleInt = 1;
+
+        return possibleInt;
+      }
+    }
+  } catch (_) {
+    return defaultFrameRate;
+  }
+
+  return defaultFrameRate;
+}
+
 Future<List<FileImage>?> loadFolderAsFileImages(String folderPath) async {
   if (folderPath.isEmpty) return null;
 

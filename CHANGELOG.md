@@ -3,6 +3,7 @@ Animator's GIF Enjoyer Deluxe Changelog
 ### 1.0.12 (2025 Mar 6)
 - Added option to make the frame slider fill the width of the window. (toggle this in the context menu or by middle-clicking the frame slider)
 - Added "Open image sequence folder..."
+- Image sequence defaults to 25fps but can be set by putting a text file in the image sequence folder named `15 fps.txt`. Change the number as needed.
 - Fixed not being able to right-click in the empty area around a loaded gif to access the context menu.
 
 ### 1.0.11 (2024 Apr 12)

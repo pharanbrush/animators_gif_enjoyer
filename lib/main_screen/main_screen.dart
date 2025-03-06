@@ -1034,7 +1034,22 @@ class _MyHomePageState extends State<MyHomePage>
         return;
       }
 
-      var gifFrameLoading = loadGifFramesFromImages(fileImages: fileImages);
+      var frameDuration = const Duration(milliseconds: 40);
+      if (folderPath != null) {
+        var framerateProcess = open_file.tryGetFramerateFromFolder(folderPath);
+        inProgressLoadingProcess = framerateProcess;
+        var possibleFramerate = await framerateProcess;
+        inProgressLoadingProcess = null;
+        
+        final frameMilliseconds = (1000 / possibleFramerate).round();
+        frameDuration = Duration(milliseconds: frameMilliseconds);
+      }
+
+      var gifFrameLoading = loadGifFramesFromImages(
+        fileImages: fileImages,
+        frameDuration: frameDuration,
+      );
+
       inProgressLoadingProcess = gifFrameLoading;
       var gifFrames = await inProgressLoadingProcess;
       inProgressLoadingProcess = null;
