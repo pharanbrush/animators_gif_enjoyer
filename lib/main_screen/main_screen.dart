@@ -96,6 +96,7 @@ class _MyHomePageState extends State<MyHomePage>
         SnackbarShower,
         FrameBaseStorer,
         GifPlayer,
+        GifLoader,
         ThemeCycler,
         GifEnjoyerWindowPreferences,
         WindowSizeRememberer,
@@ -145,6 +146,9 @@ class _MyHomePageState extends State<MyHomePage>
     },
   );
 
+  bool get isAppBusy =>
+      (inProgressExport != null) || (inProgressLoadingProcess != null);
+
   final zoomLevelNotifier = ValueNotifier<double>(
     ScrollZoomContainer.defaultZoom,
   );
@@ -191,7 +195,7 @@ class _MyHomePageState extends State<MyHomePage>
 
   void handleEscapeIntent() {
     if (bottomTextPanel.isOpen) return;
-    if (inProgressExport != null) {
+    if (isAppBusy) {
       return;
     }
     _exitApplication();
@@ -487,7 +491,7 @@ class _MyHomePageState extends State<MyHomePage>
                       pasteHandler: () => openTextPanelAndPaste(),
                       exportPngSequenceHandler: () => tryExportPngSequence(),
                       zoomLevelNotifier: zoomLevelNotifier,
-                      isAppBusy: inProgressExport != null,
+                      isAppBusy: isAppBusy,
                       allowWideSliderNotifier: allowWideSliderNotifier,
                       fitZoomGetter: getFitZoom,
                       hardMaxZoomGetter: getMaxZoom,
@@ -860,7 +864,7 @@ class _MyHomePageState extends State<MyHomePage>
   //
 
   void openNewFile() async {
-    if (inProgressExport != null) return;
+    if (isAppBusy) return;
 
     var (gifImage, name) = await open_file.openGifImageFile();
     if (gifImage == null || name == null) return;
@@ -959,14 +963,14 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   void tryLoadGifFromFilePath(String path) {
-    if (inProgressExport != null) return;
+    if (isAppBusy) return;
 
     if (path.trim().isEmpty) return;
     loadGifFromProvider(open_file.getFileImageFromPath(path), path);
   }
 
   void tryLoadGifFromUrl(String url, {String? errorMessage}) {
-    if (inProgressExport != null) return;
+    if (isAppBusy) return;
 
     if (url.trim().isEmpty) {
       return;
@@ -1079,9 +1083,6 @@ mixin GifPlayer<T extends StatefulWidget>
   RangeValues get primarySliderRange =>
       isUsingFocusRange.value ? focusFrameRange.value : fullFrameRange;
 
-  final ValueNotifier<bool> isGifDownloading = ValueNotifier(false);
-  final ValueNotifier<double> gifDownloadPercent = ValueNotifier(0.0);
-
   GifInfo loadedGifInfo = const GifInfo(
     fileSource: '',
     width: 0,
@@ -1187,65 +1188,6 @@ mixin GifPlayer<T extends StatefulWidget>
     }
   }
 
-  void onGifDownloadSuccess();
-  void onGifLoadError(String errorMessage);
-
-  void loadGifFromProvider(
-    ImageProvider provider,
-    String source,
-  ) async {
-    onStartLoadNewGif();
-
-    try {
-      final isDownload = provider is NetworkImage;
-      isGifDownloading.value = isDownload;
-      final frames = await loadGifFrames(
-        provider: provider,
-        onProgressPercent: isDownload
-            ? (downloadPercent) {
-                gifDownloadPercent.value = downloadPercent;
-              }
-            : null,
-      );
-      gifImageProvider = provider;
-      loadedGifInfo = GifInfo.fromFrames(fileSource: source, frames: frames);
-      gifController.load(frames);
-      gifAdvancer.setFrames(frames);
-
-      setState(() {
-        // Reset sensible values for new file.
-        int lastFrame = lastGifFrame;
-        focusFrameRange.value = RangeValues(0, lastFrame.toDouble());
-        maxFrameIndex.value = lastFrame;
-        currentFrame.value = 0;
-        playSpeedController.resetSpeed();
-        isGifDownloading.value = false;
-        onGifLoadSuccess();
-
-        if (gifImageProvider is NetworkImage) {
-          onGifDownloadSuccess();
-        }
-      });
-    } catch (e) {
-      if (gifImageProvider is NetworkImage) {
-        try {
-          var uri = Uri.parse(source);
-          if (uri.host.contains('tenor') && !uri.path.endsWith('gif')) {
-            final gifLinkError = 'Cannot access : $source \n'
-                '(Tenor embed links currently do not work.)';
-            onGifLoadError(gifLinkError);
-          }
-        } catch (m) {
-          onGifLoadError(e.toString());
-        }
-      } else {
-        onGifLoadError(e.toString());
-      }
-
-      isGifDownloading.value = false;
-    }
-  }
-
   void setDisplayedFrame(int frame) {
     gifController.seek(frame);
     gifAdvancer.setCurrent(frame);
@@ -1311,6 +1253,99 @@ mixin GifPlayer<T extends StatefulWidget>
 
   static bool isFpsWhole(double fps) {
     return fps.floorToDouble() == fps;
+  }
+}
+
+mixin GifLoader on GifPlayer<MyHomePage> {
+  Future? inProgressLoadingProcess;
+
+  final ValueNotifier<bool> isGifDownloading = ValueNotifier(false);
+  final ValueNotifier<double> gifDownloadPercent = ValueNotifier(0.0);
+  void onGifDownloadSuccess();
+  void onGifLoadError(String errorMessage);
+
+  void loadGifFromGifFrames(List<GifFrame> frames, String source) async {
+    onStartLoadNewGif();
+
+    try {
+      loadedGifInfo = GifInfo.fromFrames(fileSource: source, frames: frames);
+      gifController.load(frames);
+      gifAdvancer.setFrames(frames);
+
+      setState(() {
+        // Reset sensible values for new file.
+        gifImageProvider = null;
+        resetViewerStateAfterLoad();
+      });
+    } catch (e) {
+      onGifLoadError(e.toString());
+      inProgressLoadingProcess = null;
+    }
+  }
+
+  void resetViewerStateAfterLoad() {
+    int lastFrame = lastGifFrame;
+    focusFrameRange.value = RangeValues(0, lastFrame.toDouble());
+    maxFrameIndex.value = lastFrame;
+    currentFrame.value = 0;
+    playSpeedController.resetSpeed();
+    isGifDownloading.value = false;
+    inProgressLoadingProcess = null;
+    onGifLoadSuccess();
+  }
+
+  void loadGifFromProvider(
+    ImageProvider provider,
+    String source,
+  ) async {
+    onStartLoadNewGif();
+
+    try {
+      final isDownload = provider is NetworkImage;
+      isGifDownloading.value = isDownload;
+
+      var gifDownload = loadGifFrames(
+        provider: provider,
+        onProgressPercent: isDownload
+            ? (downloadPercent) {
+                gifDownloadPercent.value = downloadPercent;
+              }
+            : null,
+      );
+      inProgressLoadingProcess = gifDownload;
+      final frames = await gifDownload;
+      gifImageProvider = provider;
+      loadedGifInfo = GifInfo.fromFrames(fileSource: source, frames: frames);
+      gifController.load(frames);
+      gifAdvancer.setFrames(frames);
+      inProgressLoadingProcess = null;
+
+      setState(() {
+        resetViewerStateAfterLoad();
+        if (gifImageProvider is NetworkImage) {
+          onGifDownloadSuccess();
+        }
+      });
+    } catch (e) {
+      inProgressLoadingProcess = null;
+
+      if (gifImageProvider is NetworkImage) {
+        try {
+          var uri = Uri.parse(source);
+          if (uri.host.contains('tenor') && !uri.path.endsWith('gif')) {
+            final gifLinkError = 'Cannot access : $source \n'
+                '(Tenor embed links currently do not work.)';
+            onGifLoadError(gifLinkError);
+          }
+        } catch (m) {
+          onGifLoadError(e.toString());
+        }
+      } else {
+        onGifLoadError(e.toString());
+      }
+
+      isGifDownloading.value = false;
+    }
   }
 }
 
