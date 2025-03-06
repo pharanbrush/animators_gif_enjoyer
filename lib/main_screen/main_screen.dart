@@ -799,10 +799,21 @@ class _MyHomePageState extends State<MyHomePage>
         case <= const Duration(milliseconds: 10):
           return '${frameDuration.inMilliseconds} $msPerFrameUnit';
         default:
-          final frameInterval = frameDuration.inMilliseconds;
-          final fps = 1000.0 / frameInterval;
-          return '~${fps.toStringAsFixed(2)} fps '
-              '($frameInterval $msPerFrameUnit) ';
+          final frameMicroseconds = frameDuration.inMicroseconds;
+          final fps = 1000000.0 / frameMicroseconds;
+          final frameMilliseconds =
+              frameMicroseconds / 1000.0; // prevent rounding.
+
+          final fpsText = (fps - fps.truncate() == 0)
+              ? fps.toStringAsFixed(0)
+              : "~${fps.toStringAsFixed(2)}";
+          final millisecondsText =
+              (frameMilliseconds - frameMilliseconds.truncate() == 0)
+                  ? frameMilliseconds.toStringAsFixed(0)
+                  : frameMilliseconds.toStringAsFixed(2);
+
+          return '$fpsText fps '
+              '($millisecondsText $msPerFrameUnit) ';
       }
     }
 
