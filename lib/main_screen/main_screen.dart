@@ -1071,8 +1071,8 @@ class _MyHomePageState extends State<MyHomePage>
       int possibleFramerate = await framerateProcess;
       inProgressLoadingProcess = null;
 
-      final frameMilliseconds = (1000 / possibleFramerate).round();
-      frameDuration = Duration(milliseconds: frameMilliseconds);
+      final frameMicroseconds = (1000000 / possibleFramerate).round();
+      frameDuration = Duration(microseconds: frameMicroseconds);
 
       var gifFrameLoading = loadGifFramesFromImages(
         fileImages: fileImages,
