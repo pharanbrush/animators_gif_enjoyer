@@ -490,103 +490,103 @@ class MainSlider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, BoxConstraints boxConstraints) {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          ToggleFocusButton(
-            label: '${(primarySliderRange.startInt + displayedFrameOffset)}',
-            handleToggle: () => toggleUseFocus(),
-            isFocusing: isUsingFocusRange.value,
-            enabled: enabled,
-          ),
-          ValueListenableBuilder(
-              valueListenable: allowWideNotifier,
-              builder: (_, allowWideValue, __) {
-                return ValueListenableBuilder(
-                  valueListenable: currentFrame,
-                  builder: (_, currentFrameValue, __) {
-                    final sliderMin = primarySliderRange.start;
-                    final sliderMax = primarySliderRange.end;
+    final sliderPart = ValueListenableBuilder(
+      valueListenable: allowWideNotifier,
+      builder: (_, allowWideValue, __) {
+        var insideExpanded = ValueListenableBuilder(
+          valueListenable: currentFrame,
+          builder: (_, currentFrameValue, __) {
+            final sliderMin = primarySliderRange.start;
+            final sliderMax = primarySliderRange.end;
 
-                    const int minFramesBeforeShrink = 7;
-                    const int reallyFewFrames = 4;
-                    const double maximumSpacePerFrame = 40;
-                    final limitedFrameCount = sliderMax - sliderMin;
+            const int minFramesBeforeShrink = 7;
+            const int reallyFewFrames = 4;
+            const double maximumSpacePerFrame = 40;
+            final limitedFrameCount = sliderMax - sliderMin;
 
-                    final double wideWidth = boxConstraints.maxWidth - 180;
+            final double width = switch (limitedFrameCount) {
+              (< reallyFewFrames) => reallyFewFrames * maximumSpacePerFrame,
+              (< minFramesBeforeShrink) =>
+                limitedFrameCount * maximumSpacePerFrame,
+              _ => minFramesBeforeShrink * maximumSpacePerFrame
+            };
 
-                    final double width = allowWideValue
-                        ? wideWidth
-                        : switch (limitedFrameCount) {
-                            (< reallyFewFrames) =>
-                              reallyFewFrames * maximumSpacePerFrame,
-                            (< minFramesBeforeShrink) =>
-                              limitedFrameCount * maximumSpacePerFrame,
-                            _ => minFramesBeforeShrink * maximumSpacePerFrame
-                          };
+            var slider = Slider(
+              min: sliderMin,
+              max: sliderMax,
+              value: currentFrameValue.toDouble(),
+              label: '${(currentFrameValue + displayedFrameOffset)}',
+              onChanged: enabled
+                  ? (newValue) {
+                      currentFrame.value = newValue.toInt();
+                      onChange();
+                    }
+                  : null,
+            );
 
-                    var slider = Slider(
-                      min: sliderMin,
-                      max: sliderMax,
-                      value: currentFrameValue.toDouble(),
-                      label: '${(currentFrameValue + displayedFrameOffset)}',
-                      onChanged: enabled
-                          ? (newValue) {
-                              currentFrame.value = newValue.toInt();
-                              onChange();
-                            }
-                          : null,
-                    );
+            var originalSliderThemeData = Theme.of(context).sliderTheme;
+            return SliderTheme(
+              data: originalSliderThemeData.copyWith(
+                thumbColor: Theme.of(context).colorScheme.secondary,
+                trackHeight: enabled ? 10 : 2,
+                thumbShape: const RoundSliderThumbShape(
+                  disabledThumbRadius: 0,
+                  elevation: 2,
+                ),
+              ),
+              child: GestureDetector(
+                onTertiaryTapDown: (_) async {
+                  gif_enjoyer_preferences
+                      .storeAllowWideSliderPreference(!allowWideNotifier.value);
+                  allowWideNotifier.value = await gif_enjoyer_preferences
+                      .getAllowWideSliderPreference();
+                },
+                child: SizedBox(
+                  width: allowWideValue ? null : width,
+                  child: Focus(
+                    canRequestFocus: false,
+                    autofocus: false,
+                    skipTraversal: true,
+                    descendantsAreFocusable: false,
+                    descendantsAreTraversable: false,
+                    child: ScrollListener(
+                      onScrollUp: () => increment(currentFrame, 1),
+                      onScrollDown: () => increment(currentFrame, -1),
+                      child: slider,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
 
-                    var originalSliderThemeData = Theme.of(context).sliderTheme;
-                    return SliderTheme(
-                      data: originalSliderThemeData.copyWith(
-                        thumbColor: Theme.of(context).colorScheme.secondary,
-                        trackHeight: enabled ? 10 : 2,
-                        thumbShape: const RoundSliderThumbShape(
-                          disabledThumbRadius: 0,
-                          elevation: 2,
-                        ),
-                      ),
-                      child: GestureDetector(
-                        onTertiaryTapDown: (_) async {
-                          gif_enjoyer_preferences
-                              .storeAllowWideSliderPreference(
-                                  !allowWideNotifier.value);
-                          allowWideNotifier.value =
-                              await gif_enjoyer_preferences
-                                  .getAllowWideSliderPreference();
-                        },
-                        child: SizedBox(
-                          width: width,
-                          child: Focus(
-                            canRequestFocus: false,
-                            autofocus: false,
-                            skipTraversal: true,
-                            descendantsAreFocusable: false,
-                            descendantsAreTraversable: false,
-                            child: ScrollListener(
-                              onScrollUp: () => increment(currentFrame, 1),
-                              onScrollDown: () => increment(currentFrame, -1),
-                              child: slider,
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                );
-              }),
-          ToggleFocusButton(
-            label: '${(primarySliderRange.endInt + displayedFrameOffset)}',
-            handleToggle: () => toggleUseFocus(),
-            isFocusing: isUsingFocusRange.value,
-            enabled: enabled,
-          ),
-        ],
-      );
-    });
+        return allowWideValue
+            ? Expanded(child: insideExpanded)
+            : insideExpanded;
+      },
+    );
+
+    final row = Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        ToggleFocusButton(
+          label: '${(primarySliderRange.startInt + displayedFrameOffset)}',
+          handleToggle: () => toggleUseFocus(),
+          isFocusing: isUsingFocusRange.value,
+          enabled: enabled,
+        ),
+        sliderPart,
+        ToggleFocusButton(
+          label: '${(primarySliderRange.endInt + displayedFrameOffset)}',
+          handleToggle: () => toggleUseFocus(),
+          isFocusing: isUsingFocusRange.value,
+          enabled: enabled,
+        ),
+      ],
+    );
+
+    return row;
   }
 
   void increment(ValueNotifier<int> notifier, int incrementSign) {
