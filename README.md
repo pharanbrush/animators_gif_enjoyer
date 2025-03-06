@@ -22,7 +22,7 @@ See LICENSE file for more info.
 - Paste GIF links to download it. (Embed links like from Tenor are not supported)
 - Quickly switch the interface brightness to check what the GIF looks like on different backgrounds.
 
-### 1.0.12 (2025 Mar 6)
+### 1.0.13 (2025 Mar 6)
 - Added option to make the frame slider fill the width of the window. (toggle this in the context menu or by middle-clicking the frame slider)
 - Added "Open image sequence folder..."
 - Fixed not being able to right-click in the empty area around a loaded gif to access the context menu.
