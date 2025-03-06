@@ -1,5 +1,7 @@
 Animator's GIF Enjoyer Deluxe Changelog
 ===
+### 1.0.12 (2025 Mar 7)
+- Added option to make the frame slider fill the width of the window. (toggle this in the context menu or by middle-clicking the frame slider)
 
 ### 1.0.11 (2024 Apr 12)
 - Added PNG and APNG (Animated PNG) to formally supported format list.
