@@ -44,6 +44,11 @@ bool isInformallyAcceptedFile({required String filename}) {
   return false;
 }
 
+bool isCompatibleFile({required String filename}) {
+  return isAcceptedFile(filename: filename) ||
+      isInformallyAcceptedFile(filename: filename);
+}
+
 Future<String?> openFolderSelectorForFileImages() {
   return getDirectoryPath(confirmButtonText: "Import folder");
 }
@@ -97,29 +102,52 @@ Future<List<FileImage>?> loadFolderAsFileImages(String folderPath) async {
   final directory = Directory(folderPath);
 
   final directoryContents = directory.list(recursive: false);
-  final List<FileImage> files = [];
+  final List<FileImage> fileImages = [];
   await for (final FileSystemEntity entry in directoryContents) {
     if (entry is File) {
-      final fileName = entry.name;
-      if (!isAcceptedFile(filename: fileName) &&
-          !isInformallyAcceptedFile(filename: fileName)) {
-        continue;
+      if (isCompatibleFile(filename: entry.name)) {
+        fileImages.add(FileImage(entry));
       }
-
-      files.add(FileImage(entry));
     }
   }
 
-  sortPaths(files);
-  return files;
+  trySortFileSequence(fileImages);
+  return fileImages;
 }
 
-void sortPaths(List<FileImage> files) {
-  files.sort(alphabeticalCompare);
+final imageSequencePattern = RegExp(r'(?<=\D|^)(\d+)\.(?=\D*$)');
+
+void trySortFileSequence(List<FileImage> fileImages) {
+  bool regexCheckPassed = true;
+  for (final fileImage in fileImages) {
+    if (!imageSequencePattern.hasMatch(fileImage.file.name)) {
+      regexCheckPassed = false;
+      break;
+    }
+  }
+
+  if (regexCheckPassed) {
+    fileImages.sort(regexSequenceCompare);
+    return;
+  }
+
+  fileImages.sort(basicStringCompare);
 }
 
-int alphabeticalCompare(FileImage a, FileImage b) {
-  final aName = a.file.name;
-  final bName = b.file.name;
-  return aName.compareTo(bName);
+int basicStringCompare(FileImage a, FileImage b) {
+  return a.file.name.compareTo(b.file.name);
+}
+
+int regexSequenceCompare(FileImage a, FileImage b) {
+  final matchA = imageSequencePattern.firstMatch(a.file.name);
+  final matchB = imageSequencePattern.firstMatch(b.file.name);
+
+  if (matchA == null || matchB == null) {
+    return 0;
+  }
+
+  final numA = int.parse(matchA.group(1)!);
+  final numB = int.parse(matchB.group(1)!);
+
+  return numA.compareTo(numB);
 }
