@@ -501,7 +501,7 @@ class _GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
           submenu: Menu(
             items: [
               MenuItem(
-                label: 'Export PNG Sequence...',
+                label: menu_items.exportPngSequenceLabel,
                 onClick: (_) => tryExportPngSequence(),
                 disabled: isAppBusy,
               ),
