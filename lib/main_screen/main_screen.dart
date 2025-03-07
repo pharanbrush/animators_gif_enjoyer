@@ -3,10 +3,13 @@ import 'dart:ui' as ui;
 import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
 import 'package:animators_gif_enjoyer/interface/shortcuts.dart';
 import 'package:animators_gif_enjoyer/main.dart';
+import 'package:animators_gif_enjoyer/main_screen/exporter_mixins.dart';
 import 'package:animators_gif_enjoyer/main_screen/frame_base.dart';
 import 'package:animators_gif_enjoyer/main_screen/gif_enjoyer_preferences.dart';
+import 'package:animators_gif_enjoyer/main_screen/gif_mixins.dart';
 import 'package:animators_gif_enjoyer/main_screen/menu_items.dart'
     as menu_items;
+import 'package:animators_gif_enjoyer/main_screen/snackbar_mixins.dart';
 import 'package:animators_gif_enjoyer/phlutter/app_theme_cycler.dart';
 import 'package:animators_gif_enjoyer/main_screen/main_screen_widgets.dart';
 import 'package:animators_gif_enjoyer/main_screen/theme.dart' as app_theme;
@@ -16,19 +19,16 @@ import 'package:animators_gif_enjoyer/phlutter/material_state_property_utils.dar
 import 'package:animators_gif_enjoyer/phlutter/modal_panel.dart';
 import 'package:animators_gif_enjoyer/phlutter/windows/windows_phwindow.dart';
 import 'package:animators_gif_enjoyer/utils/build_info.dart' as build_info;
-import 'package:animators_gif_enjoyer/utils/download_file.dart';
-import 'package:animators_gif_enjoyer/utils/gif_frame_advancer.dart';
-import 'package:animators_gif_enjoyer/utils/open_file.dart' as open_file;
-import 'package:animators_gif_enjoyer/utils/path_extensions.dart'
-    as path_extensions;
-import 'package:animators_gif_enjoyer/utils/phclipboard.dart' as phclipboard;
-import 'package:animators_gif_enjoyer/phlutter/value_notifier_extensions.dart';
+import 'package:animators_gif_enjoyer/functionality/download_file.dart';
+import 'package:animators_gif_enjoyer/functionality/open_file.dart'
+    as open_file;
+import 'package:animators_gif_enjoyer/functionality/phclipboard.dart'
+    as phclipboard;
 import 'package:animators_gif_enjoyer/utils/plural.dart';
-import 'package:animators_gif_enjoyer/utils/reveal_file_source.dart';
-import 'package:animators_gif_enjoyer/utils/save_image_as_png.dart';
+import 'package:animators_gif_enjoyer/functionality/reveal_file_source.dart';
+import 'package:animators_gif_enjoyer/functionality/save_image_as_png.dart';
 import 'package:contextual_menu/contextual_menu.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -53,7 +53,7 @@ class MyApp extends StatelessWidget {
                 title: appName,
                 debugShowCheckedModeBanner: false,
                 theme: themeData,
-                home: MyHomePage(initialThemeString: initialTheme),
+                home: GifEnjoyerMainPage(initialThemeString: initialTheme),
               );
             }
 
@@ -75,8 +75,8 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({
+class GifEnjoyerMainPage extends StatefulWidget {
+  const GifEnjoyerMainPage({
     super.key,
     this.initialThemeString,
   });
@@ -84,12 +84,12 @@ class MyHomePage extends StatefulWidget {
   final String? initialThemeString;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<GifEnjoyerMainPage> createState() => _GifEnjoyerMainPageState();
 }
 
 const bool isPlayOnLoad = true;
 
-class _MyHomePageState extends State<MyHomePage>
+class _GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
     with
         SingleTickerProviderStateMixin,
         WindowListener,
@@ -185,7 +185,10 @@ class _MyHomePageState extends State<MyHomePage>
 
   @override
   void onGifDownloadSuccess() {
-    showSnackbar(label: 'Download complete');
+    showSnackbar(
+      label: 'Download complete',
+      icon: const Icon(SnackbarShower.okIcon),
+    );
   }
 
   @override
@@ -400,16 +403,16 @@ class _MyHomePageState extends State<MyHomePage>
       return Menu(
         items: [
           MenuItem(
-            label: 'Open GIF...',
+            label: menu_items.openGifLabel,
             onClick: (_) => openNewFile(),
           ),
           MenuItem(
-            label: 'Paste to address bar...',
+            label: menu_items.pasteToAddressBarLabel,
             onClick: (_) => openTextPanelAndPaste(),
           ),
           MenuItem.separator(),
           MenuItem.submenu(
-            label: 'Advanced',
+            label: menu_items.advancedLabel,
             submenu: Menu(
               items: [
                 MenuItem(
@@ -474,7 +477,7 @@ class _MyHomePageState extends State<MyHomePage>
     return Menu(
       items: [
         MenuItem(
-          label: 'Copy frame image',
+          label: menu_items.copyFrameImageLabel,
           onClick: (_) => tryCopyFrameToClipboard(),
         ),
         menu_items.revealMenuItem(
@@ -483,18 +486,18 @@ class _MyHomePageState extends State<MyHomePage>
         ),
         MenuItem.separator(),
         MenuItem(
-          label: 'Open GIF...',
+          label: menu_items.openGifLabel,
           onClick: (_) => openNewFile(),
           disabled: isAppBusy,
         ),
         MenuItem(
-          label: 'Paste to address bar...',
+          label: menu_items.pasteToAddressBarLabel,
           onClick: (_) => openTextPanelAndPaste(),
           disabled: isAppBusy,
         ),
         MenuItem.separator(),
         MenuItem.submenu(
-          label: 'Advanced',
+          label: menu_items.advancedLabel,
           submenu: Menu(
             items: [
               MenuItem(
@@ -543,7 +546,6 @@ class _MyHomePageState extends State<MyHomePage>
                     child: GifViewContainer(
                       gifImageProvider: gifImageProvider,
                       gifController: gifController,
-                      loadedGifInfo: loadedGifInfo,
                       zoomLevelNotifier: zoomLevelNotifier,
                       isAppBusy: isAppBusy,
                       allowWideSliderNotifier: allowWideSliderNotifier,
@@ -836,7 +838,10 @@ class _MyHomePageState extends State<MyHomePage>
         }
 
         if (!open_file.isAcceptedFile(filename: file.name)) {
-          showSnackbar(label: 'Not a GIF');
+          showSnackbar(
+            label: 'Not a GIF',
+            icon: const Icon(SnackbarShower.errorIcon),
+          );
 
           if (!open_file.isInformallyAcceptedFile(filename: file.name)) {
             return;
@@ -1129,7 +1134,9 @@ class _MyHomePageState extends State<MyHomePage>
       var provider = NetworkImage(url);
       loadGifFromProvider(provider, url);
     } else {
-      showSnackbar(label: errorMessage ?? "Can't load url:\n$url");
+      showSnackbar(
+          label: errorMessage ?? "Can't load url:\n$url",
+          icon: const Icon(SnackbarShower.errorIcon));
     }
   }
 
@@ -1141,6 +1148,7 @@ class _MyHomePageState extends State<MyHomePage>
     showSnackbar(
       label: 'GIF loading failed\n'
           '$errorText',
+      icon: const Icon(SnackbarShower.canceledIcon),
     );
   }
 
@@ -1154,503 +1162,4 @@ class _MyHomePageState extends State<MyHomePage>
   @override
   String getNextCycleTheme(String currentValue) =>
       app_theme.getNextCycleTheme(currentValue);
-}
-
-class GifInfo {
-  const GifInfo({
-    required this.fileSource,
-    required this.width,
-    required this.height,
-    required this.frameDuration,
-    required this.isLoaded,
-    this.isNonAnimated = false,
-  });
-
-  GifInfo._fromFramesAndImageInfo({
-    required this.fileSource,
-    required List<GifFrame> frames,
-    required ImageInfo imageInfo,
-  })  : frameDuration = readFrameDuration(frames),
-        width = imageInfo.image.width,
-        height = imageInfo.image.height,
-        isNonAnimated = isNonMoving(frames),
-        isLoaded = true;
-
-  GifInfo.fromFrames({
-    required fileSource,
-    required List<GifFrame> frames,
-  }) : this._fromFramesAndImageInfo(
-          fileSource: fileSource,
-          frames: frames,
-          imageInfo: frames[0].imageInfo,
-        );
-
-  final String fileSource;
-  final int width;
-  final int height;
-  final Duration? frameDuration;
-  final bool isNonAnimated;
-  final bool isLoaded;
-
-  Size get imageSize => Size(width.toDouble(), height.toDouble());
-
-  static bool isNonMoving(List<GifFrame> frames) {
-    return frames.length <= 1;
-  }
-
-  static Duration? readFrameDuration(List<GifFrame> frames) {
-    final duration = frames[0].duration;
-    for (final frame in frames) {
-      if (duration != frame.duration) return null;
-    }
-    return duration;
-  }
-}
-
-mixin GifPlayer<T extends StatefulWidget>
-    on State<T>, TickerProvider, FrameBaseStorer<T> {
-  final gifController = GifController();
-  ImageProvider? gifImageProvider;
-  late GifFrameAdvancer gifAdvancer;
-  late PlaybackSpeedController playSpeedController = PlaybackSpeedController(
-    setter: (timeScale) => gifAdvancer.timeScale = timeScale,
-  );
-
-  final ValueNotifier<int> displayedFrame = ValueNotifier(0);
-  final ValueNotifier<int> currentFrame = ValueNotifier(0);
-
-  String get displayedCurrentFrameString {
-    return (currentFrame.value + displayFrameBaseOffset).toString();
-  }
-
-  final ValueNotifier<RangeValues> focusFrameRange =
-      ValueNotifier(const RangeValues(0, 100));
-
-  final ValueNotifier<bool> isScrubMode = ValueNotifier(!isPlayOnLoad);
-  final ValueNotifier<int> maxFrameIndex = ValueNotifier(100);
-  final ValueNotifier<bool> isUsingFocusRange = ValueNotifier(false);
-
-  RangeValues get fullFrameRange =>
-      RangeValues(0, maxFrameIndex.value.toDouble());
-  RangeValues get primarySliderRange =>
-      isUsingFocusRange.value ? focusFrameRange.value : fullFrameRange;
-
-  GifInfo loadedGifInfo = const GifInfo(
-    fileSource: '',
-    width: 0,
-    height: 0,
-    frameDuration: Duration.zero,
-    isLoaded: false,
-  );
-  int get lastGifFrame => gifController.frameCount - 1;
-
-  bool get isGifLoaded => loadedGifInfo.isLoaded;
-  bool get isPlayModeAvailable => isGifLoaded && !loadedGifInfo.isNonAnimated;
-
-  /// Tries to get the filename of the loaded GIF.
-  String tryGetNameFromGifImageProvider({required String defaultName}) {
-    final nameWithoutExtension = switch (gifImageProvider) {
-      FileImage _ => path_extensions.filenameFromFullPathWithoutExtensions(
-          loadedGifInfo.fileSource,
-        ),
-      NetworkImage _ => path_extensions.filenameFromUrlWithoutExtension(
-          loadedGifInfo.fileSource,
-        ),
-      _ => defaultName
-    };
-
-    if (nameWithoutExtension == null || nameWithoutExtension.trim().isEmpty) {
-      return defaultName;
-    }
-
-    return nameWithoutExtension;
-  }
-
-  @override
-  void initState() {
-    gifAdvancer = GifFrameAdvancer(
-      tickerProvider: this,
-      onFrame: (frameIndex) => onGifFrameAdvance(frameIndex),
-    );
-    super.initState();
-  }
-
-  void onGifFrameAdvance(int frameIndex) {
-    setCurrentFrameClamped(frameIndex);
-  }
-
-  @override
-  void dispose() {
-    gifController.dispose();
-    gifAdvancer.dispose();
-    super.dispose();
-  }
-
-  //
-  // Playback controls
-  //
-
-  void togglePlayPause() {
-    setPlayMode(isScrubMode.value);
-  }
-
-  void toggleUseFocus() {
-    setState(() {
-      clampFocusRange();
-
-      bool willSwitchToFocused = !isUsingFocusRange.value;
-      final nextRange =
-          willSwitchToFocused ? focusFrameRange.value : fullFrameRange;
-      clampCurrentFrameWithRange(nextRange);
-
-      isUsingFocusRange.toggle();
-    });
-  }
-
-  void setPlayMode(bool active) {
-    if (!isPlayModeAvailable) {
-      isScrubMode.value = true;
-      return;
-    }
-
-    isScrubMode.value = !active;
-    if (active) {
-      final range = primarySliderRange;
-      final int start = range.start.toInt();
-      final int last = range.end.toInt();
-      clampCurrentFrame();
-
-      gifAdvancer.pause();
-      gifAdvancer.play(
-        start: start,
-        last: last,
-        current: currentFrame.value,
-      );
-    } else {
-      gifAdvancer.pause();
-    }
-  }
-
-  void onStartLoadNewGif() {
-    setPlayMode(false);
-  }
-
-  void onGifLoadSuccess() {
-    if (isPlayOnLoad) {
-      setPlayMode(true);
-    }
-  }
-
-  void setDisplayedFrame(int frame) {
-    gifController.seek(frame);
-    gifAdvancer.setCurrent(frame);
-    displayedFrame.value = gifController.currentFrame;
-  }
-
-  //
-  // Frame controls
-  //
-
-  void incrementFrame(int incrementSign) {
-    if (incrementSign == 0) return;
-    setCurrentFrameClamped(currentFrame.value + incrementSign.sign);
-  }
-
-  void setCurrentFrameToFirst() {
-    setCurrentFrameClamped(primarySliderRange.startInt);
-  }
-
-  void setCurrentFrameToLast() {
-    setCurrentFrameClamped(primarySliderRange.endInt);
-  }
-
-  void setCurrentFrameClamped(int newFrame) {
-    currentFrame.value = newFrame;
-    clampCurrentFrameAndShow();
-  }
-
-  void clampCurrentFrameAndShow() {
-    clampCurrentFrame();
-    setDisplayedFrame(currentFrame.value);
-  }
-
-  void clampFocusRange() {
-    final oldValue = focusFrameRange.value;
-    final lastFrameIndex = maxFrameIndex.value.toDouble();
-
-    double minValue = oldValue.start;
-    if (minValue < 0) minValue = 0;
-    if (minValue > lastFrameIndex) minValue = lastFrameIndex;
-
-    double maxValue = oldValue.end;
-    if (maxValue < minValue) maxValue = minValue;
-    if (maxValue > lastFrameIndex) maxValue = lastFrameIndex;
-
-    focusFrameRange.value = RangeValues(minValue, maxValue);
-  }
-
-  void clampCurrentFrameWithRange(RangeValues range) {
-    currentFrame.value =
-        clampDouble(currentFrame.value.toDouble(), range.start, range.end)
-            .toInt();
-  }
-
-  void clampCurrentFrame() {
-    setState(() {
-      final currentRange = primarySliderRange;
-      currentFrame.value = clampDouble(currentFrame.value.toDouble(),
-              currentRange.start, currentRange.end)
-          .toInt();
-    });
-  }
-
-  static bool isFpsWhole(double fps) {
-    return fps.floorToDouble() == fps;
-  }
-}
-
-mixin GifLoader on GifPlayer<MyHomePage> {
-  Future? inProgressLoadingProcess;
-
-  final ValueNotifier<bool> isGifDownloading = ValueNotifier(false);
-  final ValueNotifier<double> gifDownloadPercent = ValueNotifier(0.0);
-  void onGifDownloadSuccess();
-  void onGifLoadError(String errorMessage);
-
-  Future loadGifFromGifFrames(List<GifFrame> frames, String source) async {
-    onStartLoadNewGif();
-
-    try {
-      loadedGifInfo = GifInfo.fromFrames(fileSource: source, frames: frames);
-      gifController.load(frames);
-      gifAdvancer.setFrames(frames);
-
-      setState(() {
-        // Reset sensible values for new file.
-        gifImageProvider = null;
-        resetViewerStateAfterLoad();
-      });
-    } catch (e) {
-      onGifLoadError(e.toString());
-      inProgressLoadingProcess = null;
-    }
-  }
-
-  void resetViewerStateAfterLoad() {
-    int lastFrame = lastGifFrame;
-    focusFrameRange.value = RangeValues(0, lastFrame.toDouble());
-    maxFrameIndex.value = lastFrame;
-    currentFrame.value = 0;
-    playSpeedController.resetSpeed();
-    isGifDownloading.value = false;
-    inProgressLoadingProcess = null;
-    onGifLoadSuccess();
-  }
-
-  void loadGifFromProvider(
-    ImageProvider provider,
-    String source,
-  ) async {
-    onStartLoadNewGif();
-
-    try {
-      final isDownload = provider is NetworkImage;
-      isGifDownloading.value = isDownload;
-
-      var gifDownload = loadGifFrames(
-        provider: provider,
-        onProgressPercent: isDownload
-            ? (downloadPercent) {
-                gifDownloadPercent.value = downloadPercent;
-              }
-            : null,
-      );
-      inProgressLoadingProcess = gifDownload;
-      final frames = await gifDownload;
-      gifImageProvider = provider;
-      loadedGifInfo = GifInfo.fromFrames(fileSource: source, frames: frames);
-      gifController.load(frames);
-      gifAdvancer.setFrames(frames);
-      inProgressLoadingProcess = null;
-
-      setState(() {
-        resetViewerStateAfterLoad();
-        if (gifImageProvider is NetworkImage) {
-          onGifDownloadSuccess();
-        }
-      });
-    } catch (e) {
-      inProgressLoadingProcess = null;
-
-      if (gifImageProvider is NetworkImage) {
-        try {
-          var uri = Uri.parse(source);
-          if (uri.host.contains('tenor') && !uri.path.endsWith('gif')) {
-            final gifLinkError = 'Cannot access : $source \n'
-                '(Tenor embed links currently do not work.)';
-            onGifLoadError(gifLinkError);
-          }
-        } catch (m) {
-          onGifLoadError(e.toString());
-        }
-      } else {
-        onGifLoadError(e.toString());
-      }
-
-      isGifDownloading.value = false;
-    }
-  }
-}
-
-class PlaybackSpeedController {
-  PlaybackSpeedController({
-    required this.setter,
-  });
-
-  final void Function(double timeScale) setter;
-
-  static const defaultSpeed = 1.0;
-  static const _speeds = <double>[0.25, 0.5, defaultSpeed, 2, 4];
-
-  final _currentSpeed = ValueNotifier<double>(defaultSpeed);
-
-  String get currentSpeedString {
-    return switch (_currentSpeed.value) {
-      0.5 => '.5',
-      < 1 => _currentSpeed.value.toStringAsPrecision(2).substring(1),
-      _ => _currentSpeed.value.toInt().toString(),
-    };
-  }
-
-  ValueListenable<double> get valueListenable => _currentSpeed;
-
-  bool get isDefaultSpeed => _currentSpeed.value == defaultSpeed;
-
-  void cycleNextSpeed() {
-    final currentIndex = _speeds.indexOf(_currentSpeed.value);
-    if (currentIndex < 0) {
-      _setSpeed(defaultSpeed);
-      return;
-    }
-
-    final nextIndex =
-        (currentIndex == _speeds.length - 1) ? 0 : currentIndex + 1;
-
-    _setSpeed(_speeds[nextIndex]);
-  }
-
-  void resetSpeed() {
-    _setSpeed(defaultSpeed);
-  }
-
-  void _setSpeed(double speed) {
-    _currentSpeed.value = speed;
-    setter(_currentSpeed.value);
-  }
-}
-
-mixin Exporter {
-  Future? inProgressExport;
-  ValueNotifier<double> exportPercentProgress = ValueNotifier(0);
-  ValueNotifier<bool> isExportCancelled = ValueNotifier(false);
-
-  void updateExportPercentProgress(double percent) {
-    exportPercentProgress.value = percent;
-  }
-
-  void cancelExport() {
-    isExportCancelled.value = true;
-  }
-
-  void clearExportStatus() {
-    inProgressExport = null;
-    exportPercentProgress.value = 0;
-    isExportCancelled.value = false;
-  }
-}
-
-mixin SnackbarShower<T extends StatefulWidget> on State<T> {
-  static const IconData emptyIcon = Icons.check_box_outline_blank;
-  static const IconData errorIcon = Icons.error_outline;
-  static const IconData okIcon = Icons.check;
-  static const IconData deleteIcon = Icons.delete;
-  static const IconData undoIcon = Icons.undo;
-  static const IconData saveIcon = Icons.save_alt;
-  static const IconData copyIcon = Icons.copy;
-  static const IconData canceledIcon = Icons.cancel;
-
-  void showSnackbar({
-    required String label,
-    Icon? icon,
-    SnackBarAction? action,
-  }) {
-    final messenger = ScaffoldMessenger.of(context);
-    messenger.clearSnackBars();
-
-    messenger.showSnackBar(
-      SnackBar(
-        content: IconTheme(
-          data: IconThemeData(
-            color: Theme.of(context).colorScheme.onInverseSurface,
-          ),
-          child: Row(
-            children: [
-              if (icon != null)
-                Padding(
-                  padding: const EdgeInsets.only(right: 10),
-                  child: icon,
-                ),
-              Flexible(child: Text(label)),
-            ],
-          ),
-        ),
-        action: action,
-      ),
-    );
-  }
-
-  void showProgressSnackbar({
-    Icon? icon,
-    required String label,
-    required ValueListenable<double> progressListenable,
-    SnackBarAction? action,
-  }) {
-    final messenger = ScaffoldMessenger.of(context);
-    messenger.clearSnackBars();
-    messenger.showSnackBar(
-      SnackBar(
-        duration: const Duration(days: 1),
-        action: action,
-        content: IconTheme(
-          data: IconThemeData(
-            color: Theme.of(context).colorScheme.onInverseSurface,
-          ),
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  if (icon != null)
-                    Padding(
-                      padding: const EdgeInsets.only(right: 10),
-                      child: icon,
-                    ),
-                  Flexible(child: Text(label)),
-                ],
-              ),
-              ValueListenableBuilder(
-                valueListenable: progressListenable,
-                builder: (context, value, child) {
-                  return LinearProgressIndicator(
-                    borderRadius: const BorderRadius.all(Radius.circular(2)),
-                    value: value,
-                  );
-                },
-              ),
-              const SizedBox(height: 10),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 }

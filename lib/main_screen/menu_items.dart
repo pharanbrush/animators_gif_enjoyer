@@ -6,12 +6,17 @@ import 'package:animators_gif_enjoyer/phlutter/remember_window_size.dart'
 import 'package:animators_gif_enjoyer/phlutter/single_instance.dart'
     as single_instance;
 import 'package:contextual_menu/contextual_menu.dart';
-import 'package:animators_gif_enjoyer/utils/reveal_file_source.dart'
+import 'package:animators_gif_enjoyer/functionality/reveal_file_source.dart'
     as reveal_file_source;
 import 'package:animators_gif_enjoyer/utils/build_info.dart' as build_info;
 import 'package:flutter/material.dart';
 
 const String openImageSequenceFolderLabel = 'Open image sequence folder...';
+const String advancedLabel = 'Advanced';
+const String exportPngSequenceLabel = 'Export PNG Sequence...';
+const String pasteToAddressBarLabel = 'Paste to address bar...';
+const String openGifLabel = 'Open GIF...';
+const String copyFrameImageLabel = 'Copy frame image';
 
 MenuItem allowMultipleWindowsMenuItem() {
   return MenuItem.checkbox(

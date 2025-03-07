@@ -3,7 +3,6 @@ import 'dart:math' as math;
 import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
 import 'package:animators_gif_enjoyer/main_screen/gif_enjoyer_preferences.dart'
     as gif_enjoyer_preferences;
-import 'package:animators_gif_enjoyer/main_screen/main_screen.dart';
 import 'package:animators_gif_enjoyer/main_screen/theme.dart';
 import 'package:animators_gif_enjoyer/phlutter/windows/scroll_listener.dart';
 import 'package:flutter/foundation.dart';
@@ -17,7 +16,6 @@ class GifViewContainer extends StatelessWidget {
     super.key,
     required this.gifImageProvider,
     required this.gifController,
-    required this.loadedGifInfo,
     this.allowWideSliderNotifier,
     this.isAppBusy = false,
     this.zoomLevelNotifier,
@@ -28,7 +26,6 @@ class GifViewContainer extends StatelessWidget {
 
   final ImageProvider<Object>? gifImageProvider;
   final GifController gifController;
-  final GifInfo loadedGifInfo;
   final double Function()? fitZoomGetter;
   final double Function()? hardMinZoomGetter;
   final double Function()? hardMaxZoomGetter;
