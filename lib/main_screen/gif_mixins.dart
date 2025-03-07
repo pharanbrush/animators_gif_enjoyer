@@ -58,6 +58,8 @@ mixin GifPlayer<T extends StatefulWidget>
       NetworkImage _ => path_extensions.filenameFromUrlWithoutExtension(
           loadedGifInfo.fileSource,
         ),
+      null => path_extensions
+          .filenameFromFullPathWithoutExtensions(loadedGifInfo.fileSource),
       _ => defaultName
     };
 
