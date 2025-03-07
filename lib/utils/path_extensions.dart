@@ -2,7 +2,7 @@ import 'dart:io';
 
 extension NameExtensions on FileSystemEntity {
   String get name {
-    return filenameFromFullPath(path);
+    return uri.pathSegments.last;
   }
 }
 
