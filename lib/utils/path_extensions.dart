@@ -35,9 +35,9 @@ String? filenameFromUrlWithoutExtension(String url) {
   final lastSlashIndex = url.lastIndexOf('/');
   final filenameEndIndex =
       argumentIndex > lastSlashIndex ? argumentIndex : null;
-      
+
   var fullFilename = url.substring(lastSlashIndex + 1, filenameEndIndex).trim();
   if (fullFilename.isEmpty) return null;
-  
+
   return filenameWithoutExtension(fullFilename);
 }
