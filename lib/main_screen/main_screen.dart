@@ -960,7 +960,7 @@ class _GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
 
   void tryExportPngSequence() async {
     if (!isGifLoaded) return;
-    if (inProgressExport != null) return;
+    if (isAppBusy) return;
 
     final imageList = gifController.frames
         .map<ui.Image>((frame) => frame.imageInfo.image)
