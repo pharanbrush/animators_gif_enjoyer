@@ -22,7 +22,7 @@ import 'package:animators_gif_enjoyer/utils/build_info.dart' as build_info;
 import 'package:animators_gif_enjoyer/functionality/download_file.dart';
 import 'package:animators_gif_enjoyer/functionality/open_file.dart'
     as open_file;
-import 'package:animators_gif_enjoyer/functionality/phclipboard.dart'
+import 'package:animators_gif_enjoyer/phlutter/phclipboard.dart'
     as phclipboard;
 import 'package:animators_gif_enjoyer/utils/plural.dart';
 import 'package:animators_gif_enjoyer/functionality/reveal_file_source.dart';
