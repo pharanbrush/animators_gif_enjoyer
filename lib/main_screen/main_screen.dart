@@ -1,5 +1,6 @@
 import 'dart:ui' as ui;
 
+import 'package:animators_gif_enjoyer/functionality/frame_sliders.dart';
 import 'package:animators_gif_enjoyer/functionality/gif_frame_info.dart'
     as gif_frame_info;
 import 'package:animators_gif_enjoyer/functionality/zooming.dart';

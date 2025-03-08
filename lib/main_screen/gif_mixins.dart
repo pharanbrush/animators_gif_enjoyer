@@ -1,8 +1,8 @@
+import 'package:animators_gif_enjoyer/functionality/frame_sliders.dart';
 import 'package:animators_gif_enjoyer/functionality/gif_frame_advancer.dart';
 import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
 import 'package:animators_gif_enjoyer/main_screen/frame_base.dart';
 import 'package:animators_gif_enjoyer/main_screen/main_screen.dart';
-import 'package:animators_gif_enjoyer/main_screen/main_screen_widgets.dart';
 import 'package:animators_gif_enjoyer/phlutter/value_notifier_extensions.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
