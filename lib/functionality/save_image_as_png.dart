@@ -8,6 +8,7 @@ import 'package:sanitize_filename/sanitize_filename.dart';
 typedef AccumulatedFilesCallback = void Function(int totalFilesAccumulated);
 typedef FilesDoneCheckCallback = void Function(
     int totalFiles, Directory? directory);
+typedef VoidCallback = void Function();
 
 ///
 /// Asks for a folder to save to, then saves each image as a png.
@@ -19,8 +20,8 @@ Future<void> savePngSequenceFromImageList(
   bool useSubfolder = true,
   bool useBaseZero = true,
   AccumulatedFilesCallback? onFileSaveProgress,
-  ui.VoidCallback? onExportStart,
-  ui.VoidCallback? onSomeFilesNotSaved,
+  VoidCallback? onExportStart,
+  VoidCallback? onSomeFilesNotSaved,
   FilesDoneCheckCallback? onExportCanceled,
   ValueListenable? exportCancel,
   FilesDoneCheckCallback? onExportSuccess,
