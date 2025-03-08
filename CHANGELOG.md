@@ -1,6 +1,6 @@
 Animator's GIF Enjoyer Deluxe Changelog
 ===
-### 1.0.14 (2025 Mar 7)
+### 1.0.14 (2025 Mar 8)
 - Allow the image sequence import to parse non-padded number sequences. It will still fall back to alphabetical when it fails to find a number sequence.
 
 ### 1.0.13 (2025 Mar 6)
