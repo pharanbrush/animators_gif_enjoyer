@@ -1,5 +1,8 @@
 import 'dart:ui' as ui;
 
+import 'package:animators_gif_enjoyer/functionality/gif_frame_info.dart'
+    as gif_frame_info;
+import 'package:animators_gif_enjoyer/functionality/zooming.dart';
 import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
 import 'package:animators_gif_enjoyer/interface/shortcuts.dart';
 import 'package:animators_gif_enjoyer/main.dart';
@@ -22,8 +25,7 @@ import 'package:animators_gif_enjoyer/utils/build_info.dart' as build_info;
 import 'package:animators_gif_enjoyer/functionality/download_file.dart';
 import 'package:animators_gif_enjoyer/functionality/open_file.dart'
     as open_file;
-import 'package:animators_gif_enjoyer/phlutter/phclipboard.dart'
-    as phclipboard;
+import 'package:animators_gif_enjoyer/phlutter/phclipboard.dart' as phclipboard;
 import 'package:animators_gif_enjoyer/utils/plural.dart';
 import 'package:animators_gif_enjoyer/functionality/reveal_file_source.dart';
 import 'package:animators_gif_enjoyer/functionality/save_image_as_png.dart';
@@ -84,12 +86,12 @@ class GifEnjoyerMainPage extends StatefulWidget {
   final String? initialThemeString;
 
   @override
-  State<GifEnjoyerMainPage> createState() => _GifEnjoyerMainPageState();
+  State<GifEnjoyerMainPage> createState() => GifEnjoyerMainPageState();
 }
 
 const bool isPlayOnLoad = true;
 
-class _GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
+class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
     with
         SingleTickerProviderStateMixin,
         WindowListener,
@@ -100,21 +102,14 @@ class _GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
         ThemeCycler,
         GifEnjoyerWindowPreferences,
         WindowSizeRememberer,
+        Zoomer,
         Exporter {
   final FocusNode mainWindowFocus = FocusNode(canRequestFocus: true);
+  late GifEnjoyerMainPageStateShortcuts shortcuts =
+      GifEnjoyerMainPageStateShortcuts(this);
 
-  final Map<Type, Action<Intent>> shortcutActions = {};
-  late List<(Type, Object? Function(Intent))> shortcutIntentActions = [
-    (PreviousIntent, (_) => incrementFrame(-1)),
-    (NextIntent, (_) => incrementFrame(1)),
-    (CopyIntent, (_) => tryCopyFrameToClipboard()),
-    (OpenTextMenu, (_) => bottomTextPanel.open()),
-    (PasteAndGoIntent, (_) => openTextPanelAndPaste()),
-    (PlayPauseIntent, (_) => togglePlayPause()),
-    (EscapeIntent, (_) => handleEscapeIntent()),
-    (FirstFrameIntent, (_) => setCurrentFrameToFirst()),
-    (LastFrameIntent, (_) => setCurrentFrameToLast()),
-  ];
+  bool get isAppBusy =>
+      (inProgressExport != null) || (inProgressLoadingProcess != null);
 
   late final ModalTextPanel bottomTextPanel = ModalTextPanel(
     onClosed: () {
@@ -144,13 +139,6 @@ class _GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
         onSubmitButtonPressed: onSubmitButtonPressed,
       );
     },
-  );
-
-  bool get isAppBusy =>
-      (inProgressExport != null) || (inProgressLoadingProcess != null);
-
-  final zoomLevelNotifier = ValueNotifier<double>(
-    ScrollZoomContainer.defaultZoom,
   );
 
   //
@@ -222,8 +210,16 @@ class _GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
 
   @override
   Widget build(BuildContext context) {
+    final mainLayerWidget = shortcuts.shortcutsWrapper(
+      child: Focus(
+        focusNode: mainWindowFocus,
+        autofocus: true,
+        child: mainLayer(context),
+      ),
+    );
+
     final windowContents = <Widget>[
-      shortcutsWrapper(child: mainLayer(context)),
+      mainLayerWidget,
       topLeftControls(context),
       bottomTextPanel.widget(),
       fileDropTarget(context),
@@ -535,7 +531,7 @@ class _GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
           children: [
             Expanded(
               child: ZoomConstraintsContainerBuilder(
-                minPixelDimension: 22, // Size of a Discord inline emote
+                minPixelDimension: minZoomingPixelDimension,
                 contentWidth: loadedGifInfo.width.toDouble(),
                 contentHeight: loadedGifInfo.height.toDouble(),
                 builder: (_, getFitZoom, getMinZoom, getMaxZoom) {
@@ -786,41 +782,8 @@ class _GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
       );
     }
 
-    String getFramerateLabel() {
-      if (loadedGifInfo.isNonAnimated) {
-        return 'Not animated ';
-      }
-
-      const millisecondsUnit = 'ms';
-      const msPerFrameUnit = '$millisecondsUnit/frame';
-
-      final frameDuration = loadedGifInfo.frameDuration;
-      switch (frameDuration) {
-        case null:
-          return 'Variable frame durations';
-        case <= const Duration(milliseconds: 10):
-          return '${frameDuration.inMilliseconds} $msPerFrameUnit';
-        default:
-          final frameMicroseconds = frameDuration.inMicroseconds;
-          final fps = 1000000.0 / frameMicroseconds;
-          final frameMilliseconds =
-              frameMicroseconds / 1000.0; // prevent rounding.
-
-          final fpsText = (fps - fps.truncate() == 0)
-              ? fps.toStringAsFixed(0)
-              : "~${fps.toStringAsFixed(2)}";
-          final millisecondsText =
-              (frameMilliseconds - frameMilliseconds.truncate() == 0)
-                  ? frameMilliseconds.toStringAsFixed(0)
-                  : frameMilliseconds.toStringAsFixed(2);
-
-          return '$fpsText fps '
-              '($millisecondsText $msPerFrameUnit) ';
-      }
-    }
-
     return Text(
-      '${getFramerateLabel()}- ${getImageDimensionsLabel()}',
+      '${gif_frame_info.getFramerateLabel(loadedGifInfo)}- ${getImageDimensionsLabel()}',
       style: smallGrayStyle,
     );
   }
@@ -853,26 +816,6 @@ class _GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
     );
   }
 
-  Widget shortcutsWrapper({required Widget child}) {
-    if (shortcutActions.isEmpty) {
-      for (var (intentType, callback) in shortcutIntentActions) {
-        shortcutActions[intentType] = CallbackAction(onInvoke: callback);
-      }
-    }
-
-    return Shortcuts(
-      shortcuts: Phshortcuts.intentMap,
-      child: Actions(
-        actions: shortcutActions,
-        child: Focus(
-          focusNode: mainWindowFocus,
-          autofocus: true,
-          child: child,
-        ),
-      ),
-    );
-  }
-
   //
   // UI Controls
   //
@@ -902,28 +845,12 @@ class _GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
   //
 
   Widget getFramerateTooltip() {
-    if (!isGifLoaded || loadedGifInfo.isNonAnimated) {
+    if (!isGifLoaded ||
+        !gif_frame_info.showWeirdFramerateWarning(loadedGifInfo)) {
       return const SizedBox.shrink();
     }
 
-    if (loadedGifInfo.frameDuration == null) {
-      return const SizedBox.shrink();
-    }
-
-    final frameMilliseconds = loadedGifInfo.frameDuration!.inMilliseconds;
-    final fpsDouble = 1000.0 / frameMilliseconds;
-    if (frameMilliseconds > 0 && GifPlayer.isFpsWhole(fpsDouble)) {
-      return const SizedBox.shrink();
-    }
-
-    String message =
-        'GIF frames are each encoded with intervals in 10 millisecond increments.\n'
-        'This makes their actual framerate potentially variable,\n'
-        'and often not precisely fitting common video framerates.';
-    if (frameMilliseconds <= 10) {
-      message = 'Browsers usually reinterpret delays\n'
-          'below 20 milliseconds as 100 milliseconds.';
-    }
+    final message = gif_frame_info.getFramerateTooltipMessage(loadedGifInfo);
 
     return Tooltip(
       message: message,
@@ -1099,7 +1026,11 @@ class _GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
       var gifFrames = await gifFrameLoading;
       inProgressLoadingProcess = null;
 
-      await loadGifFromGifFrames(gifFrames, folderPath);
+      await loadGifFromGifFrames(
+        gifFrames,
+        folderPath,
+        isImageSequence: true,
+      );
 
       final frameCount = gifFrames.length;
       showSnackbar(
@@ -1162,4 +1093,39 @@ class _GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
   @override
   String getNextCycleTheme(String currentValue) =>
       app_theme.getNextCycleTheme(currentValue);
+}
+
+class GifEnjoyerMainPageStateShortcuts {
+  GifEnjoyerMainPageStateShortcuts(this.state);
+
+  final GifEnjoyerMainPageState state;
+
+  final Map<Type, Action<Intent>> shortcutActions = {};
+  late List<(Type, Object? Function(Intent))> shortcutIntentActions = [
+    (PreviousIntent, (_) => state.incrementFrame(-1)),
+    (NextIntent, (_) => state.incrementFrame(1)),
+    (CopyIntent, (_) => state.tryCopyFrameToClipboard()),
+    (OpenTextMenu, (_) => state.bottomTextPanel.open()),
+    (PasteAndGoIntent, (_) => state.openTextPanelAndPaste()),
+    (PlayPauseIntent, (_) => state.togglePlayPause()),
+    (EscapeIntent, (_) => state.handleEscapeIntent()),
+    (FirstFrameIntent, (_) => state.setCurrentFrameToFirst()),
+    (LastFrameIntent, (_) => state.setCurrentFrameToLast()),
+  ];
+
+  Widget shortcutsWrapper({required Widget child}) {
+    if (shortcutActions.isEmpty) {
+      for (var (intentType, callback) in shortcutIntentActions) {
+        shortcutActions[intentType] = CallbackAction(onInvoke: callback);
+      }
+    }
+
+    return Shortcuts(
+      shortcuts: Phshortcuts.intentMap,
+      child: Actions(
+        actions: shortcutActions,
+        child: child,
+      ),
+    );
+  }
 }

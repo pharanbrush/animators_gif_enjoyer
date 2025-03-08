@@ -207,10 +207,6 @@ mixin GifPlayer<T extends StatefulWidget>
           .toInt();
     });
   }
-
-  static bool isFpsWhole(double fps) {
-    return fps.floorToDouble() == fps;
-  }
 }
 
 mixin GifLoader on GifPlayer<GifEnjoyerMainPage> {
@@ -218,14 +214,23 @@ mixin GifLoader on GifPlayer<GifEnjoyerMainPage> {
 
   final ValueNotifier<bool> isGifDownloading = ValueNotifier(false);
   final ValueNotifier<double> gifDownloadPercent = ValueNotifier(0.0);
+
   void onGifDownloadSuccess();
   void onGifLoadError(String errorMessage);
 
-  Future loadGifFromGifFrames(List<GifFrame> frames, String source) async {
+  Future loadGifFromGifFrames(
+    List<GifFrame> frames,
+    String source, {
+    bool isImageSequence = false,
+  }) async {
     onStartLoadNewGif();
 
     try {
-      loadedGifInfo = GifInfo.fromFrames(fileSource: source, frames: frames);
+      loadedGifInfo = GifInfo.fromFrames(
+        fileSource: source,
+        frames: frames,
+        isImageSequence: isImageSequence,
+      );
       gifController.load(frames);
       gifAdvancer.setFrames(frames);
 
@@ -360,6 +365,7 @@ class GifInfo {
     required this.height,
     required this.frameDuration,
     required this.isLoaded,
+    this.isImageSequence = false,
     this.isNonAnimated = false,
   });
 
@@ -367,6 +373,7 @@ class GifInfo {
     required this.fileSource,
     required List<GifFrame> frames,
     required ImageInfo imageInfo,
+    this.isImageSequence = false,
   })  : frameDuration = readFrameDuration(frames),
         width = imageInfo.image.width,
         height = imageInfo.image.height,
@@ -376,10 +383,12 @@ class GifInfo {
   GifInfo.fromFrames({
     required fileSource,
     required List<GifFrame> frames,
+    isImageSequence = false,
   }) : this._fromFramesAndImageInfo(
           fileSource: fileSource,
           frames: frames,
           imageInfo: frames[0].imageInfo,
+          isImageSequence: isImageSequence,
         );
 
   final String fileSource;
@@ -388,6 +397,7 @@ class GifInfo {
   final Duration? frameDuration;
   final bool isNonAnimated;
   final bool isLoaded;
+  final bool isImageSequence;
 
   Size get imageSize => Size(width.toDouble(), height.toDouble());
 
