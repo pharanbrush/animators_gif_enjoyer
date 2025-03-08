@@ -10,6 +10,8 @@ import 'package:animators_gif_enjoyer/main.dart';
 import 'package:animators_gif_enjoyer/main_screen/exporter_mixins.dart';
 import 'package:animators_gif_enjoyer/main_screen/frame_base.dart';
 import 'package:animators_gif_enjoyer/main_screen/gif_enjoyer_preferences.dart';
+import 'package:animators_gif_enjoyer/main_screen/gif_enjoyer_preferences.dart'
+    as gif_enjoyer_preferences;
 import 'package:animators_gif_enjoyer/main_screen/gif_mixins.dart';
 import 'package:animators_gif_enjoyer/main_screen/menu_items.dart'
     as menu_items;
@@ -626,6 +628,9 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                     gifController: gifController,
                     enabled: isPlayModeAvailable && isScrubMode.value,
                     allowWideNotifier: allowWideSliderNotifier,
+                    toggleWideSlider: () =>
+                        gif_enjoyer_preferences.toggleAllowWideSliderPreference(
+                            allowWideSliderNotifier),
                     onChange: clampCurrentFrameAndShow,
                     displayedFrameOffset: displayedFrameBaseOffset,
                   ),

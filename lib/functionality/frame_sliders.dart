@@ -2,8 +2,6 @@ import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
 import 'package:animators_gif_enjoyer/main_screen/theme.dart';
 import 'package:animators_gif_enjoyer/phlutter/windows/scroll_listener.dart';
 import 'package:flutter/material.dart';
-import 'package:animators_gif_enjoyer/main_screen/gif_enjoyer_preferences.dart'
-    as gif_enjoyer_preferences;
 
 class FrameRangeSlider extends StatelessWidget {
   const FrameRangeSlider({
@@ -111,11 +109,13 @@ class MainSlider extends StatelessWidget {
     required this.enabled,
     required this.onChange,
     required this.allowWideNotifier,
+    required this.toggleWideSlider,
     this.displayedFrameOffset = 0,
   });
 
   final int displayedFrameOffset;
   final VoidCallback toggleUseFocus;
+  final VoidCallback toggleWideSlider;
   final RangeValues primarySliderRange;
   final ValueNotifier<bool> isUsingFocusRange;
   final ValueNotifier<int> currentFrame;
@@ -171,12 +171,7 @@ class MainSlider extends StatelessWidget {
                 ),
               ),
               child: GestureDetector(
-                onTertiaryTapDown: (_) async {
-                  gif_enjoyer_preferences
-                      .storeAllowWideSliderPreference(!allowWideNotifier.value);
-                  allowWideNotifier.value = await gif_enjoyer_preferences
-                      .getAllowWideSliderPreference();
-                },
+                onTertiaryTapDown: (_) => toggleWideSlider(),
                 child: SizedBox(
                   width: allowWideValue ? null : width,
                   child: Focus(
