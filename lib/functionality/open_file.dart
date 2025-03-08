@@ -148,6 +148,11 @@ int regexSequenceCompare(FileImage a, FileImage b) {
 
   final numA = int.parse(matchA.group(1)!);
   final numB = int.parse(matchB.group(1)!);
+  final int sequenceComparison = numA.compareTo(numB);
 
-  return numA.compareTo(numB);
+  if (sequenceComparison == 0) {
+    return a.file.name.compareTo(b.file.name);
+  }
+
+  return sequenceComparison;
 }
