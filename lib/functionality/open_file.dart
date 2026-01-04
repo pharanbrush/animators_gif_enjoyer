@@ -4,11 +4,12 @@ import 'package:animators_gif_enjoyer/utils/path_extensions.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 
-const acceptedExtensions = ['gif', 'webp', 'apng', 'png'];
+const acceptedExtensions = ['gif', 'webp', 'apng', 'png', 'avif'];
 
-Future<(FileImage? gifImage, String? fullFilePath)> openGifImageFile() async {
+Future<(FileImage? gifImage, String? fullFilePath)>
+    userOpenFilePickerForImages() async {
   const typeGroup = XTypeGroup(
-    label: 'GIFs',
+    label: 'Animated Images',
     extensions: acceptedExtensions,
   );
 

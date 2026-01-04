@@ -26,6 +26,17 @@ String filenameWithoutExtension(String filenameWithExtension) {
   return filenameWithExtension.substring(0, dotIndex);
 }
 
+String? getExtensionFromUri(Uri uri) {
+  final segments = uri.pathSegments;
+  if (segments.isEmpty) return null;
+  
+  final lastSegment = segments.last;
+  final dotIndex = lastSegment.lastIndexOf('.');
+  if (dotIndex == -1) return null;
+  
+  return lastSegment.substring(dotIndex + 1);
+}
+
 String filenameFromFullPathWithoutExtensions(String fullPath) {
   return filenameWithoutExtension(filenameFromFullPath(fullPath));
 }

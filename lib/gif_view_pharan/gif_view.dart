@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'dart:ui';
 
+import 'package:animators_gif_enjoyer/functionality/avif_enjoyer.dart'
+    as avif_enjoyer;
+import 'package:animators_gif_enjoyer/utils/path_extensions.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -40,7 +43,7 @@ Future<List<GifFrame>> loadGifFramesFromImages({
 }) async {
   const defaultDuration = Duration(milliseconds: 40); // 40ms is 25 fps
   final appliedFrameDuration = frameDuration ?? defaultDuration;
-  List<GifFrame> frameList = [];
+  final frameList = <GifFrame>[];
 
   try {
     int width = 0;
@@ -96,7 +99,8 @@ Future<List<GifFrame>> loadGifFrames({
   ValueChanged<Object?>? onError,
   ValueChanged<double>? onProgressPercent,
 }) async {
-  List<GifFrame> frameList = [];
+  final frameList = <GifFrame>[];
+  Uri? sourceUri;
   try {
     Uint8List? data;
 
@@ -104,6 +108,7 @@ Future<List<GifFrame>> loadGifFrames({
       case NetworkImage ni:
         {
           final Uri resolvedUri = Uri.base.resolve(ni.url);
+          sourceUri = resolvedUri;
           Map<String, String> headers = {};
           ni.headers?.forEach((String name, String value) {
             headers[name] = value;
@@ -120,14 +125,14 @@ Future<List<GifFrame>> loadGifFrames({
             streamedResponse.stream.listen((value) {
               bytes.addAll(value);
               received += value.length;
-              if (total > 0) {
-                onProgressPercent(received.toDouble() / total.toDouble());
-              }
             }).onDone(() {
               isDownloadDone = true;
             });
 
             while (!isDownloadDone) {
+              if (total > 0) {
+                onProgressPercent(received.toDouble() / total.toDouble());
+              }
               await Future.delayed(const Duration(milliseconds: 100));
             }
             onProgressPercent(1);
@@ -151,6 +156,7 @@ Future<List<GifFrame>> loadGifFrames({
         data = mi.bytes;
 
       case FileImage fi:
+        sourceUri = fi.file.uri;
         data = await fi.file.readAsBytes();
     }
 
@@ -158,7 +164,19 @@ Future<List<GifFrame>> loadGifFrames({
       return [];
     }
 
-    Codec codec = await instantiateImageCodec(
+    // This part overrides the use of dart::ui.Codec
+    // for formats that it doesn't support.
+    if (sourceUri != null) {
+      final extension = getExtensionFromUri(sourceUri);
+      if (extension != null) {
+        final isAvif = extension.toLowerCase().startsWith('avif');
+        if (isAvif) {
+          return await avif_enjoyer.loadGifFramesFromAvifFrames(data);
+        }
+      }
+    }
+
+    final Codec codec = await instantiateImageCodec(
       data,
       allowUpscaling: false,
     );

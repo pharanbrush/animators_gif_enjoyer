@@ -875,7 +875,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
   void openNewFile() async {
     if (isAppBusy) return;
 
-    var (gifImage, name) = await open_file.openGifImageFile();
+    var (gifImage, name) = await open_file.userOpenFilePickerForImages();
     if (gifImage == null || name == null) return;
 
     loadGifFromProvider(gifImage, name);

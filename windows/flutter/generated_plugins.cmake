@@ -6,6 +6,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   contextual_menu
   desktop_drop
   file_selector_windows
+  flutter_avif_windows
   irondash_engine_context
   screen_retriever_windows
   super_native_extensions
