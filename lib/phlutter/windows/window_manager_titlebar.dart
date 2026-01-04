@@ -184,7 +184,7 @@ class ExtraTitlebarButtonsContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     const double buttonSize = 20;
     Color buttonColor =
-        Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.4);
+        Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.4);
 
     final iconButtonStyle = ButtonStyle(
       alignment: Alignment.topCenter,
@@ -194,7 +194,7 @@ class ExtraTitlebarButtonsContainer extends StatelessWidget {
       shape: const WidgetStatePropertyAll(_extraButtonShape),
       iconColor: _hoverActiveColors(
         idle: buttonColor,
-        hover: buttonColor.withOpacity(1),
+        hover: buttonColor.withValues(alpha: 1),
         active: Theme.of(context).colorScheme.primary,
       ),
     );
@@ -314,8 +314,7 @@ class DefaultWindowButtonSet extends StatelessWidget {
           WindowButton(
             icon: const Icon(Icons.close),
             style: iconButtonStyle.copyWith(
-                overlayColor:
-                    const WidgetStatePropertyAll(Colors.transparent),
+                overlayColor: const WidgetStatePropertyAll(Colors.transparent),
                 backgroundColor: _hoverPressedColors(
                   idle: Colors.transparent,
                   hover: _closeButttonHoverBgColor,
@@ -458,7 +457,6 @@ WidgetStateProperty<Color> _hoverActiveColors({
     return idle;
   });
 }
-
 
 // class DebugDecoration extends StatelessWidget {
 //   const DebugDecoration(this.color, {super.key, required this.child});

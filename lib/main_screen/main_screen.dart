@@ -270,7 +270,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
     final activeColor = Theme.of(context).colorScheme.tertiary;
     final activeButtonStyle = ButtonStyle(
       foregroundColor: hoverColors(
-        idle: activeColor.withOpacity(0.75),
+        idle: activeColor.withValues(alpha: 0.75),
         hover: activeColor,
       ),
     );
