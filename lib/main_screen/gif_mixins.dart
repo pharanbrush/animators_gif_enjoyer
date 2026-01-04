@@ -381,7 +381,7 @@ class GifInfo {
         isLoaded = true;
 
   GifInfo.fromFrames({
-    required fileSource,
+    required String fileSource,
     required List<GifFrame> frames,
     isImageSequence = false,
   }) : this._fromFramesAndImageInfo(

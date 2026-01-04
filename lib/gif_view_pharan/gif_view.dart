@@ -31,7 +31,7 @@ class GifFrame {
   const GifFrame(this.imageInfo, this.duration);
 }
 
-/// Loads a List<GifFrame> from a List<FileImage> that can then be passed
+/// Loads a [GifFrame] List from a [FileImage] List that can then be passed
 /// to [GifController.load].
 Future<List<GifFrame>> loadGifFramesFromImages({
   required List<FileImage> fileImages,
@@ -89,7 +89,7 @@ Future<List<GifFrame>> loadGifFramesFromImages({
   return frameList;
 }
 
-/// Loads a List<GifFrame> from an ImageProvider which can then be passed
+/// Loads a [GifFrame] List from an ImageProvider which can then be passed
 /// to [GifController.load].
 Future<List<GifFrame>> loadGifFrames({
   required ImageProvider provider,
