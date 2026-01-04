@@ -1,3 +1,5 @@
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
+
 import 'window_manager_titlebar.dart';
 import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
@@ -87,8 +89,8 @@ class _KeepWindowOnTopButtonState extends State<KeepWindowOnTopButton> {
               ? 'Click to disable Keep window on top'
               : 'Click to enable Keep window on top',
           icon: value
-              ? const Icon(Icons.picture_in_picture_alt)
-              : const Icon(Icons.picture_in_picture_alt_outlined),
+              ? const Icon(FluentIcons.pin_12_filled)
+              : const Icon(FluentIcons.pin_12_regular),
           onPressed: toggleNotifier,
         );
       },
