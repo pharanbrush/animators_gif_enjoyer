@@ -1036,6 +1036,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
         gifFrames,
         folderPath,
         isImageSequence: true,
+        isGif: false,
       );
 
       final frameCount = gifFrames.length;

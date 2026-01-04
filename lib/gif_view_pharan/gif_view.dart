@@ -3,7 +3,8 @@ import 'dart:ui';
 
 import 'package:animators_gif_enjoyer/functionality/avif_enjoyer.dart'
     as avif_enjoyer;
-import 'package:animators_gif_enjoyer/utils/path_extensions.dart';
+import 'package:animators_gif_enjoyer/utils/path_extensions.dart'
+    as path_extensions;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -100,7 +101,6 @@ Future<List<GifFrame>> loadGifFrames({
   ValueChanged<double>? onProgressPercent,
 }) async {
   final frameList = <GifFrame>[];
-  Uri? sourceUri;
   try {
     Uint8List? data;
 
@@ -108,7 +108,6 @@ Future<List<GifFrame>> loadGifFrames({
       case NetworkImage ni:
         {
           final Uri resolvedUri = Uri.base.resolve(ni.url);
-          sourceUri = resolvedUri;
           Map<String, String> headers = {};
           ni.headers?.forEach((String name, String value) {
             headers[name] = value;
@@ -156,7 +155,6 @@ Future<List<GifFrame>> loadGifFrames({
         data = mi.bytes;
 
       case FileImage fi:
-        sourceUri = fi.file.uri;
         data = await fi.file.readAsBytes();
     }
 
@@ -166,14 +164,8 @@ Future<List<GifFrame>> loadGifFrames({
 
     // This part overrides the use of dart::ui.Codec
     // for formats that it doesn't support.
-    if (sourceUri != null) {
-      final extension = getExtensionFromUri(sourceUri);
-      if (extension != null) {
-        final isAvif = extension.toLowerCase().startsWith('avif');
-        if (isAvif) {
-          return await avif_enjoyer.loadGifFramesFromAvifFrames(data);
-        }
-      }
+    if (isProviderHasFileExtension(provider, extension: 'avif')) {
+      return await avif_enjoyer.loadGifFramesFromAvifFrames(data);
     }
 
     final Codec codec = await instantiateImageCodec(
@@ -199,6 +191,29 @@ Future<List<GifFrame>> loadGifFrames({
   }
 
   return frameList;
+}
+
+bool isProviderHasFileExtension(
+  ImageProvider provider, {
+  required String extension,
+}) {
+  Uri? sourceUri;
+  switch (provider) {
+    case NetworkImage ni:
+      final Uri resolvedUri = Uri.base.resolve(ni.url);
+      sourceUri = resolvedUri;
+    case FileImage fi:
+      sourceUri = fi.file.uri;
+  }
+
+  if (sourceUri != null) {
+    final providerExtension = path_extensions.getExtensionFromUri(sourceUri);
+    if (providerExtension != null) {
+      return providerExtension.toLowerCase().startsWith(extension);
+    }
+  }
+
+  return false;
 }
 
 class GifView extends StatefulWidget {

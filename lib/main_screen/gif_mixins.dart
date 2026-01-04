@@ -222,6 +222,7 @@ mixin GifLoader on GifPlayer<GifEnjoyerMainPage> {
     List<GifFrame> frames,
     String source, {
     bool isImageSequence = false,
+    bool isGif = false,
   }) async {
     onStartLoadNewGif();
 
@@ -230,6 +231,7 @@ mixin GifLoader on GifPlayer<GifEnjoyerMainPage> {
         fileSource: source,
         frames: frames,
         isImageSequence: isImageSequence,
+        isGif: isGif,
       );
       gifController.load(frames);
       gifAdvancer.setFrames(frames);
@@ -254,6 +256,7 @@ mixin GifLoader on GifPlayer<GifEnjoyerMainPage> {
     isGifDownloading.value = false;
     inProgressLoadingProcess = null;
     onGifLoadSuccess();
+    setState(() {});
   }
 
   void loadGifFromProvider(
@@ -277,7 +280,11 @@ mixin GifLoader on GifPlayer<GifEnjoyerMainPage> {
       inProgressLoadingProcess = gifDownload;
       final frames = await gifDownload;
       gifImageProvider = provider;
-      loadedGifInfo = GifInfo.fromFrames(fileSource: source, frames: frames);
+      loadedGifInfo = GifInfo.fromFrames(
+        fileSource: source,
+        frames: frames,
+        isGif: isProviderHasFileExtension(provider, extension: 'gif'),
+      );
       gifController.load(frames);
       gifAdvancer.setFrames(frames);
       inProgressLoadingProcess = null;
@@ -365,6 +372,7 @@ class GifInfo {
     required this.height,
     required this.frameDuration,
     required this.isLoaded,
+    this.isGif = false,
     this.isImageSequence = false,
     this.isNonAnimated = false,
   });
@@ -374,6 +382,7 @@ class GifInfo {
     required List<GifFrame> frames,
     required ImageInfo imageInfo,
     this.isImageSequence = false,
+    required this.isGif,
   })  : frameDuration = readFrameDuration(frames),
         width = imageInfo.image.width,
         height = imageInfo.image.height,
@@ -384,11 +393,13 @@ class GifInfo {
     required String fileSource,
     required List<GifFrame> frames,
     isImageSequence = false,
+    required isGif,
   }) : this._fromFramesAndImageInfo(
           fileSource: fileSource,
           frames: frames,
           imageInfo: frames[0].imageInfo,
           isImageSequence: isImageSequence,
+          isGif: isGif,
         );
 
   final String fileSource;
@@ -398,6 +409,7 @@ class GifInfo {
   final bool isNonAnimated;
   final bool isLoaded;
   final bool isImageSequence;
+  final bool isGif;
 
   Size get imageSize => Size(width.toDouble(), height.toDouble());
 

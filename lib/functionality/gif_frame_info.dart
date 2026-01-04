@@ -10,6 +10,10 @@ bool showWeirdFramerateWarning(GifInfo gifInfo) {
     return false;
   }
 
+  if (!gifInfo.isGif) {
+    return false;
+  }
+
   if (gifInfo.isImageSequence) {
     return false;
   }
