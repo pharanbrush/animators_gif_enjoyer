@@ -329,7 +329,7 @@ class GifViewState extends State<GifView> with TickerProviderStateMixin {
   void initState() {
     controller = widget.controller ?? GifController();
     controller.addListener(_listener);
-    Future.delayed(Duration.zero, _loadImage);
+    // Future.delayed(Duration.zero, _loadImage);
     super.initState();
   }
 
@@ -361,16 +361,16 @@ class GifViewState extends State<GifView> with TickerProviderStateMixin {
     );
   }
 
-  FutureOr _loadImage({bool updateFrames = false}) async {
-    final imageProvider = widget.image;
+  // FutureOr _loadImage({bool updateFrames = false}) async {
+  //   final imageProvider = widget.image;
 
-    if (imageProvider == null) return;
-    final frames = await loadGifFrames(
-      provider: imageProvider,
-      onError: widget.onError,
-    );
-    controller.load(frames, updateFrames: updateFrames);
-  }
+  //   if (imageProvider == null) return;
+  //   final frames = await loadGifFrames(
+  //     provider: imageProvider,
+  //     onError: widget.onError,
+  //   );
+  //   controller.load(frames, updateFrames: updateFrames);
+  // }
 
   @override
   void dispose() {
