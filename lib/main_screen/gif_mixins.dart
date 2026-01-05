@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:animators_gif_enjoyer/functionality/frame_sliders.dart';
 import 'package:animators_gif_enjoyer/functionality/gif_frame_advancer.dart';
 import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
@@ -46,8 +48,8 @@ mixin GifPlayer<T extends StatefulWidget>
   );
   int get lastGifFrame => gifController.frameCount - 1;
 
-  bool get isGifLoaded => loadedGifInfo.isLoaded;
-  bool get isPlayModeAvailable => isGifLoaded && !loadedGifInfo.isNonAnimated;
+  bool get isImageLoaded => loadedGifInfo.isLoaded;
+  bool get isPlayModeAvailable => isImageLoaded && !loadedGifInfo.isNonAnimated;
 
   /// Tries to get the filename of the loaded GIF.
   String tryGetNameFromGifImageProvider({required String defaultName}) {
@@ -212,11 +214,11 @@ mixin GifPlayer<T extends StatefulWidget>
 mixin GifLoader on GifPlayer<GifEnjoyerMainPage> {
   Future? inProgressLoadingProcess;
 
-  final ValueNotifier<bool> isGifDownloading = ValueNotifier(false);
-  final ValueNotifier<double> gifDownloadPercent = ValueNotifier(0.0);
+  final ValueNotifier<bool> isImageLoading = ValueNotifier(false);
+  final ValueNotifier<double> imageLoadPercent = ValueNotifier(0.0);
 
-  void onGifDownloadSuccess();
-  void onGifLoadError(String errorMessage);
+  void onImageDownloadSuccess();
+  void onImageLoadError(String errorMessage);
 
   Future loadGifFromGifFrames(
     List<GifFrame> frames,
@@ -242,7 +244,7 @@ mixin GifLoader on GifPlayer<GifEnjoyerMainPage> {
         resetViewerStateAfterLoad();
       });
     } catch (e) {
-      onGifLoadError(e.toString());
+      onImageLoadError(e.toString());
       inProgressLoadingProcess = null;
     }
   }
@@ -253,7 +255,7 @@ mixin GifLoader on GifPlayer<GifEnjoyerMainPage> {
     maxFrameIndex.value = lastFrame;
     currentFrame.value = 0;
     playSpeedController.resetSpeed();
-    isGifDownloading.value = false;
+    isImageLoading.value = false;
     inProgressLoadingProcess = null;
     onGifLoadSuccess();
     setState(() {});
@@ -267,18 +269,35 @@ mixin GifLoader on GifPlayer<GifEnjoyerMainPage> {
 
     try {
       final isDownload = provider is NetworkImage;
-      isGifDownloading.value = isDownload;
+      final isAvif = isProviderHasFileExtension(provider, extension: 'avif');
 
-      var gifDownload = loadGifFrames(
+      isImageLoading.value = isDownload || isAvif;
+
+      final void Function(double)? onProgressPercent = isDownload || isAvif
+          ? (loadingPercent) {
+              imageLoadPercent.value = loadingPercent;
+            }
+          : null;
+
+      final gifLoadProcess = loadGifFrames(
         provider: provider,
-        onProgressPercent: isDownload
-            ? (downloadPercent) {
-                gifDownloadPercent.value = downloadPercent;
-              }
-            : null,
+        onProgressPercent: onProgressPercent,
       );
-      inProgressLoadingProcess = gifDownload;
-      final frames = await gifDownload;
+
+      final optionalTimeout = Future.delayed(
+        Duration(seconds: 4),
+        () {
+          if (isImageLoading.value && imageLoadPercent.value <= 0) {
+            throw TimeoutException(
+                "Image loading failed. File may be incompatible.");
+          }
+        },
+      );
+
+      inProgressLoadingProcess = gifLoadProcess;
+      await Future.any([gifLoadProcess, optionalTimeout]);
+
+      final frames = await gifLoadProcess;
       gifImageProvider = provider;
       loadedGifInfo = GifInfo.fromFrames(
         fileSource: source,
@@ -292,9 +311,11 @@ mixin GifLoader on GifPlayer<GifEnjoyerMainPage> {
       setState(() {
         resetViewerStateAfterLoad();
         if (gifImageProvider is NetworkImage) {
-          onGifDownloadSuccess();
+          onImageDownloadSuccess();
         }
       });
+    } on TimeoutException catch (te) {
+      onImageLoadError(te.toString());
     } catch (e) {
       inProgressLoadingProcess = null;
 
@@ -304,16 +325,19 @@ mixin GifLoader on GifPlayer<GifEnjoyerMainPage> {
           if (uri.host.contains('tenor') && !uri.path.endsWith('gif')) {
             final gifLinkError = 'Cannot access : $source \n'
                 '(Tenor embed links currently do not work.)';
-            onGifLoadError(gifLinkError);
+            onImageLoadError(gifLinkError);
           }
         } catch (m) {
-          onGifLoadError(e.toString());
+          onImageLoadError(e.toString());
         }
       } else {
-        onGifLoadError(e.toString());
+        onImageLoadError(e.toString());
       }
 
-      isGifDownloading.value = false;
+      resetViewerStateAfterLoad();
+    } finally {
+      resetViewerStateAfterLoad();
+      inProgressLoadingProcess = null;
     }
   }
 }

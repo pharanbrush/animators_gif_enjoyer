@@ -175,7 +175,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
   }
 
   @override
-  void onGifDownloadSuccess() {
+  void onImageDownloadSuccess() {
     showSnackbar(
       label: 'Download complete',
       icon: const Icon(SnackbarShower.okIcon),
@@ -183,8 +183,8 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
   }
 
   @override
-  void onGifLoadError(String errorMessage) {
-    showGifLoadFailedAlert(errorMessage);
+  void onImageLoadError(String errorMessage) {
+    showImageLoadFailedAlert(errorMessage);
   }
 
   void handleEscapeIntent() {
@@ -225,7 +225,11 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
       mainLayerWidget,
       topLeftControls(context),
       bottomTextPanel.widget(),
-      fileDropTarget(context),
+      ValueListenableBuilder(
+        valueListenable: isImageLoading,
+        builder: (_, value, ___) =>
+            value ? const SizedBox.shrink() : fileDropTarget(context),
+      ),
     ];
 
     return WindowsPhwindow(
@@ -320,7 +324,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
       },
     );
 
-    final List<Widget> buttons = isGifLoaded
+    final List<Widget> buttons = isImageLoaded
         ? [
             cycleThemeButton,
             cyclePlaybackSpeedButton,
@@ -362,13 +366,13 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
       children: [
         Expanded(
           child: ValueListenableBuilder(
-            valueListenable: isGifDownloading,
-            builder: (_, isCurrentlyDownloading, __) {
-              if (isCurrentlyDownloading) {
-                return gifDownloadingIndicator(context);
+            valueListenable: isImageLoading,
+            builder: (_, isCurrentlyLoading, __) {
+              if (isCurrentlyLoading) {
+                return imageLoadingIndicator(context);
               }
 
-              return isGifLoaded
+              return isImageLoaded
                   ? loadedInterface(context)
                   : unloadedInterface(context);
             },
@@ -379,15 +383,15 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
     );
   }
 
-  Widget gifDownloadingIndicator(BuildContext context) {
+  Widget imageLoadingIndicator(BuildContext context) {
     return Center(
       child: SizedBox.square(
         dimension: 150,
         child: ValueListenableBuilder(
-          valueListenable: gifDownloadPercent,
-          builder: (_, percentDownloaded, __) {
+          valueListenable: imageLoadPercent,
+          builder: (_, percentLoaded, __) {
             return CircularProgressIndicator(
-              value: percentDownloaded < 0.1 ? null : percentDownloaded,
+              value: percentLoaded < 0.1 ? null : percentLoaded,
               strokeWidth: 8,
               strokeCap: StrokeCap.round,
             );
@@ -452,6 +456,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    const SizedBox(height: 20),
                     Text(
                       'Load a GIF!',
                       style: Theme.of(context).textTheme.headlineSmall,
@@ -461,6 +466,17 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                       'Use the button on the lower right.\n'
                       'Or drag and drop a GIF into the window.',
                       textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      '(Animated PNG, WEBP, and AVIF also work.)',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurfaceVariant
+                            .withValues(alpha: 0.4),
+                      ),
                     ),
                   ],
                 ),
@@ -664,7 +680,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                         displayedFrameOffset: displayedFrameBaseOffset,
                         startEnd: focusFrameRange,
                         maxFrameIndex: maxFrameIndex,
-                        enabled: isGifLoaded && isScrubMode.value,
+                        enabled: isImageLoaded && isScrubMode.value,
                         onChange: () => clampCurrentFrame(),
                         onChangeRangeStart: () =>
                             setDisplayedFrame(focusFrameRange.value.startInt),
@@ -734,7 +750,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
               direction: Axis.horizontal,
               spacing: 8,
               children: [
-                if (isGifLoaded)
+                if (isImageLoaded)
                   BottomPlayPauseButton(
                     isScrubMode: isScrubMode,
                     onPressed: () => togglePlayPause(),
@@ -757,7 +773,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
   }
 
   Widget bottomBarGifInfo(BuildContext context) {
-    if (!isGifLoaded) return const SizedBox.shrink();
+    if (!isImageLoaded) return const SizedBox.shrink();
     final smallGrayStyle = Theme.of(context).smallGrayStyle;
 
     final isAnimatedWithVariableFps = //
@@ -808,7 +824,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
 
         if (!open_file.isAcceptedFile(filename: file.name)) {
           showSnackbar(
-            label: 'Not a GIF',
+            label: 'Incompatible format.',
             icon: const Icon(SnackbarShower.errorIcon),
           );
 
@@ -840,7 +856,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
   }
 
   void tryCopyFrameToClipboard() {
-    if (!isGifLoaded) return;
+    if (!isImageLoaded) return;
     final image = gifController.currentFrameData.imageInfo.image;
     final suggestedName = "gifFrameg${gifController.currentFrame}.png";
     phclipboard.copyImageToClipboardAsPng(image, suggestedName);
@@ -851,7 +867,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
   //
 
   Widget getFramerateTooltip() {
-    if (!isGifLoaded ||
+    if (!isImageLoaded ||
         !gif_frame_info.showWeirdFramerateWarning(loadedGifInfo)) {
       return const SizedBox.shrink();
     }
@@ -892,7 +908,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
   }
 
   void tryExportPngSequence() async {
-    if (!isGifLoaded) return;
+    if (!isImageLoaded) return;
     if (isAppBusy) return;
 
     final imageList = gifController.frames
@@ -1082,9 +1098,9 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
   // Screen messages
   //
 
-  void showGifLoadFailedAlert(String errorText) {
+  void showImageLoadFailedAlert(String errorText) {
     showSnackbar(
-      label: 'GIF loading failed\n'
+      label: 'Loading failed\n'
           '$errorText',
       icon: const Icon(SnackbarShower.canceledIcon),
     );
