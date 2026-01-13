@@ -1,7 +1,8 @@
 import 'package:animators_gif_enjoyer/phlutter/app_theme_cycler.dart';
 import 'package:animators_gif_enjoyer/main_screen/main_screen.dart';
 import 'package:animators_gif_enjoyer/main_screen/theme.dart' as app_theme;
-import 'package:animators_gif_enjoyer/phlutter/remember_window_size.dart';
+import 'package:animators_gif_enjoyer/phlutter/remember_window_size.dart'
+    as remember_window_size;
 import 'package:animators_gif_enjoyer/phlutter/single_instance.dart';
 import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
@@ -12,8 +13,6 @@ const appName = "Animator's GIF Enjoyer Deluxe";
 bool appAllowMultipleInstances = false;
 String appFileToLoadFromMainArgs = '';
 Function()? onSecondWindow;
-
-bool appRememberSize = false;
 
 const appWindowIdentifier = 'animators_gif_enjoyer';
 
@@ -41,10 +40,11 @@ void main(List<String> args) async {
     );
   }
 
-  appRememberSize = await getRememberWindowSizePreference();
+  remember_window_size.appRememberWindowSize =
+      await remember_window_size.getRememberWindowSizePreference();
   final Size startingWindowSize;
-  if (appRememberSize) {
-    startingWindowSize = await getWindowSizePreference();
+  if (remember_window_size.appRememberWindowSize) {
+    startingWindowSize = await remember_window_size.getWindowSizePreference();
   } else {
     startingWindowSize = const Size(500, 540);
   }

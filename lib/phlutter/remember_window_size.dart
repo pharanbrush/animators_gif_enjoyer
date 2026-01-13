@@ -1,4 +1,3 @@
-import 'package:animators_gif_enjoyer/main.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:window_manager/window_manager.dart';
@@ -6,6 +5,8 @@ import 'package:window_manager/window_manager.dart';
 const rememberWindowSizeKey = 'remember_window_size';
 const windowWidthKey = 'window_width';
 const windowHeightKey = 'window_height';
+
+bool appRememberWindowSize = false;
 
 void storeRememberWindowSizePreference(bool remember) async {
   final prefs = await SharedPreferences.getInstance();
@@ -46,7 +47,7 @@ Future<void> storeCurrentWindowSize() async {
 
   final size = await windowManager.getSize();
   storeWindowSizePreference(size.width.toInt(), size.height.toInt());
-  //print('window size saved $size');
+  // debugPrint('window size saved $size');
 }
 
 mixin WindowSizeRememberer<T extends StatefulWidget>
@@ -72,11 +73,11 @@ mixin WindowSizeRememberer<T extends StatefulWidget>
   }
 
   void _handleWindowResize() {
-    //print('handleWindowResize');
+    // debugPrint("window resized");
     void queueSavetoPreferences() async {
-      if (!appRememberSize) return;
+      if (!appRememberWindowSize) return;
       int getLatestSaveCommandId() => _windowSizeSaveCommandId;
-      int saveCommandId = DateTime.now().millisecondsSinceEpoch;
+      final int saveCommandId = DateTime.now().millisecondsSinceEpoch;
       _windowSizeSaveCommandId = saveCommandId;
 
       const long = Duration(milliseconds: 250);
@@ -85,18 +86,18 @@ mixin WindowSizeRememberer<T extends StatefulWidget>
       for (final waitDuration in checkDurations) {
         await Future.delayed(waitDuration);
         if (getLatestSaveCommandId() != saveCommandId) {
-          //print('save canceled.');
+          // debugPrint('save canceled.');
           return;
         }
       }
 
       if (getLatestSaveCommandId() == saveCommandId) {
-        if (appRememberSize) {
+        if (appRememberWindowSize) {
           storeCurrentWindowSize();
         }
       }
     }
 
-    if (appRememberSize) queueSavetoPreferences();
+    if (appRememberWindowSize) queueSavetoPreferences();
   }
 }

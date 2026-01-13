@@ -49,14 +49,15 @@ MenuItem allowWideSliderMenuItem(ValueNotifier<bool> allowWideSliderNotifier) {
 MenuItem rememberWindowSizeMenuItem() {
   return MenuItem.checkbox(
     label: 'Remember window size',
-    checked: appRememberSize,
+    checked: remember_window_size.appRememberWindowSize,
     key: 'appRememberSize',
     onClick: (menuItem) async {
-      remember_window_size.storeRememberWindowSizePreference(!appRememberSize);
-      appRememberSize =
+      remember_window_size.storeRememberWindowSizePreference(
+          !remember_window_size.appRememberWindowSize);
+      remember_window_size.appRememberWindowSize =
           await remember_window_size.getRememberWindowSizePreference();
 
-      if (appRememberSize) {
+      if (remember_window_size.appRememberWindowSize) {
         remember_window_size.storeCurrentWindowSize();
       }
     },
