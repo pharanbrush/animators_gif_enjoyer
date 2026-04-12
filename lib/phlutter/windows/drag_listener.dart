@@ -4,13 +4,18 @@ class DiscreteDragListener extends StatefulWidget {
   const DiscreteDragListener({
     super.key,
     this.sensitivity = 0.1,
-    required this.onDragUpdate,
+    this.onDragStart,
+    this.onDragUpdate,
+    this.onDragEnd,
     this.child,
     this.cursor = MouseCursor.defer,
   });
 
   final double sensitivity;
-  final Function(Offset delta) onDragUpdate;
+
+  final Function(DragStartDetails details)? onDragStart;
+  final Function(Offset delta)? onDragUpdate;
+  final Function(DragEndDetails details)? onDragEnd;
   final Widget? child;
   final MouseCursor cursor;
 
@@ -27,6 +32,9 @@ class _DiscreteDragListenerState extends State<DiscreteDragListener> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      onPanStart: (details) {
+        widget.onDragStart?.call(details);
+      },
       onPanUpdate: (details) {
         final inputDelta = details.delta;
         final zeroX = isOppositeDirections(
@@ -56,9 +64,12 @@ class _DiscreteDragListenerState extends State<DiscreteDragListener> {
 
         deltaAccumulator = deltaAccumulator - outputDelta;
 
-        widget.onDragUpdate(outputDelta);
+        widget.onDragUpdate?.call(outputDelta);
       },
-      onPanEnd: (_) => deltaAccumulator = Offset.zero,
+      onPanEnd: (details) {
+        deltaAccumulator = Offset.zero;
+        widget.onDragEnd?.call(details);
+      },
       child: MouseRegion(
         cursor: widget.cursor,
         child: widget.child,
