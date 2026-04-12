@@ -358,7 +358,7 @@ class PlaybackSpeedController {
   final void Function(double timeScale) setter;
 
   static const defaultSpeed = 1.0;
-  static const _speeds = <double>[0.25, 0.5, defaultSpeed, 2, 4];
+  static const _speeds = <double>[0.25, 0.5, defaultSpeed, 2, 4, 8];
 
   final _currentSpeed = ValueNotifier<double>(defaultSpeed);
 
