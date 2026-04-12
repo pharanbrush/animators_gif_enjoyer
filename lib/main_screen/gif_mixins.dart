@@ -124,7 +124,7 @@ mixin GifPlayer<T extends StatefulWidget>
       final range = primarySliderRange;
       final int start = range.start.toInt();
       final int last = range.end.toInt();
-      clampCurrentFrame();
+      wrapCurrentFrameAndShow();
 
       gifAdvancer.pause();
       gifAdvancer.play(
@@ -176,7 +176,7 @@ mixin GifPlayer<T extends StatefulWidget>
   }
 
   void clampCurrentFrameAndShow() {
-    clampCurrentFrame();
+    wrapCurrentFrameAndShow();
     setDisplayedFrame(currentFrame.value);
   }
 
@@ -201,9 +201,17 @@ mixin GifPlayer<T extends StatefulWidget>
             .toInt();
   }
 
-  void clampCurrentFrame() {
+  void wrapCurrentFrameAndShow() {
     setState(() {
       final currentRange = primarySliderRange;
+      final currentValue = currentFrame.value;
+      if (currentValue > currentRange.end) {
+        currentFrame.value =
+            (currentValue - currentRange.end + currentRange.start).toInt() - 1;
+      } else if (currentValue < currentRange.start) {
+        currentFrame.value = (currentValue + currentRange.end).toInt() + 1;
+      }
+
       currentFrame.value = clampDouble(currentFrame.value.toDouble(),
               currentRange.start, currentRange.end)
           .toInt();

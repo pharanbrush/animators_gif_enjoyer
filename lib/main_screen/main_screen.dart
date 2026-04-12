@@ -681,7 +681,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                         startEnd: focusFrameRange,
                         maxFrameIndex: maxFrameIndex,
                         enabled: isImageLoaded && isScrubMode.value,
-                        onChange: () => clampCurrentFrame(),
+                        onChange: () => wrapCurrentFrameAndShow(),
                         onChangeRangeStart: () =>
                             setDisplayedFrame(focusFrameRange.value.startInt),
                         onChangeRangeEnd: () =>
