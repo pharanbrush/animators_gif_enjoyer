@@ -689,57 +689,54 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                 const double buttonSize = 25;
                 const double buttonSpace = 4;
 
-                return Visibility(
-                  maintainInteractivity: false,
-                  maintainSemantics: false,
-                  visible: isUseCustomRange,
-                  child: Column(
-                    children: [
-                      FrameRangeSlider(
-                        displayedFrameOffset: displayedFrameBaseOffset,
-                        startEnd: focusFrameRange,
-                        maxFrameIndex: maxFrameIndex,
-                        enabled: isImageLoaded && isScrubMode.value,
-                        onChange: () => wrapCurrentFrameAndShow(),
-                        onChangeRangeStart: () =>
-                            setDisplayedFrame(focusFrameRange.value.startInt),
-                        onChangeRangeEnd: () =>
-                            setDisplayedFrame(focusFrameRange.value.endInt),
-                        onChangeTapUp: () =>
-                            setDisplayedFrame(currentFrame.value),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          if (isScrubMode.value)
-                            const SizedBox(width: buttonSize + buttonSpace + 3),
-                          Text(
-                            'Custom range: ${frameCount.toInt()} frames. ~$rangeSecondsString',
-                            style: const TextStyle(
-                                color: app_theme.focusRangeColor),
-                          ),
-                          isScrubMode.value
-                              ? Padding(
-                                  padding:
-                                      const EdgeInsets.only(left: buttonSpace),
-                                  child: IconButton(
-                                    style: const ButtonStyle(
-                                      minimumSize: WidgetStatePropertyAll(
-                                        Size(buttonSize, buttonSize),
-                                      ),
+                if (!isUseCustomRange) return SizedBox.shrink();
+
+                return Column(
+                  children: [
+                    FrameRangeSlider(
+                      displayedFrameOffset: displayedFrameBaseOffset,
+                      startEnd: focusFrameRange,
+                      maxFrameIndex: maxFrameIndex,
+                      enabled: isImageLoaded && isScrubMode.value,
+                      onChange: () => wrapCurrentFrameAndShow(),
+                      onChangeRangeStart: () =>
+                          setDisplayedFrame(focusFrameRange.value.startInt),
+                      onChangeRangeEnd: () =>
+                          setDisplayedFrame(focusFrameRange.value.endInt),
+                      onChangeTapUp: () =>
+                          setDisplayedFrame(currentFrame.value),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        if (isScrubMode.value)
+                          const SizedBox(width: buttonSize + buttonSpace + 3),
+                        Text(
+                          'Custom range: ${frameCount.toInt()} frames. ~$rangeSecondsString',
+                          style:
+                              const TextStyle(color: app_theme.focusRangeColor),
+                        ),
+                        isScrubMode.value
+                            ? Padding(
+                                padding:
+                                    const EdgeInsets.only(left: buttonSpace),
+                                child: IconButton(
+                                  style: const ButtonStyle(
+                                    minimumSize: WidgetStatePropertyAll(
+                                      Size(buttonSize, buttonSize),
                                     ),
-                                    tooltip: 'Disable frame range',
-                                    iconSize: 12,
-                                    onPressed: () => toggleUseFocus(),
-                                    icon: const Icon(Icons.close),
                                   ),
-                                )
-                              : const SizedBox(height: buttonSize + 3),
-                        ],
-                      ),
-                    ],
-                  ),
+                                  tooltip: 'Disable frame range',
+                                  iconSize: 12,
+                                  onPressed: () => toggleUseFocus(),
+                                  icon: const Icon(Icons.close),
+                                ),
+                              )
+                            : const SizedBox(height: buttonSize + 3),
+                      ],
+                    ),
+                  ],
                 );
               },
             ),
