@@ -576,6 +576,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
             ),
             DiscreteDragListener(
               cursor: SystemMouseCursors.resizeLeftRight,
+              sensitivity: gifController.frameCount * 0.004,
               onDragUpdate: (delta) {
                 final increment = delta.dx;
                 incrementFrame(increment.toInt());

@@ -157,9 +157,9 @@ mixin GifPlayer<T extends StatefulWidget>
   // Frame controls
   //
 
-  void incrementFrame(int incrementSign) {
-    if (incrementSign == 0) return;
-    setCurrentFrameClamped(currentFrame.value + incrementSign.sign);
+  void incrementFrame(int increment) {
+    if (increment == 0) return;
+    setCurrentFrameClamped(currentFrame.value + increment);
   }
 
   void setCurrentFrameToFirst() {

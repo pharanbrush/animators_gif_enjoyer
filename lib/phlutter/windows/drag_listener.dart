@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class DiscreteDragListener extends StatefulWidget {
   const DiscreteDragListener({
     super.key,
-    this.sensitivity = 0.17,
+    this.sensitivity = 0.1,
     required this.onDragUpdate,
     this.child,
     this.cursor = MouseCursor.defer,
