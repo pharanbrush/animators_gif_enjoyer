@@ -20,9 +20,11 @@ import 'package:animators_gif_enjoyer/phlutter/app_theme_cycler.dart';
 import 'package:animators_gif_enjoyer/main_screen/main_screen_widgets.dart';
 import 'package:animators_gif_enjoyer/main_screen/theme.dart' as app_theme;
 import 'package:animators_gif_enjoyer/phlutter/remember_window_size.dart';
+import 'package:animators_gif_enjoyer/phlutter/windows/drag_listener.dart';
 import 'package:animators_gif_enjoyer/phlutter/windows/image_drop_target.dart';
 import 'package:animators_gif_enjoyer/phlutter/material_state_property_utils.dart';
 import 'package:animators_gif_enjoyer/phlutter/modal_panel.dart';
+import 'package:animators_gif_enjoyer/phlutter/windows/scroll_listener.dart';
 import 'package:animators_gif_enjoyer/phlutter/windows/windows_phwindow.dart';
 import 'package:animators_gif_enjoyer/utils/build_info.dart' as build_info;
 import 'package:animators_gif_enjoyer/functionality/download_file.dart';
@@ -572,63 +574,79 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                 },
               ),
             ),
-            Column(
-              children: [
-                ValueListenableBuilder(
-                  valueListenable: currentFrame,
-                  builder: (_, __, ___) {
-                    final bigStyle = Theme.of(context).textTheme.headlineMedium;
-                    final bigStyleGray = bigStyle?.copyWith(
-                            color: Theme.of(context).colorScheme.grayColor) ??
-                        Theme.of(context).grayStyle;
+            DiscreteDragListener(
+              onDragUpdate: (delta) {
+                final increment = delta.dx;
+                incrementFrame(increment.toInt());
+              },
+              child: ScrollListener(
+                onScrollUp: () => incrementFrame(1),
+                onScrollDown: () => incrementFrame(-1),
+                child: Column(
+                  children: [
+                    ValueListenableBuilder(
+                      valueListenable: currentFrame,
+                      builder: (_, __, ___) {
+                        final bigStyle =
+                            Theme.of(context).textTheme.headlineMedium;
+                        final bigStyleGray = bigStyle?.copyWith(
+                                color:
+                                    Theme.of(context).colorScheme.grayColor) ??
+                            Theme.of(context).grayStyle;
 
-                    final separator = Text(' - ', style: bigStyleGray);
+                        final separator = Text(' - ', style: bigStyleGray);
 
-                    return GestureDetector(
-                      onSecondaryTap: () {
-                        final frameBaseContext = FrameBaseContext.of(context);
-                        final currentFrameBase = displayFrameBaseOffset;
-                        if (frameBaseContext == null) return;
+                        return GestureDetector(
+                          onSecondaryTap: () {
+                            final frameBaseContext =
+                                FrameBaseContext.of(context);
+                            final currentFrameBase = displayFrameBaseOffset;
+                            if (frameBaseContext == null) return;
 
-                        Menu menu(BuildContext context) {
-                          return Menu(
-                            items: currentFrameBase != 0
-                                ? [
-                                    MenuItem(
-                                      label: 'Switch to zero-based frames',
-                                      onClick: (_) => setDisplayFrameBase(0),
-                                      checked: currentFrameBase == 0,
-                                    )
-                                  ]
-                                : [
-                                    MenuItem(
-                                      label: 'Switch to one-based frames',
-                                      onClick: (_) => setDisplayFrameBase(1),
-                                      checked: currentFrameBase == 1,
-                                    ),
-                                  ],
-                          );
-                        }
+                            Menu menu(BuildContext context) {
+                              return Menu(
+                                items: currentFrameBase != 0
+                                    ? [
+                                        MenuItem(
+                                          label: 'Switch to zero-based frames',
+                                          onClick: (_) =>
+                                              setDisplayFrameBase(0),
+                                          checked: currentFrameBase == 0,
+                                        )
+                                      ]
+                                    : [
+                                        MenuItem(
+                                          label: 'Switch to one-based frames',
+                                          onClick: (_) =>
+                                              setDisplayFrameBase(1),
+                                          checked: currentFrameBase == 1,
+                                        ),
+                                      ],
+                              );
+                            }
 
-                        popUpContextualMenu(menu(context));
-                      },
-                      child: Wrap(
-                        alignment: WrapAlignment.center,
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: [
-                          separator,
-                          Text(
-                            displayedCurrentFrameString,
-                            style: isScrubMode.value ? bigStyle : bigStyleGray,
+                            popUpContextualMenu(menu(context));
+                          },
+                          child: Wrap(
+                            alignment: WrapAlignment.center,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              separator,
+                              Text(
+                                displayedCurrentFrameString,
+                                style:
+                                    isScrubMode.value ? bigStyle : bigStyleGray,
+                              ),
+                              separator,
+                            ],
                           ),
-                          separator,
-                        ],
-                      ),
-                    );
-                  },
+                        );
+                      },
+                    ),
+                    Text('frame', style: Theme.of(context).smallGrayStyle)
+                  ],
                 ),
-                Text('frame', style: Theme.of(context).smallGrayStyle)
-              ],
+              ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
