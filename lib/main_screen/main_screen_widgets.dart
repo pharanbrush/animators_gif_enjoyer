@@ -58,7 +58,7 @@ class BottomPlayPauseButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
       valueListenable: isScrubMode,
-      builder: (_, isPausedAndScrubbing, __) {
+      builder: (_, isPausedAndScrubbing, _) {
         return Tooltip(
           message: 'Toggle play/pause.\nYou can also click on the gif.',
           waitDuration: slowTooltipDelay,

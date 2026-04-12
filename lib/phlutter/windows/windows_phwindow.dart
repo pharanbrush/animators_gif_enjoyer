@@ -82,7 +82,7 @@ class _KeepWindowOnTopButtonState extends State<KeepWindowOnTopButton> {
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
       valueListenable: notifier,
-      builder: (_, value, __) {
+      builder: (_, value, _) {
         return IconButton(
           isSelected: value,
           tooltip: value

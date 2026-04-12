@@ -14,7 +14,7 @@ Future<List<GifFrame>> loadGifFramesFromAvifFrames(
   void Function(double percentProgress)? onProgressPercent,
 }) async {
   final frameList = <GifFrame>[];
-  debugPrint("[avif] avif_enjoyer now attempting to loaf AVIF bytes.");
+  debugPrint("[avif] avif_enjoyer now attempting to load AVIF bytes.");
 
   // This is a modified inlined version of flutter_avif.decodeAvif(bytes).
   // To avoid the intermediate AvifFrameInfo list.
@@ -30,19 +30,16 @@ Future<List<GifFrame>> loadGifFramesFromAvifFrames(
   for (int i = 0; i < frameCount; i += 1) {
     final frame = await codec.getNextFrame();
     frameList.add(
-      GifFrame(
-        rendering.ImageInfo(image: frame.image),
-        frame.duration,
-      ),
+      GifFrame(rendering.ImageInfo(image: frame.image), frame.duration),
     );
 
     onProgressPercent?.call(i / frameCountDouble);
   }
-  
+
   onProgressPercent?.call(1);
 
   codec.dispose();
-  
+
   debugPrint("[avif] avif_enjoyer completed. Now returning frames.");
 
   return frameList;

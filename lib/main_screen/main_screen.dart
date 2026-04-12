@@ -73,7 +73,7 @@ class MyApp extends StatelessWidget {
 
             return ValueListenableBuilder(
               valueListenable: themeContext.themeData,
-              builder: (_, themeDataValue, ___) => app(themeDataValue),
+              builder: (_, themeDataValue, _) => app(themeDataValue),
             );
           },
         ),
@@ -229,7 +229,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
       bottomTextPanel.widget(),
       ValueListenableBuilder(
         valueListenable: isImageLoading,
-        builder: (_, value, ___) =>
+        builder: (_, value, _) =>
             value ? const SizedBox.shrink() : fileDropTarget(context),
       ),
     ];
@@ -291,7 +291,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
 
     final cyclePlaybackSpeedButton = ValueListenableBuilder(
       valueListenable: playSpeedController.valueListenable,
-      builder: (_, __, ___) {
+      builder: (_, _, _) {
         if (!isPlayModeAvailable) {
           return const SizedBox.shrink();
         }
@@ -313,7 +313,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
 
     final zoomButton = ValueListenableBuilder(
       valueListenable: zoomLevelNotifier,
-      builder: (_, __, ___) {
+      builder: (_, _, _) {
         if (zoomLevelNotifier.value != 1) {
           return IconButton(
             icon: const Icon(Icons.youtube_searched_for),
@@ -369,7 +369,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
         Expanded(
           child: ValueListenableBuilder(
             valueListenable: isImageLoading,
-            builder: (_, isCurrentlyLoading, __) {
+            builder: (_, isCurrentlyLoading, _) {
               if (isCurrentlyLoading) {
                 return imageLoadingIndicator(context);
               }
@@ -391,7 +391,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
         dimension: 150,
         child: ValueListenableBuilder(
           valueListenable: imageLoadPercent,
-          builder: (_, percentLoaded, __) {
+          builder: (_, percentLoaded, _) {
             return CircularProgressIndicator(
               value: percentLoaded < 0.1 ? null : percentLoaded,
               strokeWidth: 8,
@@ -546,7 +546,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
 
     return ValueListenableBuilder(
       valueListenable: isScrubMode,
-      builder: (_, __, ___) {
+      builder: (_, _, _) {
         return Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -595,7 +595,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                   children: [
                     ValueListenableBuilder(
                       valueListenable: currentFrame,
-                      builder: (_, __, ___) {
+                      builder: (_, _, _) {
                         final bigStyle =
                             Theme.of(context).textTheme.headlineMedium;
                         final bigStyleGray = bigStyle?.copyWith(
@@ -682,7 +682,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
             ),
             ValueListenableBuilder(
               valueListenable: isUsingFocusRange,
-              builder: (_, isUseCustomRange, __) {
+              builder: (_, isUseCustomRange, _) {
                 final double frameCount = focusFrameRange.value.rangeSize + 1;
                 final rangeSeconds = loadedGifInfo.frameDuration != null
                     ? (frameCount *
@@ -816,7 +816,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
             const Text('Variable frame times. '),
             ValueListenableBuilder(
               valueListenable: currentFrame,
-              builder: (_, __, ___) {
+              builder: (_, _, _) {
                 return Text(
                   '(current: ${gifController.currentFrameData.duration.inMilliseconds} ms)',
                 );

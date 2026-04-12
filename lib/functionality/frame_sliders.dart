@@ -52,7 +52,7 @@ class FrameRangeSlider extends StatelessWidget {
                 ),
                 child: ValueListenableBuilder(
                   valueListenable: startEnd,
-                  builder: (_, currentStartEnd, __) {
+                  builder: (_, currentStartEnd, _) {
                     return RangeSlider(
                       values: currentStartEnd,
                       min: 0,
@@ -128,10 +128,10 @@ class MainSlider extends StatelessWidget {
   Widget build(BuildContext context) {
     final sliderPart = ValueListenableBuilder(
       valueListenable: allowWideNotifier,
-      builder: (_, allowWideValue, __) {
+      builder: (_, allowWideValue, _) {
         var insideExpanded = ValueListenableBuilder(
           valueListenable: currentFrame,
-          builder: (_, currentFrameValue, __) {
+          builder: (_, currentFrameValue, _) {
             final sliderMin = primarySliderRange.start;
             final sliderMax = primarySliderRange.end;
 

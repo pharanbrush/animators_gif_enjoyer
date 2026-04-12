@@ -139,7 +139,7 @@ class _ScrollZoomContainerState extends State<ScrollZoomContainer> {
           child: SizedBox.expand(
             child: ValueListenableBuilder(
               valueListenable: notifier,
-              builder: (_, value, ___) {
+              builder: (_, value, _) {
                 return FittedBox(
                   fit: BoxFit.scaleDown,
                   child: AnimatedScale(

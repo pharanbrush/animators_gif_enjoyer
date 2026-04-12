@@ -91,7 +91,7 @@ class _ModalPanelWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
       valueListenable: isOpen,
-      builder: (_, value, __) {
+      builder: (_, value, _) {
         return ModalDismissContext(
           onDismiss: close,
           child: Stack(
