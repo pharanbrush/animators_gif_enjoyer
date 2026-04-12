@@ -6,18 +6,20 @@ class DiscreteDragListener extends StatefulWidget {
     this.sensitivity = 0.17,
     required this.onDragUpdate,
     this.child,
+    this.cursor = MouseCursor.defer,
   });
 
   final double sensitivity;
   final Function(Offset delta) onDragUpdate;
   final Widget? child;
+  final MouseCursor cursor;
 
   @override
   State<DiscreteDragListener> createState() => _DiscreteDragListenerState();
 }
 
 class _DiscreteDragListenerState extends State<DiscreteDragListener> {
-  Offset offsetAccumulator = Offset.zero;
+  Offset deltaAccumulator = Offset.zero;
 
   static bool isOppositeDirections(double a, double b) =>
       a < 0 && b > 0 || a > 0 && b < 0;
@@ -26,44 +28,39 @@ class _DiscreteDragListenerState extends State<DiscreteDragListener> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onPanUpdate: (details) {
+        final inputDelta = details.delta;
         final zeroX = isOppositeDirections(
-          offsetAccumulator.dx,
-          details.delta.dx,
+          deltaAccumulator.dx,
+          inputDelta.dx,
         );
 
         final zeroY = isOppositeDirections(
-          offsetAccumulator.dy,
-          details.delta.dy,
+          deltaAccumulator.dy,
+          inputDelta.dy,
         );
 
         if (zeroX || zeroY) {
-          offsetAccumulator = Offset(
-            zeroX ? 0 : offsetAccumulator.dx,
-            zeroY ? 0 : offsetAccumulator.dy,
+          deltaAccumulator = Offset(
+            zeroX ? 0 : deltaAccumulator.dx,
+            zeroY ? 0 : deltaAccumulator.dy,
           );
         }
 
         final sensitivity = widget.sensitivity;
-        offsetAccumulator += details.delta.scale(sensitivity, sensitivity);
-
-        int outputX = (offsetAccumulator.dx).truncate();
-        int outputY = (offsetAccumulator.dy).truncate();
+        deltaAccumulator += inputDelta.scale(sensitivity, sensitivity);
 
         final outputDelta = Offset(
-          outputX.toDouble(),
-          outputY.toDouble(),
+          (deltaAccumulator.dx).truncate().toDouble(),
+          (deltaAccumulator.dy).truncate().toDouble(),
         );
-        debugPrint("$offsetAccumulator :: $outputDelta");
 
-        offsetAccumulator = offsetAccumulator - outputDelta;
+        deltaAccumulator = deltaAccumulator - outputDelta;
 
         widget.onDragUpdate(outputDelta);
       },
-      onPanEnd: (details) {
-        offsetAccumulator = Offset.zero;
-      },
+      onPanEnd: (_) => deltaAccumulator = Offset.zero,
       child: MouseRegion(
-        cursor: SystemMouseCursors.resizeLeftRight,
+        cursor: widget.cursor,
         child: widget.child,
       ),
     );
