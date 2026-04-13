@@ -251,11 +251,10 @@ mixin GifLoader on GifPlayer<GifEnjoyerMainPage> {
       gifController.load(frames);
       gifAdvancer.setFrames(frames);
 
-      setState(() {
-        // Reset sensible values for new file.
-        gifImageProvider = null;
-        resetViewerStateAfterLoad();
-      });
+      // Reset sensible values for new file.
+      gifImageProvider = null;
+      resetViewerStateAfterLoad();
+      setState(() {});
     } catch (e) {
       onImageLoadError(e.toString());
       inProgressLoadingProcess = null;
@@ -346,7 +345,8 @@ mixin GifLoader on GifPlayer<GifEnjoyerMainPage> {
         try {
           var uri = Uri.parse(source);
           if (uri.host.contains('tenor') && !uri.path.endsWith('gif')) {
-            final gifLinkError = 'Cannot access : $source \n'
+            final gifLinkError =
+                'Cannot access : $source \n'
                 '(Tenor embed links currently do not work.)';
             onImageLoadError(gifLinkError);
           }
