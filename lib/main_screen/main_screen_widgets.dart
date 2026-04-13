@@ -111,12 +111,15 @@ class EnjoyerBottomTextPanel extends StatelessWidget {
             child: Column(
               children: [
                 Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
                   child: Material(
                     type: MaterialType.canvas,
-                    color:
-                        Theme.of(context).colorScheme.surfaceContainerHighest,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.surfaceContainerHighest,
                     borderRadius: const BorderRadius.all(Radius.circular(8)),
                     child: Row(
                       children: [
@@ -128,7 +131,9 @@ class EnjoyerBottomTextPanel extends StatelessWidget {
                               hintText: 'Enter GIF link',
                               border: OutlineInputBorder(
                                 borderSide: BorderSide(
-                                    width: 0, style: BorderStyle.none),
+                                  width: 0,
+                                  style: BorderStyle.none,
+                                ),
                               ),
                             ),
                             autocorrect: false,
@@ -142,7 +147,7 @@ class EnjoyerBottomTextPanel extends StatelessWidget {
                             icon: const Icon(Icons.send),
                             tooltip: 'Download GIF from Link',
                           ),
-                        )
+                        ),
                       ],
                     ),
                   ),

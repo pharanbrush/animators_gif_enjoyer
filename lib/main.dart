@@ -40,8 +40,8 @@ void main(List<String> args) async {
     );
   }
 
-  remember_window_size.appRememberWindowSize =
-      await remember_window_size.getRememberWindowSizePreference();
+  remember_window_size.appRememberWindowSize = await remember_window_size
+      .getRememberWindowSizePreference();
   final Size startingWindowSize;
   if (remember_window_size.appRememberWindowSize) {
     startingWindowSize = await remember_window_size.getWindowSizePreference();
@@ -65,7 +65,8 @@ void main(List<String> args) async {
   });
 
   final initialThemeString = await getThemeStringFromPreference(
-      defaultThemeString: app_theme.defaultThemeString);
+    defaultThemeString: app_theme.defaultThemeString,
+  );
 
   runApp(
     MyApp(initialTheme: initialThemeString),
