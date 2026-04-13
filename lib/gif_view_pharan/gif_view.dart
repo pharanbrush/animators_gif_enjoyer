@@ -114,19 +114,22 @@ Future<List<GifFrame>> loadGifFrames({
           });
 
           if (onProgressPercent != null) {
-            final streamedResponse =
-                await http.Client().send(http.Request('GET', resolvedUri));
+            final streamedResponse = await http.Client().send(
+              http.Request('GET', resolvedUri),
+            );
 
             final total = streamedResponse.contentLength ?? 0;
             int received = 0;
             final List<int> bytes = [];
             bool isDownloadDone = false;
-            streamedResponse.stream.listen((value) {
-              bytes.addAll(value);
-              received += value.length;
-            }).onDone(() {
-              isDownloadDone = true;
-            });
+            streamedResponse.stream
+                .listen((value) {
+                  bytes.addAll(value);
+                  received += value.length;
+                })
+                .onDone(() {
+                  isDownloadDone = true;
+                });
 
             while (!isDownloadDone) {
               if (total > 0) {
@@ -145,8 +148,9 @@ Future<List<GifFrame>> loadGifFrames({
 
       case AssetImage ai:
         {
-          AssetBundleImageKey key =
-              await ai.obtainKey(const ImageConfiguration());
+          AssetBundleImageKey key = await ai.obtainKey(
+            const ImageConfiguration(),
+          );
           final d = await key.bundle.load(key.name);
           data = d.buffer.asUint8List();
         }
@@ -328,18 +332,10 @@ class GifViewState extends State<GifView> with TickerProviderStateMixin {
   @override
   void initState() {
     controller = widget.controller ?? GifController();
-    controller.addListener(_listener);
+    controller.addListener(_handleGifControllerUpdated);
     // Future.delayed(Duration.zero, _loadImage);
     super.initState();
   }
-
-  // @override
-  // void didUpdateWidget(covariant GifView oldWidget) {
-  //   super.didUpdateWidget(oldWidget);
-  //   if (oldWidget.image != widget.image) {
-  //     _loadImage(updateFrames: true);
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -361,24 +357,13 @@ class GifViewState extends State<GifView> with TickerProviderStateMixin {
     );
   }
 
-  // FutureOr _loadImage({bool updateFrames = false}) async {
-  //   final imageProvider = widget.image;
-
-  //   if (imageProvider == null) return;
-  //   final frames = await loadGifFrames(
-  //     provider: imageProvider,
-  //     onError: widget.onError,
-  //   );
-  //   controller.load(frames, updateFrames: updateFrames);
-  // }
-
   @override
   void dispose() {
-    controller.removeListener(_listener);
+    controller.removeListener(_handleGifControllerUpdated);
     super.dispose();
   }
 
-  void _listener() {
+  void _handleGifControllerUpdated() {
     if (mounted) {
       setState(() {});
     }

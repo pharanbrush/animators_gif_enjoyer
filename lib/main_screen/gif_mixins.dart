@@ -27,8 +27,9 @@ mixin GifPlayer<T extends StatefulWidget>
     return (currentFrame.value + displayFrameBaseOffset).toString();
   }
 
-  final ValueNotifier<RangeValues> focusFrameRange =
-      ValueNotifier(const RangeValues(0, 100));
+  final ValueNotifier<RangeValues> focusFrameRange = ValueNotifier(
+    const RangeValues(0, 100),
+  );
 
   final ValueNotifier<bool> isScrubMode = ValueNotifier(!isPlayOnLoad);
   final ValueNotifier<int> maxFrameIndex = ValueNotifier(100);
@@ -55,14 +56,15 @@ mixin GifPlayer<T extends StatefulWidget>
   String tryGetNameFromGifImageProvider({required String defaultName}) {
     final nameWithoutExtension = switch (gifImageProvider) {
       FileImage _ => path_extensions.filenameFromFullPathWithoutExtensions(
-          loadedGifInfo.fileSource,
-        ),
+        loadedGifInfo.fileSource,
+      ),
       NetworkImage _ => path_extensions.filenameFromUrlWithoutExtension(
-          loadedGifInfo.fileSource,
-        ),
-      null => path_extensions
-          .filenameFromFullPathWithoutExtensions(loadedGifInfo.fileSource),
-      _ => defaultName
+        loadedGifInfo.fileSource,
+      ),
+      null => path_extensions.filenameFromFullPathWithoutExtensions(
+        loadedGifInfo.fileSource,
+      ),
+      _ => defaultName,
     };
 
     if (nameWithoutExtension == null || nameWithoutExtension.trim().isEmpty) {
@@ -196,9 +198,11 @@ mixin GifPlayer<T extends StatefulWidget>
   }
 
   void clampCurrentFrameWithRange(RangeValues range) {
-    currentFrame.value =
-        clampDouble(currentFrame.value.toDouble(), range.start, range.end)
-            .toInt();
+    currentFrame.value = clampDouble(
+      currentFrame.value.toDouble(),
+      range.start,
+      range.end,
+    ).toInt();
   }
 
   void wrapCurrentFrameAndShow() {
@@ -297,7 +301,8 @@ mixin GifLoader on GifPlayer<GifEnjoyerMainPage> {
         () {
           if (isImageLoading.value && imageLoadPercent.value <= 0) {
             throw TimeoutException(
-                "Image loading failed. File may be incompatible.");
+              "Image loading failed. File may be incompatible.",
+            );
           }
         },
       );
@@ -316,12 +321,11 @@ mixin GifLoader on GifPlayer<GifEnjoyerMainPage> {
       gifAdvancer.setFrames(frames);
       inProgressLoadingProcess = null;
 
-      setState(() {
-        resetViewerStateAfterLoad();
-        if (gifImageProvider is NetworkImage) {
-          onImageDownloadSuccess();
-        }
-      });
+      resetViewerStateAfterLoad();
+      if (gifImageProvider is NetworkImage) {
+        onImageDownloadSuccess();
+      }
+      setState(() {});
     } on TimeoutException catch (te) {
       onImageLoadError(te.toString());
     } catch (e) {
@@ -381,8 +385,9 @@ class PlaybackSpeedController {
       return;
     }
 
-    final nextIndex =
-        (currentIndex == _speeds.length - 1) ? 0 : currentIndex + 1;
+    final nextIndex = (currentIndex == _speeds.length - 1)
+        ? 0
+        : currentIndex + 1;
 
     _setSpeed(_speeds[nextIndex]);
   }

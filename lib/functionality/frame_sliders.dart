@@ -80,8 +80,9 @@ class FrameRangeSlider extends StatelessWidget {
                               }
                             }
                           : null,
-                      onChangeEnd:
-                          enabled ? (_) => onChangeTapUp?.call() : null,
+                      onChangeEnd: enabled
+                          ? (_) => onChangeTapUp?.call()
+                          : null,
                     );
                   },
                 ),
@@ -144,7 +145,7 @@ class MainSlider extends StatelessWidget {
               (< reallyFewFrames) => reallyFewFrames * maximumSpacePerFrame,
               (< minFramesBeforeShrink) =>
                 limitedFrameCount * maximumSpacePerFrame,
-              _ => minFramesBeforeShrink * maximumSpacePerFrame
+              _ => minFramesBeforeShrink * maximumSpacePerFrame,
             };
 
             var slider = Slider(
@@ -249,8 +250,8 @@ class ToggleFocusButton extends StatelessWidget {
       message: !enabled
           ? ''
           : isFocusing
-              ? 'Click to disable frame range'
-              : 'Click to use custom frame range',
+          ? 'Click to disable frame range'
+          : 'Click to use custom frame range',
       child: TextButton(
         style: const ButtonStyle(
           padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 0)),

@@ -51,8 +51,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return FrameBaseContext(
       child: ThemeContext(
-        initialThemeData: app_theme
-            .getThemeFromString(initialTheme ?? app_theme.defaultThemeString),
+        initialThemeData: app_theme.getThemeFromString(
+          initialTheme ?? app_theme.defaultThemeString,
+        ),
         child: Builder(
           builder: (context) {
             Widget app(ThemeData themeData) {
@@ -68,7 +69,8 @@ class MyApp extends StatelessWidget {
 
             if (themeContext == null) {
               return app(
-                  app_theme.getThemeFromString(app_theme.defaultThemeString));
+                app_theme.getThemeFromString(app_theme.defaultThemeString),
+              );
             }
 
             return ValueListenableBuilder(
@@ -132,18 +134,19 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
         child: child,
       );
     },
-    textPanelBuilder: (
-      context,
-      textController,
-      onTextFieldSubmitted,
-      onSubmitButtonPressed,
-    ) {
-      return EnjoyerBottomTextPanel(
-        textController: textController,
-        onTextFieldSubmitted: onTextFieldSubmitted,
-        onSubmitButtonPressed: onSubmitButtonPressed,
-      );
-    },
+    textPanelBuilder:
+        (
+          context,
+          textController,
+          onTextFieldSubmitted,
+          onSubmitButtonPressed,
+        ) {
+          return EnjoyerBottomTextPanel(
+            textController: textController,
+            onTextFieldSubmitted: onTextFieldSubmitted,
+            onSubmitButtonPressed: onSubmitButtonPressed,
+          );
+        },
   );
 
   //
@@ -266,8 +269,8 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
       foregroundColor: contentColorProperty,
       textStyle: WidgetStatePropertyAll(
         Theme.of(context).textTheme.labelSmall!.copyWith(
-              overflow: TextOverflow.visible,
-            ),
+          overflow: TextOverflow.visible,
+        ),
       ),
       padding: const WidgetStatePropertyAll(
         EdgeInsets.symmetric(horizontal: 0),
@@ -301,8 +304,9 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
           child: GestureDetector(
             onTertiaryTapDown: (_) => playSpeedController.resetSpeed(),
             child: TextButton(
-              style:
-                  playSpeedController.isDefaultSpeed ? null : activeButtonStyle,
+              style: playSpeedController.isDefaultSpeed
+                  ? null
+                  : activeButtonStyle,
               child: Text('${playSpeedController.currentSpeedString}x'),
               onPressed: () => playSpeedController.cycleNextSpeed(),
             ),
@@ -346,9 +350,9 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
         ),
         child: TooltipTheme(
           data: Theme.of(context).tooltipTheme.copyWith(
-                verticalOffset: 35,
-                waitDuration: delayedTooltipDelay,
-              ),
+            verticalOffset: 35,
+            waitDuration: delayedTooltipDelay,
+          ),
           child: TextButtonTheme(
             data: textButtonTheme,
             child: IconButtonTheme(
@@ -380,7 +384,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
             },
           ),
         ),
-        bottomBarWidget()
+        bottomBarWidget(),
       ],
     );
   }
@@ -435,7 +439,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
             MenuItem(
               label: 'Build ${build_info.buildName}',
               disabled: true,
-            )
+            ),
         ],
       );
     }
@@ -444,8 +448,9 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
       onSecondaryTap: () => popUpContextualMenu(unloadedMenu()),
       onDoubleTap: () => openNewFile(),
       child: Container(
-        decoration:
-            BoxDecoration(color: Theme.of(context).scaffoldBackgroundColor),
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor,
+        ),
         child: Align(
           alignment: Alignment.center,
           child: Material(
@@ -474,10 +479,9 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                       '(Animated PNG, WEBP, and AVIF also work.)',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurfaceVariant
-                            .withValues(alpha: 0.4),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
                       ),
                     ),
                   ],
@@ -535,7 +539,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
             ],
           ),
         ),
-        if (build_info.packageInfo != null) ...menu_items.aboutItem
+        if (build_info.packageInfo != null) ...menu_items.aboutItem,
       ],
     );
   }
@@ -596,19 +600,22 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                     ValueListenableBuilder(
                       valueListenable: currentFrame,
                       builder: (_, _, _) {
-                        final bigStyle =
-                            Theme.of(context).textTheme.headlineMedium;
-                        final bigStyleGray = bigStyle?.copyWith(
-                                color:
-                                    Theme.of(context).colorScheme.grayColor) ??
+                        final bigStyle = Theme.of(
+                          context,
+                        ).textTheme.headlineMedium;
+                        final bigStyleGray =
+                            bigStyle?.copyWith(
+                              color: Theme.of(context).colorScheme.grayColor,
+                            ) ??
                             Theme.of(context).grayStyle;
 
                         final separator = Text(' - ', style: bigStyleGray);
 
                         return GestureDetector(
                           onSecondaryTap: () {
-                            final frameBaseContext =
-                                FrameBaseContext.of(context);
+                            final frameBaseContext = FrameBaseContext.of(
+                              context,
+                            );
                             final currentFrameBase = displayFrameBaseOffset;
                             if (frameBaseContext == null) return;
 
@@ -621,7 +628,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                                           onClick: (_) =>
                                               setDisplayFrameBase(0),
                                           checked: currentFrameBase == 0,
-                                        )
+                                        ),
                                       ]
                                     : [
                                         MenuItem(
@@ -643,8 +650,9 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                               separator,
                               Text(
                                 displayedCurrentFrameString,
-                                style:
-                                    isScrubMode.value ? bigStyle : bigStyleGray,
+                                style: isScrubMode.value
+                                    ? bigStyle
+                                    : bigStyleGray,
                               ),
                               separator,
                             ],
@@ -652,7 +660,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                         );
                       },
                     ),
-                    Text('frame', style: Theme.of(context).smallGrayStyle)
+                    Text('frame', style: Theme.of(context).smallGrayStyle),
                   ],
                 ),
               ),
@@ -686,8 +694,9 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                 final double frameCount = focusFrameRange.value.rangeSize + 1;
                 final rangeSeconds = loadedGifInfo.frameDuration != null
                     ? (frameCount *
-                        loadedGifInfo.frameDuration!.inMilliseconds.toDouble() *
-                        0.001)
+                          loadedGifInfo.frameDuration!.inMilliseconds
+                              .toDouble() *
+                          0.001)
                     : -1;
 
                 final String rangeSecondsString = rangeSeconds >= 0
@@ -722,13 +731,15 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                           const SizedBox(width: buttonSize + buttonSpace + 3),
                         Text(
                           'Custom range: ${frameCount.toInt()} frames. ~$rangeSecondsString',
-                          style:
-                              const TextStyle(color: app_theme.focusRangeColor),
+                          style: const TextStyle(
+                            color: app_theme.focusRangeColor,
+                          ),
                         ),
                         isScrubMode.value
                             ? Padding(
-                                padding:
-                                    const EdgeInsets.only(left: buttonSpace),
+                                padding: const EdgeInsets.only(
+                                  left: buttonSpace,
+                                ),
                                 child: IconButton(
                                   style: const ButtonStyle(
                                     minimumSize: WidgetStatePropertyAll(
@@ -780,7 +791,8 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                     onPressed: () => togglePlayPause(),
                   ),
                 Tooltip(
-                  message: 'Open GIF file...\n'
+                  message:
+                      'Open GIF file...\n'
                       'Or use ${Phshortcuts.shortcutString(Phshortcuts.pasteAndGo)} to paste a link to a GIF.',
                   child: IconButton(
                     onPressed: () => openNewFile(),
@@ -789,7 +801,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                   ),
                 ),
               ],
-            )
+            ),
           ],
         ),
       ),
@@ -802,7 +814,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
 
     final isAnimatedWithVariableFps = //
         !loadedGifInfo.isNonAnimated && //
-            loadedGifInfo.frameDuration == null;
+        loadedGifInfo.frameDuration == null;
 
     String getImageDimensionsLabel() {
       return '${loadedGifInfo.width}x${loadedGifInfo.height}px';
@@ -939,75 +951,77 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
         .map<ui.Image>((frame) => frame.imageInfo.image)
         .toList(growable: false);
 
-    final gifPrefix =
-        tryGetNameFromGifImageProvider(defaultName: 'gif_enjoyer');
+    final gifPrefix = tryGetNameFromGifImageProvider(
+      defaultName: 'gif_enjoyer',
+    );
 
     final totalFramesDouble = imageList.length.toDouble();
-    inProgressExport = savePngSequenceFromImageList(
-      imageList,
-      prefix: gifPrefix,
-      useSubfolder: true,
-      useBaseZero: displayFrameBaseOffset == 0,
-      exportCancel: isExportCancelled,
-      onExportStart: () {
-        exportPercentProgress.value = 0;
-        showProgressSnackbar(
-          icon: const Icon(Icons.save_alt),
-          label: 'Exporting PNGs...',
-          progressListenable: exportPercentProgress,
-          action: SnackBarAction(
-            label: 'Cancel',
-            onPressed: () => cancelExport(),
-          ),
-        );
-      },
-      onFileSaveProgress: (totalFilesSaved) {
-        updateExportPercentProgress(
-          totalFilesSaved.toDouble() / totalFramesDouble,
-        );
-      },
-      onExportCanceled: (totalFiles, directory) {
-        showSnackbar(
-          icon: const Icon(SnackbarShower.canceledIcon),
-          label: 'Export canceled.',
-          action: (directory == null)
-              ? null
-              : SnackBarAction(
-                  label: 'Open folder',
-                  onPressed: () => revealDirectoryInExplorer(directory),
+    inProgressExport =
+        savePngSequenceFromImageList(
+            imageList,
+            prefix: gifPrefix,
+            useSubfolder: true,
+            useBaseZero: displayFrameBaseOffset == 0,
+            exportCancel: isExportCancelled,
+            onExportStart: () {
+              exportPercentProgress.value = 0;
+              showProgressSnackbar(
+                icon: const Icon(Icons.save_alt),
+                label: 'Exporting PNGs...',
+                progressListenable: exportPercentProgress,
+                action: SnackBarAction(
+                  label: 'Cancel',
+                  onPressed: () => cancelExport(),
                 ),
-        );
-      },
-      onExportSuccess: (totalFiles, directory) {
-        showSnackbar(
-          label:
-              'PNG Sequence exported: $totalFiles image${pluralS(totalFiles)}',
-          icon: const Icon(SnackbarShower.okIcon),
-          action: (directory == null)
-              ? null
-              : SnackBarAction(
-                  label: 'Open folder',
-                  onPressed: () => revealDirectoryInExplorer(directory),
-                ),
-        );
-      },
-    )
-      ..onError(
-        (error, stackTrace) {
-          setState(() {
-            clearExportStatus();
-          });
-          showSnackbar(
-            icon: const Icon(SnackbarShower.errorIcon),
-            label: 'Error exporting PNG sequence.',
+              );
+            },
+            onFileSaveProgress: (totalFilesSaved) {
+              updateExportPercentProgress(
+                totalFilesSaved.toDouble() / totalFramesDouble,
+              );
+            },
+            onExportCanceled: (totalFiles, directory) {
+              showSnackbar(
+                icon: const Icon(SnackbarShower.canceledIcon),
+                label: 'Export canceled.',
+                action: (directory == null)
+                    ? null
+                    : SnackBarAction(
+                        label: 'Open folder',
+                        onPressed: () => revealDirectoryInExplorer(directory),
+                      ),
+              );
+            },
+            onExportSuccess: (totalFiles, directory) {
+              showSnackbar(
+                label:
+                    'PNG Sequence exported: $totalFiles image${pluralS(totalFiles)}',
+                icon: const Icon(SnackbarShower.okIcon),
+                action: (directory == null)
+                    ? null
+                    : SnackBarAction(
+                        label: 'Open folder',
+                        onPressed: () => revealDirectoryInExplorer(directory),
+                      ),
+              );
+            },
+          )
+          ..onError(
+            (error, stackTrace) {
+              setState(() {
+                clearExportStatus();
+              });
+              showSnackbar(
+                icon: const Icon(SnackbarShower.errorIcon),
+                label: 'Error exporting PNG sequence.',
+              );
+            },
+          )
+          ..whenComplete(
+            () => setState(() {
+              clearExportStatus();
+            }),
           );
-        },
-      )
-      ..whenComplete(
-        () => setState(() {
-          clearExportStatus();
-        }),
-      );
     setState(() {});
   }
 
@@ -1113,8 +1127,9 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
       loadGifFromProvider(provider, url);
     } else {
       showSnackbar(
-          label: errorMessage ?? "Can't load url:\n$url",
-          icon: const Icon(SnackbarShower.errorIcon));
+        label: errorMessage ?? "Can't load url:\n$url",
+        icon: const Icon(SnackbarShower.errorIcon),
+      );
     }
   }
 
@@ -1124,7 +1139,8 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
 
   void showImageLoadFailedAlert(String errorText) {
     showSnackbar(
-      label: 'Loading failed\n'
+      label:
+          'Loading failed\n'
           '$errorText',
       icon: const Icon(SnackbarShower.canceledIcon),
     );
