@@ -302,9 +302,9 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
           onPressed: cycleTheme,
         );
 
-        Widget cyclePlaybackSpeedButton() => ValueListenableBuilder(
-          valueListenable: playSpeedController.valueListenable,
-          builder: (_, _, _) {
+        Widget cyclePlaybackSpeedButton() => ListenableBuilder(
+          listenable: playSpeedController.valueListenable,
+          builder: (_, _) {
             if (!isPlayModeAvailable) {
               return const SizedBox.shrink();
             }
@@ -325,9 +325,9 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
           },
         );
 
-        Widget zoomButton() => ValueListenableBuilder(
-          valueListenable: zoomLevelNotifier,
-          builder: (_, _, _) {
+        Widget zoomButton() => ListenableBuilder(
+          listenable: zoomLevelNotifier,
+          builder: (_, _) {
             if (zoomLevelNotifier.value != 1) {
               return IconButton(
                 icon: const Icon(Icons.youtube_searched_for),
