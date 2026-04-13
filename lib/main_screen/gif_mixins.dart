@@ -239,7 +239,7 @@ mixin GifLoader on GifPlayer<GifEnjoyerMainPage> {
   void onImageDownloadSuccess();
   void onImageLoadError(String errorMessage);
 
-  Future loadGifFromGifFrames(
+  Future<void> loadGifFromGifFrames(
     List<GifFrame> frames,
     String source, {
     bool isImageSequence = false,
@@ -279,7 +279,7 @@ mixin GifLoader on GifPlayer<GifEnjoyerMainPage> {
     setState(() {});
   }
 
-  void loadGifFromProvider(
+  Future<void> loadGifFromProvider(
     ImageProvider provider,
     String source,
   ) async {

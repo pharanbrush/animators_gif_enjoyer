@@ -915,7 +915,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
     bottomTextPanel.close();
   }
 
-  void openTextPanelAndPaste() async {
+  Future<void> openTextPanelAndPaste() async {
     if (inProgressExport != null) return;
 
     final pastedText = await phclipboard.getStringFromClipboard();
@@ -961,7 +961,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
   // Load Operations
   //
 
-  void openNewFile() async {
+  Future<void> openNewFile() async {
     if (isAppBusy) return;
 
     var (gifImage, name) = await open_file.userOpenFilePickerForImages();
@@ -970,7 +970,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
     loadGifFromProvider(gifImage, name);
   }
 
-  void tryLoadClipboardPath() async {
+  Future<void> tryLoadClipboardPath() async {
     final clipboardString = await phclipboard.getStringFromClipboard();
     if (clipboardString == null) return;
 
@@ -980,7 +980,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
     );
   }
 
-  void tryExportPngSequence() async {
+  Future<void> tryExportPngSequence() async {
     if (!isImageLoaded) return;
     if (isAppBusy) return;
 
@@ -1062,7 +1062,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
     setState(() {});
   }
 
-  void userOpenImageSequenceFolder() async {
+  Future<void> userOpenImageSequenceFolder() async {
     if (isAppBusy) return;
 
     try {
