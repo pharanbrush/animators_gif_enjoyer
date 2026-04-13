@@ -104,16 +104,15 @@ mixin GifPlayer<T extends StatefulWidget>
   }
 
   void toggleUseFocus() {
-    setState(() {
-      clampFocusRange();
+    clampFocusRange();
 
-      bool willSwitchToFocused = !isUsingFocusRange.value;
-      final nextRange =
-          willSwitchToFocused ? focusFrameRange.value : fullFrameRange;
-      clampCurrentFrameWithRange(nextRange);
+    bool willSwitchToFocused = !isUsingFocusRange.value;
+    final nextRange = willSwitchToFocused
+        ? focusFrameRange.value
+        : fullFrameRange;
+    clampCurrentFrameWithRange(nextRange);
 
-      isUsingFocusRange.toggle();
-    });
+    isUsingFocusRange.toggle();
   }
 
   void setPlayMode(bool active) {
@@ -207,20 +206,20 @@ mixin GifPlayer<T extends StatefulWidget>
   }
 
   void wrapCurrentFrameAndShow() {
-    setState(() {
-      final currentRange = primarySliderRange;
-      final currentValue = currentFrame.value;
-      if (currentValue > currentRange.end) {
-        currentFrame.value =
-            (currentValue - currentRange.end + currentRange.start).toInt() - 1;
-      } else if (currentValue < currentRange.start) {
-        currentFrame.value = (currentValue + currentRange.end).toInt() + 1;
-      }
+    final currentRange = primarySliderRange;
+    final currentValue = currentFrame.value;
+    if (currentValue > currentRange.end) {
+      currentFrame.value =
+          (currentValue - currentRange.end + currentRange.start).toInt() - 1;
+    } else if (currentValue < currentRange.start) {
+      currentFrame.value = (currentValue + currentRange.end).toInt() + 1;
+    }
 
-      currentFrame.value = clampDouble(currentFrame.value.toDouble(),
-              currentRange.start, currentRange.end)
-          .toInt();
-    });
+    currentFrame.value = clampDouble(
+      currentFrame.value.toDouble(),
+      currentRange.start,
+      currentRange.end,
+    ).toInt();
   }
 }
 

@@ -672,19 +672,28 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                 width: double.infinity,
                 child: GestureDetector(
                   onTap: isScrubMode.value ? null : () => setPlayMode(false),
-                  child: MainSlider(
-                    toggleUseFocus: toggleUseFocus,
-                    primarySliderRange: primarySliderRange,
-                    isUsingFocusRange: isUsingFocusRange,
-                    currentFrame: currentFrame,
-                    gifController: gifController,
-                    enabled: isPlayModeAvailable && isScrubMode.value,
-                    allowWideNotifier: allowWideSliderNotifier,
-                    toggleWideSlider: () =>
-                        gif_enjoyer_preferences.toggleAllowWideSliderPreference(
-                            allowWideSliderNotifier),
-                    onChange: clampCurrentFrameAndShow,
-                    displayedFrameOffset: displayedFrameBaseOffset,
+                  child: ListenableBuilder(
+                    listenable: Listenable.merge([
+                      focusFrameRange,
+                      isUsingFocusRange,
+                    ]),
+                    builder: (_, _) {
+                      return MainSlider(
+                        toggleUseFocus: toggleUseFocus,
+                        primarySliderRange: primarySliderRange,
+                        isUsingFocusRange: isUsingFocusRange,
+                        currentFrame: currentFrame,
+                        gifController: gifController,
+                        enabled: isPlayModeAvailable && isScrubMode.value,
+                        allowWideNotifier: allowWideSliderNotifier,
+                        toggleWideSlider: () => gif_enjoyer_preferences
+                            .toggleAllowWideSliderPreference(
+                              allowWideSliderNotifier,
+                            ),
+                        onChange: clampCurrentFrameAndShow,
+                        displayedFrameOffset: displayedFrameBaseOffset,
+                      );
+                    },
                   ),
                 ),
               ),
