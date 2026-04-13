@@ -699,7 +699,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                             .toggleAllowWideSliderPreference(
                               allowWideSliderNotifier,
                             ),
-                        onChange: clampCurrentFrameAndShow,
+                        incrementFunction: incrementFrame,
                         displayedFrameOffset: displayedFrameBaseOffset,
                       );
                     },
@@ -734,7 +734,8 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                       startEnd: focusFrameRange,
                       maxFrameIndex: maxFrameIndex,
                       enabled: isImageLoaded && isScrubMode.value,
-                      onChange: () => wrapCurrentFrameAndShow(),
+                      onChange: () =>
+                          setCurrentFrameClamped(currentFrame.value),
                       onChangeRangeStart: () =>
                           setDisplayedFrame(focusFrameRange.value.startInt),
                       onChangeRangeEnd: () =>

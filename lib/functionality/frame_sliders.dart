@@ -108,9 +108,9 @@ class MainSlider extends StatelessWidget {
     required this.currentFrame,
     required this.gifController,
     required this.enabled,
-    required this.onChange,
     required this.allowWideNotifier,
     required this.toggleWideSlider,
+    required this.incrementFunction,
     this.displayedFrameOffset = 0,
   });
 
@@ -122,7 +122,7 @@ class MainSlider extends StatelessWidget {
   final ValueNotifier<int> currentFrame;
   final ValueNotifier<bool> allowWideNotifier;
   final GifFrameController gifController;
-  final VoidCallback onChange;
+  final void Function(int increment) incrementFunction;
   final bool enabled;
 
   @override
@@ -156,7 +156,6 @@ class MainSlider extends StatelessWidget {
               onChanged: enabled
                   ? (newValue) {
                       currentFrame.value = newValue.toInt();
-                      onChange();
                     }
                   : null,
             );
@@ -182,8 +181,8 @@ class MainSlider extends StatelessWidget {
                     descendantsAreFocusable: false,
                     descendantsAreTraversable: false,
                     child: ScrollListener(
-                      onScrollUp: () => increment(currentFrame, 1),
-                      onScrollDown: () => increment(currentFrame, -1),
+                      onScrollUp: () => incrementFunction(1),
+                      onScrollDown: () => incrementFunction(-1),
                       child: slider(),
                     ),
                   ),
@@ -217,11 +216,6 @@ class MainSlider extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  void increment(ValueNotifier<int> notifier, int incrementSign) {
-    notifier.value = notifier.value + incrementSign.sign;
-    onChange();
   }
 }
 

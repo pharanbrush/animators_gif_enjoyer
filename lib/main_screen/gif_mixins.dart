@@ -130,7 +130,7 @@ mixin GifPlayer<T extends StatefulWidget>
       final range = primarySliderRange;
       final int start = range.start.toInt();
       final int last = range.end.toInt();
-      wrapCurrentFrameAndShow();
+      setCurrentFrameClamped(currentFrame.value);
 
       gifAdvancer.pause();
       gifAdvancer.play(
@@ -167,7 +167,7 @@ mixin GifPlayer<T extends StatefulWidget>
 
   void incrementFrame(int increment) {
     if (increment == 0) return;
-    setCurrentFrameClamped(currentFrame.value + increment);
+    setCurrentFrameWrapped(currentFrame.value + increment);
   }
 
   void setCurrentFrameToFirst() {
@@ -179,13 +179,35 @@ mixin GifPlayer<T extends StatefulWidget>
   }
 
   void setCurrentFrameClamped(int newFrame) {
-    currentFrame.value = newFrame;
-    clampCurrentFrameAndShow();
+    final currentRange = primarySliderRange;
+    currentFrame.value = clampDouble(
+      newFrame.toDouble(),
+      currentRange.start,
+      currentRange.end,
+    ).toInt();
   }
 
-  void clampCurrentFrameAndShow() {
-    wrapCurrentFrameAndShow();
-    setDisplayedFrame(currentFrame.value);
+  void setCurrentFrameWrapped(int newFrame) {
+    final currentRange = primarySliderRange;
+    if (newFrame > currentRange.end) {
+      newFrame = (newFrame - currentRange.end + currentRange.start).toInt() - 1;
+    } else if (newFrame < currentRange.start) {
+      newFrame = (newFrame + currentRange.end).toInt() + 1;
+    }
+
+    currentFrame.value = clampDouble(
+      newFrame.toDouble(),
+      currentRange.start,
+      currentRange.end,
+    ).toInt();
+  }
+
+  void clampCurrentFrameWithRange(RangeValues range) {
+    currentFrame.value = clampDouble(
+      currentFrame.value.toDouble(),
+      range.start,
+      range.end,
+    ).toInt();
   }
 
   void clampFocusRange() {
@@ -201,31 +223,6 @@ mixin GifPlayer<T extends StatefulWidget>
     if (maxValue > lastFrameIndex) maxValue = lastFrameIndex;
 
     focusFrameRange.value = RangeValues(minValue, maxValue);
-  }
-
-  void clampCurrentFrameWithRange(RangeValues range) {
-    currentFrame.value = clampDouble(
-      currentFrame.value.toDouble(),
-      range.start,
-      range.end,
-    ).toInt();
-  }
-
-  void wrapCurrentFrameAndShow() {
-    final currentRange = primarySliderRange;
-    final currentValue = currentFrame.value;
-    if (currentValue > currentRange.end) {
-      currentFrame.value =
-          (currentValue - currentRange.end + currentRange.start).toInt() - 1;
-    } else if (currentValue < currentRange.start) {
-      currentFrame.value = (currentValue + currentRange.end).toInt() + 1;
-    }
-
-    currentFrame.value = clampDouble(
-      currentFrame.value.toDouble(),
-      currentRange.start,
-      currentRange.end,
-    ).toInt();
   }
 }
 
