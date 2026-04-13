@@ -57,9 +57,7 @@ mixin GifPlayer<T extends StatefulWidget>
   bool get isImageLoaded => loadedGifInfo.isLoaded;
   bool get isPlayModeAvailable => isImageLoaded && !loadedGifInfo.isNonAnimated;
   bool get isScrubbingAllowed =>
-      isImageLoaded &&
-      !loadedGifInfo.isNonAnimated &&
-      isScrubMode.value == true;
+      isImageLoaded && !loadedGifInfo.isNonAnimated && isScrubMode.value;
 
   /// Tries to get the filename of the loaded GIF.
   String tryGetNameFromGifImageProvider({required String defaultName}) {

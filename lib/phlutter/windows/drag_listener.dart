@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class DiscreteDragListener extends StatefulWidget {
   const DiscreteDragListener({
     super.key,
     this.sensitivity = 0.1,
+    this.shiftMultiplier = 0.1,
     this.onDragStart,
     this.onDragUpdate,
     this.onDragEnd,
@@ -12,6 +14,7 @@ class DiscreteDragListener extends StatefulWidget {
   });
 
   final double sensitivity;
+  final double shiftMultiplier;
 
   final Function(DragStartDetails details)? onDragStart;
   final Function(Offset delta)? onDragUpdate;
@@ -55,7 +58,9 @@ class _DiscreteDragListenerState extends State<DiscreteDragListener> {
         }
 
         final sensitivity = widget.sensitivity;
-        deltaAccumulator += inputDelta.scale(sensitivity, sensitivity);
+        final isHoldingShift = HardwareKeyboard.instance.isShiftPressed;
+        final multipler = isHoldingShift ? widget.shiftMultiplier : sensitivity;
+        deltaAccumulator += inputDelta.scale(multipler, multipler);
 
         final outputDelta = Offset(
           (deltaAccumulator.dx).truncate().toDouble(),
