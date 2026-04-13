@@ -223,18 +223,18 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
       child: Focus(
         focusNode: mainWindowFocus,
         autofocus: true,
-        child: mainLayer(context),
+        child: mainLayer(),
       ),
     );
 
     final windowContents = <Widget>[
       mainLayerWidget,
-      topLeftControls(context),
+      topLeftControls(),
       bottomTextPanel.widget(),
       ValueListenableBuilder(
         valueListenable: isImageLoading,
         builder: (_, value, _) =>
-            value ? const SizedBox.shrink() : fileDropTarget(context),
+            value ? const SizedBox.shrink() : fileDropTarget(),
       ),
     ];
 
@@ -249,126 +249,130 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
     );
   }
 
-  Widget topLeftControls(BuildContext context) {
-    const double iconSize = 16;
-    const double buttonSize = 34;
-    const Size size = Size(buttonSize, buttonSize);
-    const buttonSizeProperty = WidgetStatePropertyAll(size);
+  Widget topLeftControls() {
+    return Builder(
+      builder: (context) {
+        const double iconSize = 16;
+        const double buttonSize = 34;
+        const Size size = Size(buttonSize, buttonSize);
+        const buttonSizeProperty = WidgetStatePropertyAll(size);
 
-    final buttonContentColor = Theme.of(context).colorScheme.faintGrayColor;
-    final contentColorProperty = hoverColors(
-      idle: buttonContentColor,
-      hover: buttonContentColor.withAlpha(0xFF),
-    );
-    final buttonStyle = ButtonStyle(
-      minimumSize: buttonSizeProperty,
-      maximumSize: buttonSizeProperty,
-      fixedSize: buttonSizeProperty,
-      shape: const WidgetStatePropertyAll(app_theme.appButtonShape),
-      iconSize: const WidgetStatePropertyAll(iconSize),
-      iconColor: contentColorProperty,
-      foregroundColor: contentColorProperty,
-      textStyle: WidgetStatePropertyAll(
-        Theme.of(context).textTheme.labelSmall!.copyWith(
-          overflow: TextOverflow.visible,
-        ),
-      ),
-      padding: const WidgetStatePropertyAll(
-        EdgeInsets.symmetric(horizontal: 0),
-      ),
-    );
-    final activeColor = Theme.of(context).colorScheme.tertiary;
-    final activeButtonStyle = ButtonStyle(
-      foregroundColor: hoverColors(
-        idle: activeColor.withValues(alpha: 0.75),
-        hover: activeColor,
-      ),
-    );
-    final iconButtonTheme = IconButtonThemeData(style: buttonStyle);
-    final textButtonTheme = TextButtonThemeData(style: buttonStyle);
+        final buttonContentColor = Theme.of(context).colorScheme.faintGrayColor;
+        final contentColorProperty = hoverColors(
+          idle: buttonContentColor,
+          hover: buttonContentColor.withAlpha(0xFF),
+        );
+        final buttonStyle = ButtonStyle(
+          minimumSize: buttonSizeProperty,
+          maximumSize: buttonSizeProperty,
+          fixedSize: buttonSizeProperty,
+          shape: const WidgetStatePropertyAll(app_theme.appButtonShape),
+          iconSize: const WidgetStatePropertyAll(iconSize),
+          iconColor: contentColorProperty,
+          foregroundColor: contentColorProperty,
+          textStyle: WidgetStatePropertyAll(
+            Theme.of(context).textTheme.labelSmall!.copyWith(
+              overflow: TextOverflow.visible,
+            ),
+          ),
+          padding: const WidgetStatePropertyAll(
+            EdgeInsets.symmetric(horizontal: 0),
+          ),
+        );
+        final activeColor = Theme.of(context).colorScheme.tertiary;
+        final activeButtonStyle = ButtonStyle(
+          foregroundColor: hoverColors(
+            idle: activeColor.withValues(alpha: 0.75),
+            hover: activeColor,
+          ),
+        );
+        final iconButtonTheme = IconButtonThemeData(style: buttonStyle);
+        final textButtonTheme = TextButtonThemeData(style: buttonStyle);
 
-    final cycleThemeButton = IconButton(
-      icon: const Icon(Icons.lightbulb_outline),
-      tooltip: 'Cycle interface brightness',
-      onPressed: cycleTheme,
-    );
+        final cycleThemeButton = IconButton(
+          icon: const Icon(Icons.lightbulb_outline),
+          tooltip: 'Cycle interface brightness',
+          onPressed: cycleTheme,
+        );
 
-    final cyclePlaybackSpeedButton = ValueListenableBuilder(
-      valueListenable: playSpeedController.valueListenable,
-      builder: (_, _, _) {
-        if (!isPlayModeAvailable) {
-          return const SizedBox.shrink();
-        }
+        final cyclePlaybackSpeedButton = ValueListenableBuilder(
+          valueListenable: playSpeedController.valueListenable,
+          builder: (_, _, _) {
+            if (!isPlayModeAvailable) {
+              return const SizedBox.shrink();
+            }
 
-        return Tooltip(
-          message: 'Change playback speed',
-          child: GestureDetector(
-            onTertiaryTapDown: (_) => playSpeedController.resetSpeed(),
-            child: TextButton(
-              style: playSpeedController.isDefaultSpeed
-                  ? null
-                  : activeButtonStyle,
-              child: Text('${playSpeedController.currentSpeedString}x'),
-              onPressed: () => playSpeedController.cycleNextSpeed(),
+            return Tooltip(
+              message: 'Change playback speed',
+              child: GestureDetector(
+                onTertiaryTapDown: (_) => playSpeedController.resetSpeed(),
+                child: TextButton(
+                  style: playSpeedController.isDefaultSpeed
+                      ? null
+                      : activeButtonStyle,
+                  child: Text('${playSpeedController.currentSpeedString}x'),
+                  onPressed: () => playSpeedController.cycleNextSpeed(),
+                ),
+              ),
+            );
+          },
+        );
+
+        final zoomButton = ValueListenableBuilder(
+          valueListenable: zoomLevelNotifier,
+          builder: (_, _, _) {
+            if (zoomLevelNotifier.value != 1) {
+              return IconButton(
+                icon: const Icon(Icons.youtube_searched_for),
+                tooltip: 'Reset zoom',
+                onPressed: () => zoomLevelNotifier.value = 1.0,
+              );
+            } else {
+              return const SizedBox.shrink();
+            }
+          },
+        );
+
+        final List<Widget> buttons = isImageLoaded
+            ? [
+                cycleThemeButton,
+                cyclePlaybackSpeedButton,
+                zoomButton,
+              ]
+            : [
+                cycleThemeButton,
+              ];
+
+        return Positioned(
+          left: 0,
+          top: 0,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              vertical: 2,
+              horizontal: 2,
+            ),
+            child: TooltipTheme(
+              data: Theme.of(context).tooltipTheme.copyWith(
+                verticalOffset: 35,
+                waitDuration: delayedTooltipDelay,
+              ),
+              child: TextButtonTheme(
+                data: textButtonTheme,
+                child: IconButtonTheme(
+                  data: iconButtonTheme,
+                  child: Column(
+                    children: buttons,
+                  ),
+                ),
+              ),
             ),
           ),
         );
       },
     );
-
-    final zoomButton = ValueListenableBuilder(
-      valueListenable: zoomLevelNotifier,
-      builder: (_, _, _) {
-        if (zoomLevelNotifier.value != 1) {
-          return IconButton(
-            icon: const Icon(Icons.youtube_searched_for),
-            tooltip: 'Reset zoom',
-            onPressed: () => zoomLevelNotifier.value = 1.0,
-          );
-        } else {
-          return const SizedBox.shrink();
-        }
-      },
-    );
-
-    final List<Widget> buttons = isImageLoaded
-        ? [
-            cycleThemeButton,
-            cyclePlaybackSpeedButton,
-            zoomButton,
-          ]
-        : [
-            cycleThemeButton,
-          ];
-
-    return Positioned(
-      left: 0,
-      top: 0,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          vertical: 2,
-          horizontal: 2,
-        ),
-        child: TooltipTheme(
-          data: Theme.of(context).tooltipTheme.copyWith(
-            verticalOffset: 35,
-            waitDuration: delayedTooltipDelay,
-          ),
-          child: TextButtonTheme(
-            data: textButtonTheme,
-            child: IconButtonTheme(
-              data: iconButtonTheme,
-              child: Column(
-                children: buttons,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
   }
 
-  Widget mainLayer(BuildContext context) {
+  Widget mainLayer() {
     return Column(
       children: [
         Expanded(
@@ -376,12 +380,10 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
             valueListenable: isImageLoading,
             builder: (_, isCurrentlyLoading, _) {
               if (isCurrentlyLoading) {
-                return imageLoadingIndicator(context);
+                return imageLoadingIndicator();
               }
 
-              return isImageLoaded
-                  ? loadedInterface(context)
-                  : unloadedInterface(context);
+              return isImageLoaded ? loadedInterface() : unloadedInterface();
             },
           ),
         ),
@@ -390,13 +392,13 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
     );
   }
 
-  Widget imageLoadingIndicator(BuildContext context) {
+  Widget imageLoadingIndicator() {
     return Center(
       child: SizedBox.square(
         dimension: 150,
         child: ValueListenableBuilder(
           valueListenable: imageLoadPercent,
-          builder: (_, percentLoaded, _) {
+          builder: (context, percentLoaded, _) {
             return CircularProgressIndicator(
               value: percentLoaded < 0.1 ? null : percentLoaded,
               strokeWidth: 8,
@@ -408,7 +410,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
     );
   }
 
-  Widget unloadedInterface(BuildContext context) {
+  Widget unloadedInterface() {
     Menu unloadedMenu() {
       return Menu(
         items: [
@@ -445,53 +447,60 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
       );
     }
 
-    return GestureDetector(
-      onSecondaryTap: () => popUpContextualMenu(unloadedMenu()),
-      onDoubleTap: () => openNewFile(),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).scaffoldBackgroundColor,
-        ),
-        child: Align(
-          alignment: Alignment.center,
-          child: Material(
-            type: MaterialType.transparency,
-            child: SizedBox(
-              height: 200,
-              width: 300,
-              child: Center(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 20),
-                    Text(
-                      'Load a GIF!',
-                      style: Theme.of(context).textTheme.headlineSmall,
+    return Builder(
+      builder: (context) {
+        return GestureDetector(
+          onSecondaryTap: () => popUpContextualMenu(unloadedMenu()),
+          onDoubleTap: () => openNewFile(),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).scaffoldBackgroundColor,
+            ),
+            child: Align(
+              alignment: Alignment.center,
+              child: Material(
+                type: MaterialType.transparency,
+                child: SizedBox(
+                  height: 200,
+                  width: 300,
+                  child: Center(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const SizedBox(height: 20),
+                        Text(
+                          'Load a GIF!',
+                          style: Theme.of(context).textTheme.headlineSmall,
+                        ),
+                        const SizedBox(height: 5),
+                        const Text(
+                          'Use the button on the lower right.\n'
+                          'Or drag and drop a GIF into the window.',
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          '(Animated PNG, WEBP, and AVIF also work.)',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color:
+                                Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant.withValues(
+                                  alpha: 0.4,
+                                ),
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 5),
-                    const Text(
-                      'Use the button on the lower right.\n'
-                      'Or drag and drop a GIF into the window.',
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      '(Animated PNG, WEBP, and AVIF also work.)',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -545,13 +554,13 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
     );
   }
 
-  Widget loadedInterface(BuildContext context) {
-    final displayedFrameBaseOffset =
-        FrameBaseContext.of(context)?.frameBase.value ?? 0;
-
+  Widget loadedInterface() {
     return ValueListenableBuilder(
       valueListenable: isScrubMode,
-      builder: (_, _, _) {
+      builder: (context, _, _) {
+        final displayedFrameBaseOffset =
+            FrameBaseContext.of(context)?.frameBase.value ?? 0;
+
         return Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -620,7 +629,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                             final currentFrameBase = displayFrameBaseOffset;
                             if (frameBaseContext == null) return;
 
-                            Menu menu(BuildContext context) {
+                            Menu menu() {
                               return Menu(
                                 items: currentFrameBase != 0
                                     ? [
@@ -642,7 +651,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                               );
                             }
 
-                            popUpContextualMenu(menu(context));
+                            popUpContextualMenu(menu());
                           },
                           child: Wrap(
                             alignment: WrapAlignment.center,
@@ -787,7 +796,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
               spacing: 4,
               children: [
                 getFramerateTooltip(),
-                bottomBarGifInfo(context),
+                bottomBarGifInfo(),
               ],
             ),
             const Spacer(),
@@ -818,57 +827,58 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
     );
   }
 
-  Widget bottomBarGifInfo(BuildContext context) {
-    if (!isImageLoaded) return const SizedBox.shrink();
-    final smallGrayStyle = Theme.of(context).smallGrayStyle;
+  Widget bottomBarGifInfo() {
+    return Builder(
+      builder: (context) {
+        if (!isImageLoaded) return const SizedBox.shrink();
+        final smallGrayStyle = Theme.of(context).smallGrayStyle;
 
-    final isAnimatedWithVariableFps = //
-        !loadedGifInfo.isNonAnimated && //
-        loadedGifInfo.frameDuration == null;
+        final isAnimatedWithVariableFps = //
+            !loadedGifInfo.isNonAnimated && //
+            loadedGifInfo.frameDuration == null;
 
-    String getImageDimensionsLabel() {
-      return '${loadedGifInfo.width}x${loadedGifInfo.height}px';
-    }
+        String getImageDimensionsLabel() {
+          return '${loadedGifInfo.width}x${loadedGifInfo.height}px';
+        }
 
-    final bytecount = loadedGifInfo.filesizeByteCount;
-    final filesizeText = bytecount != null
-        ? proper_filesize.FileSize.fromBytes(bytecount).toString(
-            unit: proper_filesize.Unit.auto(
-              size: bytecount,
-              baseType: proper_filesize.BaseType.metric,
-            ),
-            decimals: 2,
-          )
-        : null;
+        final bytecount = loadedGifInfo.filesizeByteCount;
+        final filesizeText = bytecount != null
+            ? proper_filesize.FileSize.fromBytes(bytecount).toString(
+                unit: proper_filesize.Unit.auto(
+                  size: bytecount,
+                  baseType: proper_filesize.BaseType.metric,
+                ),
+                decimals: 2,
+              )
+            : null;
 
-    debugPrint("filesize text rebuilt");
-    if (isAnimatedWithVariableFps) {
-      return DefaultTextStyle(
-        style: smallGrayStyle,
-        child: Row(
-          children: [
-            const Text('Variable frame times. '),
-            ValueListenableBuilder(
-              valueListenable: currentFrame,
-              builder: (_, _, _) {
-                return Text(
-                  '(current: ${gifController.currentFrameData.duration.inMilliseconds} ms)',
-                );
-              },
-            ),
-            Text('- ${getImageDimensionsLabel()}'),
-          ],
-        ),
-      );
-    }
-
-    return Text(
-      '${gif_frame_info.getFramerateLabel(loadedGifInfo)}- ${getImageDimensionsLabel()}${filesizeText != null ? " - $filesizeText" : ""}',
-      style: smallGrayStyle,
+        return DefaultTextStyle(
+          style: smallGrayStyle,
+          child: Row(
+            children: [
+              if (isAnimatedWithVariableFps)
+                const Text('Variable frame times. '),
+              if (isAnimatedWithVariableFps)
+                ValueListenableBuilder(
+                  valueListenable: currentFrame,
+                  builder: (_, _, _) {
+                    return Text(
+                      '(current: ${gifController.currentFrameData.duration.inMilliseconds} ms)',
+                    );
+                  },
+                ),
+              if (!isAnimatedWithVariableFps)
+                Text(gif_frame_info.getFramerateLabel(loadedGifInfo)),
+              Text('- ${getImageDimensionsLabel()}'),
+              if (filesizeText != null) Text(" - $filesizeText"),
+            ],
+          ),
+        );
+      },
     );
   }
 
-  Widget fileDropTarget(BuildContext context) {
+  Widget fileDropTarget() {
     return ImageDropTarget(
       dragImagesHandler: (details) {
         if (details.files.isEmpty) return;
@@ -932,13 +942,17 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
 
     final message = gif_frame_info.getFramerateTooltipMessage(loadedGifInfo);
 
-    return Tooltip(
-      message: message,
-      child: Icon(
-        Icons.info_outline,
-        size: 13,
-        color: Theme.of(context).colorScheme.grayColor,
-      ),
+    return Builder(
+      builder: (context) {
+        return Tooltip(
+          message: message,
+          child: Icon(
+            Icons.info_outline,
+            size: 13,
+            color: Theme.of(context).colorScheme.grayColor,
+          ),
+        );
+      },
     );
   }
 
