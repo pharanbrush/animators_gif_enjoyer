@@ -20,8 +20,9 @@ mixin FrameBaseStorer<T extends StatefulWidget> on State<T> {
   @override
   void initState() {
     void queueLoadPreference() async {
-      await Future.delayed(const Duration(milliseconds: 20))
-          .then((value) => _loadFrameBasePreference());
+      await Future.delayed(
+        const Duration(milliseconds: 20),
+      ).then((value) => _loadFrameBasePreference());
     }
 
     queueLoadPreference();
