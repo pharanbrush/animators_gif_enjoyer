@@ -48,8 +48,9 @@ mixin GifPlayer<T extends StatefulWidget>
     frameDuration: Duration.zero,
     isLoaded: false,
   );
-  int get lastGifFrame => gifController.frameCount - 1;
+  int get endGifFrame => gifController.frameCount - 1;
 
+  bool get isPlaying => (isPlayModeAvailable && isScrubMode.value == false);
   bool get isImageLoaded => loadedGifInfo.isLoaded;
   bool get isPlayModeAvailable => isImageLoaded && !loadedGifInfo.isNonAnimated;
 
@@ -261,9 +262,9 @@ mixin GifLoader on GifPlayer<GifEnjoyerMainPage> {
   }
 
   void resetViewerStateAfterLoad() {
-    int lastFrame = lastGifFrame;
-    focusFrameRange.value = RangeValues(0, lastFrame.toDouble());
-    maxFrameIndex.value = lastFrame;
+    int endFrame = endGifFrame;
+    focusFrameRange.value = RangeValues(0, endFrame.toDouble());
+    maxFrameIndex.value = endFrame;
     currentFrame.value = 0;
     playSpeedController.resetSpeed();
     isImageLoading.value = false;
