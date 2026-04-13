@@ -127,10 +127,10 @@ class MainSlider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final sliderPart = ValueListenableBuilder(
+    Widget sliderPart() => ValueListenableBuilder(
       valueListenable: allowWideNotifier,
       builder: (_, allowWideValue, _) {
-        var insideExpanded = ValueListenableBuilder(
+        Widget insideExpanded() => ValueListenableBuilder(
           valueListenable: currentFrame,
           builder: (_, currentFrameValue, _) {
             final sliderMin = primarySliderRange.start;
@@ -148,7 +148,7 @@ class MainSlider extends StatelessWidget {
               _ => minFramesBeforeShrink * maximumSpacePerFrame,
             };
 
-            var slider = Slider(
+            Widget slider() => Slider(
               min: sliderMin,
               max: sliderMax,
               value: currentFrameValue.toDouble(),
@@ -184,7 +184,7 @@ class MainSlider extends StatelessWidget {
                     child: ScrollListener(
                       onScrollUp: () => increment(currentFrame, 1),
                       onScrollDown: () => increment(currentFrame, -1),
-                      child: slider,
+                      child: slider(),
                     ),
                   ),
                 ),
@@ -194,8 +194,8 @@ class MainSlider extends StatelessWidget {
         );
 
         return allowWideValue
-            ? Expanded(child: insideExpanded)
-            : insideExpanded;
+            ? Expanded(child: insideExpanded())
+            : insideExpanded();
       },
     );
 
@@ -208,7 +208,7 @@ class MainSlider extends StatelessWidget {
           isFocusing: isUsingFocusRange.value,
           enabled: enabled,
         ),
-        sliderPart,
+        sliderPart(),
         ToggleFocusButton(
           label: '${(primarySliderRange.endInt + displayedFrameOffset)}',
           handleToggle: () => toggleUseFocus(),

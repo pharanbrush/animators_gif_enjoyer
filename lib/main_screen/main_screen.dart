@@ -333,16 +333,6 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
           },
         );
 
-        List<Widget> buttons() => isImageLoaded
-            ? [
-                cycleThemeButton(),
-                cyclePlaybackSpeedButton(),
-                zoomButton(),
-              ]
-            : [
-                cycleThemeButton(),
-              ];
-
         return Positioned(
           left: 0,
           top: 0,
@@ -361,7 +351,11 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                 child: IconButtonTheme(
                   data: iconButtonTheme,
                   child: Column(
-                    children: buttons(),
+                    children: [
+                      cycleThemeButton(),
+                      if (isImageLoaded) cyclePlaybackSpeedButton(),
+                      if (isImageLoaded) zoomButton(),
+                    ],
                   ),
                 ),
               ),
