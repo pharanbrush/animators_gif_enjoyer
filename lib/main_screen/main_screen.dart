@@ -37,6 +37,7 @@ import 'package:animators_gif_enjoyer/functionality/save_image_as_png.dart';
 import 'package:contextual_menu/contextual_menu.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:proper_filesize/proper_filesize.dart' as proper_filesize;
 import 'package:window_manager/window_manager.dart';
 
 class MyApp extends StatelessWidget {
@@ -820,6 +821,18 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
       return '${loadedGifInfo.width}x${loadedGifInfo.height}px';
     }
 
+    final bytecount = loadedGifInfo.filesizeByteCount;
+    final filesizeText = bytecount != null
+        ? proper_filesize.FileSize.fromBytes(bytecount).toString(
+            unit: proper_filesize.Unit.auto(
+              size: bytecount,
+              baseType: proper_filesize.BaseType.metric,
+            ),
+            decimals: 2,
+          )
+        : null;
+
+    debugPrint("filesize text rebuilt");
     if (isAnimatedWithVariableFps) {
       return DefaultTextStyle(
         style: smallGrayStyle,
@@ -841,7 +854,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
     }
 
     return Text(
-      '${gif_frame_info.getFramerateLabel(loadedGifInfo)}- ${getImageDimensionsLabel()}',
+      '${gif_frame_info.getFramerateLabel(loadedGifInfo)}- ${getImageDimensionsLabel()}${filesizeText != null ? " - $filesizeText" : ""}',
       style: smallGrayStyle,
     );
   }

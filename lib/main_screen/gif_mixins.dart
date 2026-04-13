@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:animators_gif_enjoyer/functionality/frame_sliders.dart';
 import 'package:animators_gif_enjoyer/functionality/gif_frame_advancer.dart';
@@ -312,10 +313,20 @@ mixin GifLoader on GifPlayer<GifEnjoyerMainPage> {
 
       final frames = await gifLoadProcess;
       gifImageProvider = provider;
+
+      final int? fileSize;
+      final file = File(source);
+      if (await file.exists()) {
+        fileSize = await file.length();
+      } else {
+        fileSize = null;
+      }
+
       loadedGifInfo = GifInfo.fromFrames(
         fileSource: source,
         frames: frames,
         isGif: isProviderHasFileExtension(provider, extension: 'gif'),
+        filesizeByteCount: fileSize,
       );
       gifController.load(frames);
       gifAdvancer.setFrames(frames);
@@ -412,6 +423,7 @@ class GifInfo {
     this.isGif = false,
     this.isImageSequence = false,
     this.isNonAnimated = false,
+    this.filesizeByteCount,
   });
 
   GifInfo._fromFramesAndImageInfo({
@@ -420,24 +432,27 @@ class GifInfo {
     required ImageInfo imageInfo,
     this.isImageSequence = false,
     required this.isGif,
-  })  : frameDuration = readFrameDuration(frames),
-        width = imageInfo.image.width,
-        height = imageInfo.image.height,
-        isNonAnimated = isNonMoving(frames),
-        isLoaded = true;
+    this.filesizeByteCount,
+  }) : frameDuration = readFrameDuration(frames),
+       width = imageInfo.image.width,
+       height = imageInfo.image.height,
+       isNonAnimated = isNonMoving(frames),
+       isLoaded = true;
 
   GifInfo.fromFrames({
     required String fileSource,
     required List<GifFrame> frames,
     isImageSequence = false,
     required isGif,
+    int? filesizeByteCount,
   }) : this._fromFramesAndImageInfo(
-          fileSource: fileSource,
-          frames: frames,
-          imageInfo: frames[0].imageInfo,
-          isImageSequence: isImageSequence,
-          isGif: isGif,
-        );
+         fileSource: fileSource,
+         frames: frames,
+         imageInfo: frames[0].imageInfo,
+         isImageSequence: isImageSequence,
+         isGif: isGif,
+         filesizeByteCount: filesizeByteCount,
+       );
 
   final String fileSource;
   final int width;
@@ -447,6 +462,7 @@ class GifInfo {
   final bool isLoaded;
   final bool isImageSequence;
   final bool isGif;
+  final int? filesizeByteCount;
 
   Size get imageSize => Size(width.toDouble(), height.toDouble());
 
