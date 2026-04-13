@@ -29,7 +29,7 @@ class WindowsPhwindow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final titleBar = WindowTitlebar(
+    Widget titleBar() => WindowTitlebar(
       title: title,
       titleColor: titleColor,
       iconWidget: iconWidget,
@@ -53,7 +53,7 @@ class WindowsPhwindow extends StatelessWidget {
             top: 0,
             left: 0,
             right: 0,
-            child: titleBar,
+            child: titleBar(),
           ),
           if (addExtraResizingFrame) const WindowResizeFrame(),
         ],

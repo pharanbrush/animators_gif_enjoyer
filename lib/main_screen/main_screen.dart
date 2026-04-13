@@ -219,7 +219,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
 
   @override
   Widget build(BuildContext context) {
-    final mainLayerWidget = shortcuts.shortcutsWrapper(
+    Widget mainLayerWidget() => shortcuts.shortcutsWrapper(
       child: Focus(
         focusNode: mainWindowFocus,
         autofocus: true,
@@ -227,25 +227,25 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
       ),
     );
 
-    final windowContents = <Widget>[
-      mainLayerWidget,
-      topLeftControls(),
-      bottomTextPanel.widget(),
-      ValueListenableBuilder(
-        valueListenable: isImageLoading,
-        builder: (_, value, _) =>
-            value ? const SizedBox.shrink() : fileDropTarget(),
-      ),
-    ];
+    Widget windowContents() => Stack(
+      children: [
+        mainLayerWidget(),
+        topLeftControls(),
+        bottomTextPanel.widget(),
+        ValueListenableBuilder(
+          valueListenable: isImageLoading,
+          builder: (_, value, _) =>
+              value ? const SizedBox.shrink() : fileDropTarget(),
+        ),
+      ],
+    );
 
     return WindowsPhwindow(
       title: appName,
       titleColor: Theme.of(context).colorScheme.mutedSurfaceColor,
       iconWidget: Image.memory(app_theme.appIconDataBytes),
       addExtraResizingFrame: true,
-      child: Stack(
-        children: windowContents,
-      ),
+      child: windowContents(),
     );
   }
 
@@ -289,13 +289,13 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
         final iconButtonTheme = IconButtonThemeData(style: buttonStyle);
         final textButtonTheme = TextButtonThemeData(style: buttonStyle);
 
-        final cycleThemeButton = IconButton(
+        Widget cycleThemeButton() => IconButton(
           icon: const Icon(Icons.lightbulb_outline),
           tooltip: 'Cycle interface brightness',
           onPressed: cycleTheme,
         );
 
-        final cyclePlaybackSpeedButton = ValueListenableBuilder(
+        Widget cyclePlaybackSpeedButton() => ValueListenableBuilder(
           valueListenable: playSpeedController.valueListenable,
           builder: (_, _, _) {
             if (!isPlayModeAvailable) {
@@ -318,7 +318,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
           },
         );
 
-        final zoomButton = ValueListenableBuilder(
+        Widget zoomButton() => ValueListenableBuilder(
           valueListenable: zoomLevelNotifier,
           builder: (_, _, _) {
             if (zoomLevelNotifier.value != 1) {
@@ -333,14 +333,14 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
           },
         );
 
-        final List<Widget> buttons = isImageLoaded
+        List<Widget> buttons() => isImageLoaded
             ? [
-                cycleThemeButton,
-                cyclePlaybackSpeedButton,
-                zoomButton,
+                cycleThemeButton(),
+                cyclePlaybackSpeedButton(),
+                zoomButton(),
               ]
             : [
-                cycleThemeButton,
+                cycleThemeButton(),
               ];
 
         return Positioned(
@@ -361,7 +361,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                 child: IconButtonTheme(
                   data: iconButtonTheme,
                   child: Column(
-                    children: buttons,
+                    children: buttons(),
                   ),
                 ),
               ),
@@ -504,7 +504,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
     );
   }
 
-  Menu loadedMenu(BuildContext context) {
+  Menu loadedMenu() {
     return Menu(
       items: [
         MenuItem(
@@ -572,8 +572,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                 builder: (_, getFitZoom, getMinZoom, getMaxZoom) {
                   return GestureDetector(
                     onTap: () => togglePlayPause(),
-                    onSecondaryTap: () =>
-                        popUpContextualMenu(loadedMenu(context)),
+                    onSecondaryTap: () => popUpContextualMenu(loadedMenu()),
                     child: GifViewContainer(
                       gifImageProvider: gifImageProvider,
                       gifController: gifController,
@@ -607,9 +606,9 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                 },
                 child: Column(
                   children: [
-                    ValueListenableBuilder(
-                      valueListenable: currentFrame,
-                      builder: (_, _, _) {
+                    ListenableBuilder(
+                      listenable: currentFrame,
+                      builder: (context, _) {
                         final bigStyle = Theme.of(
                           context,
                         ).textTheme.headlineMedium;

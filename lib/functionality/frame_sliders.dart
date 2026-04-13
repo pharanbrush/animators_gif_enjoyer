@@ -199,7 +199,7 @@ class MainSlider extends StatelessWidget {
       },
     );
 
-    final row = Row(
+    return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         ToggleFocusButton(
@@ -217,8 +217,6 @@ class MainSlider extends StatelessWidget {
         ),
       ],
     );
-
-    return row;
   }
 
   void increment(ValueNotifier<int> notifier, int incrementSign) {
