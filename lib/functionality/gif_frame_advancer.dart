@@ -1,12 +1,15 @@
 import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 
 class GifFrameAdvancer {
-  GifFrameAdvancer({required TickerProvider tickerProvider, this.onFrame}) {
+  GifFrameAdvancer({
+    required TickerProvider tickerProvider,
+    required this.currentFrameNotifier,
+  }) {
     ticker = tickerProvider.createTicker(_handleTick);
   }
 
-  final Function(int frameIndex)? onFrame;
   late final Ticker ticker;
 
   bool enabled = false;
@@ -15,7 +18,7 @@ class GifFrameAdvancer {
   Duration _lastTime = Duration.zero;
   int _start = 0;
   int _last = 0;
-  int _current = 0;
+  final ValueNotifier<int> currentFrameNotifier;
   List<GifFrame> _frames = [];
 
   int getLastFrameIndex() => _frames.length - 1;
@@ -33,7 +36,7 @@ class GifFrameAdvancer {
     _frames = frames;
     _start = 0;
     _last = getLastFrameIndex();
-    _current = 0;
+    currentFrameNotifier.value = 0;
   }
 
   void play({
@@ -55,18 +58,12 @@ class GifFrameAdvancer {
 
     _start = candidateStart;
     _last = candidateLast;
-    _current = candidateCurrent;
+    currentFrameNotifier.value = candidateCurrent;
     _lastTime = Duration.zero;
     enabled = true;
     ticker.start();
 
     _accumulatedDuration = Duration.zero;
-
-    onFrame?.call(_current);
-  }
-
-  void setCurrent(int frame) {
-    _current = frame;
   }
 
   void pause() {
@@ -89,19 +86,20 @@ class GifFrameAdvancer {
 
     bool wasUpdatedFrame = false;
 
+    int newCurrentFrame = currentFrameNotifier.value;
     for (var i = 0; i < maxFrameSkip; i++) {
-      final currentDurationData = _frames[_current].duration;
+      final currentDurationData = _frames[newCurrentFrame].duration;
       final currentFrameDuration = currentDurationData > Duration.zero
           ? currentDurationData
           : zeroDefaultDuration;
-          
+
       if (_accumulatedDuration >= currentFrameDuration) {
         _accumulatedDuration -= currentFrameDuration;
         if (i == lastFrameSkip) _accumulatedDuration = Duration.zero;
 
-        _current++;
-        if (_current > _last) {
-          _current = _start;
+        newCurrentFrame++;
+        if (newCurrentFrame > _last) {
+          newCurrentFrame = _start;
         }
         wasUpdatedFrame = true;
       } else {
@@ -109,7 +107,9 @@ class GifFrameAdvancer {
       }
     }
 
-    if (wasUpdatedFrame) onFrame?.call(_current);
+    if (wasUpdatedFrame) {
+      currentFrameNotifier.value = newCurrentFrame;
+    }
     _lastTime = currentTickerTime;
   }
 }

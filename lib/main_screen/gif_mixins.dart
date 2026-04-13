@@ -14,10 +14,13 @@ import 'package:animators_gif_enjoyer/utils/path_extensions.dart'
 
 mixin GifPlayer<T extends StatefulWidget>
     on State<T>, TickerProvider, FrameBaseStorer<T> {
-  final gifController = GifController();
   ImageProvider? gifImageProvider;
+
+  late final gifController = GifFrameController(
+    currentFrameListenable: displayedFrame,
+  );
   late GifFrameAdvancer gifAdvancer;
-  late PlaybackSpeedController playSpeedController = PlaybackSpeedController(
+  late final playSpeedController = PlaybackSpeedController(
     setter: (timeScale) => gifAdvancer.timeScale = timeScale,
   );
 
@@ -48,8 +51,8 @@ mixin GifPlayer<T extends StatefulWidget>
     frameDuration: Duration.zero,
     isLoaded: false,
   );
-  int get endGifFrame => gifController.frameCount - 1;
 
+  int get endGifFrame => gifController.frameCount - 1;
   bool get isPlaying => (isPlayModeAvailable && isScrubMode.value == false);
   bool get isImageLoaded => loadedGifInfo.isLoaded;
   bool get isPlayModeAvailable => isImageLoaded && !loadedGifInfo.isNonAnimated;
@@ -80,7 +83,7 @@ mixin GifPlayer<T extends StatefulWidget>
   void initState() {
     gifAdvancer = GifFrameAdvancer(
       tickerProvider: this,
-      onFrame: (frameIndex) => onGifFrameAdvance(frameIndex),
+      currentFrameNotifier: currentFrame,
     );
     super.initState();
   }
@@ -151,9 +154,11 @@ mixin GifPlayer<T extends StatefulWidget>
   }
 
   void setDisplayedFrame(int frame) {
-    gifController.seek(frame);
-    gifAdvancer.setCurrent(frame);
-    displayedFrame.value = gifController.currentFrame;
+    displayedFrame.value = frame;
+  }
+
+  void syncDisplayedFrameWithCurrentFrame() {
+    displayedFrame.value = currentFrame.value;
   }
 
   //

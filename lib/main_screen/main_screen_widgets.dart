@@ -21,7 +21,7 @@ class GifViewContainer extends StatelessWidget {
   });
 
   final ImageProvider<Object>? gifImageProvider;
-  final GifController gifController;
+  final GifFrameController gifController;
   final double Function()? fitZoomGetter;
   final double Function()? hardMinZoomGetter;
   final double Function()? hardMaxZoomGetter;

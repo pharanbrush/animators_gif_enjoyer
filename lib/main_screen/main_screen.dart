@@ -157,6 +157,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
   @override
   void initState() {
     super.initState();
+    currentFrame.addListener(syncDisplayedFrameWithCurrentFrame);
 
     void tryLoadFromWindowsOpenWith() {
       if (appFileToLoadFromMainArgs.isNotEmpty) {
@@ -172,6 +173,12 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
     onSecondWindow = () => tryLoadFromWindowsOpenWith();
 
     build_info.initializePackageInfo();
+  }
+
+  @override
+  void dispose() {
+    currentFrame.removeListener(syncDisplayedFrameWithCurrentFrame);
+    super.dispose();
   }
 
   @override

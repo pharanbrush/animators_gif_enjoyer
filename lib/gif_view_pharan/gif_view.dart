@@ -36,7 +36,7 @@ class GifFrame {
 }
 
 /// Loads a [GifFrame] List from a [FileImage] List that can then be passed
-/// to [GifController.load].
+/// to [GifFrameController.load].
 Future<List<GifFrame>> loadGifFramesFromImages({
   required List<FileImage> fileImages,
   ValueChanged<Object?>? onError,
@@ -94,7 +94,7 @@ Future<List<GifFrame>> loadGifFramesFromImages({
 }
 
 /// Loads a [GifFrame] List from an ImageProvider which can then be passed
-/// to [GifController.load].
+/// to [GifFrameController.load].
 Future<List<GifFrame>> loadGifFrames({
   required ImageProvider provider,
   ValueChanged<Object?>? onError,
@@ -225,7 +225,7 @@ bool isProviderHasFileExtension(
 }
 
 class GifView extends StatefulWidget {
-  final GifController? controller;
+  final GifFrameController controller;
   final ImageProvider? image;
   final double? height;
   final double? width;
@@ -244,7 +244,7 @@ class GifView extends StatefulWidget {
   GifView.network(
     String url, {
     super.key,
-    this.controller,
+    required this.controller,
     this.height,
     this.width,
     this.fit,
@@ -265,7 +265,7 @@ class GifView extends StatefulWidget {
   GifView.asset(
     String asset, {
     super.key,
-    this.controller,
+    required this.controller,
     this.height,
     this.width,
     this.fit,
@@ -286,7 +286,7 @@ class GifView extends StatefulWidget {
   GifView.memory(
     Uint8List bytes, {
     super.key,
-    this.controller,
+    required this.controller,
     this.height,
     this.width,
     this.fit,
@@ -306,7 +306,7 @@ class GifView extends StatefulWidget {
   const GifView({
     super.key,
     required this.image,
-    this.controller,
+    required this.controller,
     this.height,
     this.width,
     this.fit,
@@ -327,12 +327,12 @@ class GifView extends StatefulWidget {
 }
 
 class GifViewState extends State<GifView> with TickerProviderStateMixin {
-  late GifController controller;
-
   @override
   void initState() {
-    controller = widget.controller ?? GifController();
-    controller.addListener(_handleGifControllerUpdated);
+    widget.controller.addListener(_handleGifControllerUpdated);
+    widget.controller.currentFrameListenable.addListener(
+      _handleGifControllerUpdated,
+    );
     // Future.delayed(Duration.zero, _loadImage);
     super.initState();
   }
@@ -340,10 +340,10 @@ class GifViewState extends State<GifView> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return RawImage(
-      image: controller.currentFrameData.imageInfo.image,
+      image: widget.controller.currentFrameData.imageInfo.image,
       width: widget.width,
       height: widget.height,
-      scale: controller.currentFrameData.imageInfo.scale,
+      scale: widget.controller.currentFrameData.imageInfo.scale,
       fit: widget.fit,
       color: widget.color,
       colorBlendMode: widget.colorBlendMode,
@@ -359,7 +359,10 @@ class GifViewState extends State<GifView> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    controller.removeListener(_handleGifControllerUpdated);
+    widget.controller.removeListener(_handleGifControllerUpdated);
+    widget.controller.currentFrameListenable.removeListener(
+      _handleGifControllerUpdated,
+    );
     super.dispose();
   }
 
@@ -370,15 +373,18 @@ class GifViewState extends State<GifView> with TickerProviderStateMixin {
   }
 }
 
-class GifController extends ChangeNotifier {
+class GifFrameController extends ChangeNotifier {
+  GifFrameController({
+    required this.currentFrameListenable,
+  });
+
+  final ValueListenable<int> currentFrameListenable;
+
   List<GifFrame> _frames = [];
-  int _currentFrame = 0;
 
   List<GifFrame> get frames => _frames;
-  int get currentFrame => _currentFrame;
-  set currentFrame(int newValue) {
-    _currentFrame = newValue.clamp(0, frameCount);
-  }
+
+  int get currentFrame => currentFrameListenable.value;
 
   GifFrame get currentFrameData => _frames[currentFrame];
   int get frameCount => _frames.length;
@@ -387,11 +393,6 @@ class GifController extends ChangeNotifier {
   void dispose() {
     tryDisposeFrames();
     super.dispose();
-  }
-
-  void seek(int index) {
-    currentFrame = index;
-    notifyListeners();
   }
 
   void tryDisposeFrames() {
@@ -404,7 +405,6 @@ class GifController extends ChangeNotifier {
     tryDisposeFrames();
 
     _frames = frames;
-    currentFrame = 0;
     if (!updateFrames) {
       notifyListeners();
     }

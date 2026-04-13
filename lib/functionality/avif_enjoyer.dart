@@ -7,7 +7,7 @@ import 'package:flutter/rendering.dart' as rendering;
 import 'package:flutter_avif/flutter_avif.dart' as flutter_avif;
 
 /// Loads a [GifFrame] List from an [AvifFrameInfo] List that can then be passed
-/// to [GifController.load].
+/// to [GifFrameController.load].
 /// This allows the app to hook into flutter_avif.
 Future<List<GifFrame>> loadGifFramesFromAvifFrames(
   Uint8List bytes, {

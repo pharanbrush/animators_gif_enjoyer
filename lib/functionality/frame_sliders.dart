@@ -121,7 +121,7 @@ class MainSlider extends StatelessWidget {
   final ValueNotifier<bool> isUsingFocusRange;
   final ValueNotifier<int> currentFrame;
   final ValueNotifier<bool> allowWideNotifier;
-  final GifController gifController;
+  final GifFrameController gifController;
   final VoidCallback onChange;
   final bool enabled;
 
