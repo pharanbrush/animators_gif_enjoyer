@@ -592,17 +592,17 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
               cursor: SystemMouseCursors.resizeLeftRight,
               sensitivity: gifController.frameCount * 0.004,
               onDragUpdate: (delta) {
-                if (!isScrubMode.value) return;
+                if (isScrubbingAllowed) return;
                 final increment = delta.dx;
                 incrementFrame(increment.toInt());
               },
               child: ScrollListener(
                 onScrollUp: () {
-                  if (!isScrubMode.value) return;
+                  if (isScrubbingAllowed) return;
                   incrementFrame(1);
                 },
                 onScrollDown: () {
-                  if (!isScrubMode.value) return;
+                  if (isScrubbingAllowed) return;
                   incrementFrame(-1);
                 },
                 child: Column(
