@@ -301,7 +301,7 @@ mixin GifLoader on GifPlayer<GifEnjoyerMainPage> {
       );
 
       final optionalTimeout = Future.delayed(
-        Duration(seconds: 4),
+        const Duration(seconds: 4),
         () {
           if (isImageLoading.value && imageLoadPercent.value <= 0) {
             throw TimeoutException(

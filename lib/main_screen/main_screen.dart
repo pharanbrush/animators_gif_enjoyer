@@ -726,7 +726,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                 const double buttonSize = 25;
                 const double buttonSpace = 4;
 
-                if (!isUseCustomRange) return SizedBox.shrink();
+                if (!isUseCustomRange) return const SizedBox.shrink();
 
                 return Column(
                   children: [
