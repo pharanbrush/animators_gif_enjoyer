@@ -26,8 +26,6 @@ import 'package:http/http.dart' as http;
 /// since I'm handling a lot of the actual controls in the app code.
 /// -Pharan
 
-enum GifStatus { loading, playing, stopped, paused, reversing }
-
 class GifFrame {
   final ImageInfo imageInfo;
   final Duration duration;
