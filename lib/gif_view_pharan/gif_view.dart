@@ -26,23 +26,23 @@ import 'package:http/http.dart' as http;
 /// since I'm handling a lot of the actual controls in the app code.
 /// -Pharan
 
-class GifFrame {
+class AnimationFrame {
   final ImageInfo imageInfo;
   final Duration duration;
 
-  const GifFrame(this.imageInfo, this.duration);
+  const AnimationFrame(this.imageInfo, this.duration);
 }
 
-/// Loads a [GifFrame] List from a [FileImage] List that can then be passed
+/// Loads a [AnimationFrame] List from a [FileImage] List that can then be passed
 /// to [GifFrameController.load].
-Future<List<GifFrame>> loadGifFramesFromImages({
+Future<List<AnimationFrame>> loadGifFramesFromImages({
   required List<FileImage> fileImages,
   ValueChanged<Object?>? onError,
   Duration? frameDuration,
 }) async {
   const defaultDuration = Duration(milliseconds: 40); // 40ms is 25 fps
   final appliedFrameDuration = frameDuration ?? defaultDuration;
-  final frameList = <GifFrame>[];
+  final frameList = <AnimationFrame>[];
 
   try {
     int width = 0;
@@ -73,7 +73,7 @@ Future<List<GifFrame>> loadGifFramesFromImages({
         }
 
         frameList.add(
-          GifFrame(
+          AnimationFrame(
             ImageInfo(image: frameInfo.image),
             appliedFrameDuration,
           ),
@@ -91,14 +91,14 @@ Future<List<GifFrame>> loadGifFramesFromImages({
   return frameList;
 }
 
-/// Loads a [GifFrame] List from an ImageProvider which can then be passed
+/// Loads a [AnimationFrame] List from an ImageProvider which can then be passed
 /// to [GifFrameController.load].
-Future<List<GifFrame>> loadGifFrames({
+Future<List<AnimationFrame>> loadGifFrames({
   required ImageProvider provider,
   ValueChanged<Object?>? onError,
   ValueChanged<double>? onProgressPercent,
 }) async {
-  final frameList = <GifFrame>[];
+  final frameList = <AnimationFrame>[];
   try {
     Uint8List? data;
 
@@ -182,7 +182,7 @@ Future<List<GifFrame>> loadGifFrames({
     for (int i = 0, n = codec.frameCount; i < n; i++) {
       FrameInfo frameInfo = await codec.getNextFrame();
       frameList.add(
-        GifFrame(
+        AnimationFrame(
           ImageInfo(image: frameInfo.image),
           frameInfo.duration,
         ),
@@ -378,13 +378,13 @@ class GifFrameController extends ChangeNotifier {
 
   final ValueListenable<int> currentFrameListenable;
 
-  List<GifFrame> _frames = [];
+  List<AnimationFrame> _frames = [];
 
-  List<GifFrame> get frames => _frames;
+  List<AnimationFrame> get frames => _frames;
 
   int get currentFrame => currentFrameListenable.value;
 
-  GifFrame get currentFrameData => _frames[currentFrame];
+  AnimationFrame get currentFrameData => _frames[currentFrame];
   int get frameCount => _frames.length;
 
   @override
@@ -399,7 +399,7 @@ class GifFrameController extends ChangeNotifier {
     }
   }
 
-  void load(List<GifFrame> frames, {bool updateFrames = false}) {
+  void load(List<AnimationFrame> frames, {bool updateFrames = false}) {
     tryDisposeFrames();
 
     _frames = frames;

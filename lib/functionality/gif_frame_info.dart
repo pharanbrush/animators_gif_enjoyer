@@ -5,20 +5,20 @@ bool isFpsWhole(double fps) {
   return fps.floorToDouble() == fps;
 }
 
-bool showWeirdFramerateWarning(GifInfo gifInfo) {
-  if (gifInfo.isNonAnimated) {
+bool showWeirdFramerateWarning(AnimationInfo animationInfo) {
+  if (animationInfo.isNonAnimated) {
     return false;
   }
 
-  if (!gifInfo.isGif) {
+  if (!animationInfo.isGif) {
     return false;
   }
 
-  if (gifInfo.isImageSequence) {
+  if (animationInfo.isImageSequence) {
     return false;
   }
 
-  var frameDuration = gifInfo.frameDuration;
+  var frameDuration = animationInfo.frameDuration;
   if (frameDuration == null) {
     return false;
   }
@@ -32,9 +32,11 @@ bool showWeirdFramerateWarning(GifInfo gifInfo) {
   return true;
 }
 
-String getFramerateTooltipMessage(GifInfo gifInfo) {
-  final duration = gifInfo.frameDuration;
+String getFramerateTooltipMessage(AnimationInfo animationInfo) {
+  final duration = animationInfo.frameDuration;
   if (duration == null) return '';
+
+  if (!animationInfo.isGif) return '';
 
   final frameMilliseconds = duration.inMilliseconds;
 
@@ -43,41 +45,46 @@ String getFramerateTooltipMessage(GifInfo gifInfo) {
       'This makes their actual framerate potentially variable,\n'
       'and often not precisely fitting common video framerates.';
   if (frameMilliseconds <= 10) {
-    message = 'Browsers usually reinterpret delays\n'
+    message =
+        'Browsers usually reinterpret delays\n'
         'below 20 milliseconds as 100 milliseconds.';
   }
 
   return message;
 }
 
-String getFramerateLabel(GifInfo gifInfo) {
-  if (gifInfo.isNonAnimated) {
+String getFramerateLabel(AnimationInfo animationInfo) {
+  if (animationInfo.isNonAnimated) {
     return 'Not animated ';
   }
 
   const millisecondsUnit = 'ms';
   const msPerFrameUnit = '$millisecondsUnit/frame';
 
-  final frameDuration = gifInfo.frameDuration;
-  switch (frameDuration) {
-    case null:
+  final frameDuration = animationInfo.frameDuration;
+  {
+    if (frameDuration == null) {
       return 'Variable frame durations';
-    case <= const Duration(milliseconds: 10):
+    }
+
+    if (animationInfo.isGif &&
+        frameDuration <= const Duration(milliseconds: 10)) {
       return '${frameDuration.inMilliseconds} $msPerFrameUnit';
-    default:
-      final frameMicroseconds = frameDuration.inMicroseconds;
-      final fps = 1000000.0 / frameMicroseconds;
-      final frameMilliseconds = frameMicroseconds / 1000.0; // prevent rounding.
+    }
 
-      final fpsText = isFpsWhole(fps)
-          ? fps.toStringAsFixed(0)
-          : "~${fps.toStringAsFixed(2)}";
-      final millisecondsText =
-          (frameMilliseconds - frameMilliseconds.truncate() == 0)
-              ? frameMilliseconds.toStringAsFixed(0)
-              : frameMilliseconds.toStringAsFixed(2);
+    final frameMicroseconds = frameDuration.inMicroseconds;
+    final fps = 1000000.0 / frameMicroseconds;
+    final frameMilliseconds = frameMicroseconds / 1000.0; // prevent rounding.
 
-      return '$fpsText fps '
-          '($millisecondsText $msPerFrameUnit) ';
+    final fpsText = isFpsWhole(fps)
+        ? fps.toStringAsFixed(0)
+        : "~${fps.toStringAsFixed(2)}";
+    final millisecondsText =
+        (frameMilliseconds - frameMilliseconds.truncate() == 0)
+        ? frameMilliseconds.toStringAsFixed(0)
+        : frameMilliseconds.toStringAsFixed(2);
+
+    return '$fpsText fps '
+        '($millisecondsText $msPerFrameUnit) ';
   }
 }

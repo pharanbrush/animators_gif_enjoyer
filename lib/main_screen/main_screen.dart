@@ -514,7 +514,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
         ),
         menu_items.revealMenuItem(
           gifImageProvider,
-          source: loadedGifInfo.fileSource,
+          source: loadedAnimationInfo.fileSource,
         ),
         MenuItem.separator(),
         MenuItem(
@@ -568,15 +568,15 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
             Expanded(
               child: ZoomConstraintsContainerBuilder(
                 minPixelDimension: minZoomingPixelDimension,
-                contentWidth: loadedGifInfo.width.toDouble(),
-                contentHeight: loadedGifInfo.height.toDouble(),
+                contentWidth: loadedAnimationInfo.width.toDouble(),
+                contentHeight: loadedAnimationInfo.height.toDouble(),
                 builder: (_, getFitZoom, getMinZoom, getMaxZoom) {
                   return GestureDetector(
                     onTap: () => togglePlayPause(),
                     onSecondaryTap: () => popUpContextualMenu(loadedMenu()),
                     child: GifViewContainer(
                       gifImageProvider: gifImageProvider,
-                      gifController: gifController,
+                      gifController: animationController,
                       zoomLevelNotifier: zoomLevelNotifier,
                       isAppBusy: isAppBusy,
                       allowWideSliderNotifier: allowWideSliderNotifier,
@@ -590,7 +590,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
             ),
             DiscreteDragListener(
               cursor: SystemMouseCursors.resizeLeftRight,
-              sensitivity: gifController.frameCount * 0.004,
+              sensitivity: animationController.frameCount * 0.004,
               shiftMultiplier: 0.1,
               onDragUpdate: (delta) {
                 if (!isScrubbingAllowed) return;
@@ -693,7 +693,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                         primarySliderRange: primarySliderRange,
                         isUsingFocusRange: isUsingFocusRange,
                         currentFrame: currentFrame,
-                        gifController: gifController,
+                        gifController: animationController,
                         enabled: isPlayModeAvailable && isScrubMode.value,
                         allowWideNotifier: allowWideSliderNotifier,
                         toggleWideSlider: () => gif_enjoyer_preferences
@@ -712,9 +712,9 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
               valueListenable: isUsingFocusRange,
               builder: (_, isUseCustomRange, _) {
                 final double frameCount = focusFrameRange.value.rangeSize + 1;
-                final rangeSeconds = loadedGifInfo.frameDuration != null
+                final rangeSeconds = loadedAnimationInfo.frameDuration != null
                     ? (frameCount *
-                          loadedGifInfo.frameDuration!.inMilliseconds
+                          loadedAnimationInfo.frameDuration!.inMilliseconds
                               .toDouble() *
                           0.001)
                     : -1;
@@ -798,7 +798,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
               spacing: 4,
               children: [
                 getFramerateTooltip(),
-                bottomBarGifInfo(),
+                bottomBarAnimationInfo(),
               ],
             ),
             const Spacer(),
@@ -829,21 +829,21 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
     );
   }
 
-  Widget bottomBarGifInfo() {
+  Widget bottomBarAnimationInfo() {
     return Builder(
       builder: (context) {
         if (!isImageLoaded) return const SizedBox.shrink();
         final smallGrayStyle = Theme.of(context).smallGrayStyle;
 
         final isAnimatedWithVariableFps = //
-            !loadedGifInfo.isNonAnimated && //
-            loadedGifInfo.frameDuration == null;
+            !loadedAnimationInfo.isNonAnimated && //
+            loadedAnimationInfo.frameDuration == null;
 
         String getImageDimensionsLabel() {
-          return '${loadedGifInfo.width}x${loadedGifInfo.height}px';
+          return '${loadedAnimationInfo.width}x${loadedAnimationInfo.height}px';
         }
 
-        final bytecount = loadedGifInfo.filesizeByteCount;
+        final bytecount = loadedAnimationInfo.filesizeByteCount;
         final filesizeText = bytecount != null
             ? proper_filesize.FileSize.fromBytes(bytecount).toString(
                 unit: proper_filesize.Unit.auto(
@@ -865,12 +865,12 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                   valueListenable: currentFrame,
                   builder: (_, _, _) {
                     return Text(
-                      '(current: ${gifController.currentFrameData.duration.inMilliseconds} ms)',
+                      '(current: ${animationController.currentFrameData.duration.inMilliseconds} ms)',
                     );
                   },
                 ),
               if (!isAnimatedWithVariableFps)
-                Text(gif_frame_info.getFramerateLabel(loadedGifInfo)),
+                Text(gif_frame_info.getFramerateLabel(loadedAnimationInfo)),
               Text('- ${getImageDimensionsLabel()}'),
               if (filesizeText != null) Text(" - $filesizeText"),
             ],
@@ -927,8 +927,8 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
 
   void tryCopyFrameToClipboard() {
     if (!isImageLoaded) return;
-    final image = gifController.currentFrameData.imageInfo.image;
-    final suggestedName = "gifFrameg${gifController.currentFrame}.png";
+    final image = animationController.currentFrameData.imageInfo.image;
+    final suggestedName = "gifFrameg${animationController.currentFrame}.png";
     phclipboard.copyImageToClipboardAsPng(image, suggestedName);
   }
 
@@ -938,11 +938,13 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
 
   Widget getFramerateTooltip() {
     if (!isImageLoaded ||
-        !gif_frame_info.showWeirdFramerateWarning(loadedGifInfo)) {
+        !gif_frame_info.showWeirdFramerateWarning(loadedAnimationInfo)) {
       return const SizedBox.shrink();
     }
 
-    final message = gif_frame_info.getFramerateTooltipMessage(loadedGifInfo);
+    final message = gif_frame_info.getFramerateTooltipMessage(
+      loadedAnimationInfo,
+    );
 
     return Builder(
       builder: (context) {
@@ -985,7 +987,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
     if (!isImageLoaded) return;
     if (isAppBusy) return;
 
-    final imageList = gifController.frames
+    final imageList = animationController.frames
         .map<ui.Image>((frame) => frame.imageInfo.image)
         .toList(growable: false);
 

@@ -16,7 +16,7 @@ mixin GifPlayer<T extends StatefulWidget>
     on State<T>, TickerProvider, FrameBaseStorer<T> {
   ImageProvider? gifImageProvider;
 
-  late final gifController = GifFrameController(
+  late final animationController = GifFrameController(
     currentFrameListenable: displayedFrame,
   );
   late GifFrameAdvancer gifAdvancer;
@@ -44,7 +44,7 @@ mixin GifPlayer<T extends StatefulWidget>
   RangeValues get primarySliderRange =>
       isUsingFocusRange.value ? focusFrameRange.value : fullFrameRange;
 
-  GifInfo loadedGifInfo = const GifInfo(
+  AnimationInfo loadedAnimationInfo = const AnimationInfo(
     fileSource: '',
     width: 0,
     height: 0,
@@ -52,24 +52,25 @@ mixin GifPlayer<T extends StatefulWidget>
     isLoaded: false,
   );
 
-  int get endGifFrame => gifController.frameCount - 1;
+  int get endGifFrame => animationController.frameCount - 1;
   bool get isPlaying => (isPlayModeAvailable && isScrubMode.value == false);
-  bool get isImageLoaded => loadedGifInfo.isLoaded;
-  bool get isPlayModeAvailable => isImageLoaded && !loadedGifInfo.isNonAnimated;
+  bool get isImageLoaded => loadedAnimationInfo.isLoaded;
+  bool get isPlayModeAvailable =>
+      isImageLoaded && !loadedAnimationInfo.isNonAnimated;
   bool get isScrubbingAllowed =>
-      isImageLoaded && !loadedGifInfo.isNonAnimated && isScrubMode.value;
+      isImageLoaded && !loadedAnimationInfo.isNonAnimated && isScrubMode.value;
 
   /// Tries to get the filename of the loaded GIF.
   String tryGetNameFromGifImageProvider({required String defaultName}) {
     final nameWithoutExtension = switch (gifImageProvider) {
       FileImage _ => path_extensions.filenameFromFullPathWithoutExtensions(
-        loadedGifInfo.fileSource,
+        loadedAnimationInfo.fileSource,
       ),
       NetworkImage _ => path_extensions.filenameFromUrlWithoutExtension(
-        loadedGifInfo.fileSource,
+        loadedAnimationInfo.fileSource,
       ),
       null => path_extensions.filenameFromFullPathWithoutExtensions(
-        loadedGifInfo.fileSource,
+        loadedAnimationInfo.fileSource,
       ),
       _ => defaultName,
     };
@@ -96,7 +97,7 @@ mixin GifPlayer<T extends StatefulWidget>
 
   @override
   void dispose() {
-    gifController.dispose();
+    animationController.dispose();
     gifAdvancer.dispose();
     super.dispose();
   }
@@ -238,7 +239,7 @@ mixin GifLoader on GifPlayer<GifEnjoyerMainPage> {
   void onImageLoadError(String errorMessage);
 
   Future<void> loadGifFromGifFrames(
-    List<GifFrame> frames,
+    List<AnimationFrame> frames,
     String source, {
     bool isImageSequence = false,
     bool isGif = false,
@@ -246,13 +247,13 @@ mixin GifLoader on GifPlayer<GifEnjoyerMainPage> {
     onStartLoadNewGif();
 
     try {
-      loadedGifInfo = GifInfo.fromFrames(
+      loadedAnimationInfo = AnimationInfo.fromFrames(
         fileSource: source,
         frames: frames,
         isImageSequence: isImageSequence,
         isGif: isGif,
       );
-      gifController.load(frames);
+      animationController.load(frames);
       gifAdvancer.setFrames(frames);
 
       // Reset sensible values for new file.
@@ -325,13 +326,13 @@ mixin GifLoader on GifPlayer<GifEnjoyerMainPage> {
         fileSize = null;
       }
 
-      loadedGifInfo = GifInfo.fromFrames(
+      loadedAnimationInfo = AnimationInfo.fromFrames(
         fileSource: source,
         frames: frames,
         isGif: isProviderHasFileExtension(provider, extension: 'gif'),
         filesizeByteCount: fileSize,
       );
-      gifController.load(frames);
+      animationController.load(frames);
       gifAdvancer.setFrames(frames);
       inProgressLoadingProcess = null;
 
@@ -417,8 +418,8 @@ class PlaybackSpeedController {
   }
 }
 
-class GifInfo {
-  const GifInfo({
+class AnimationInfo {
+  const AnimationInfo({
     required this.fileSource,
     required this.width,
     required this.height,
@@ -430,9 +431,9 @@ class GifInfo {
     this.filesizeByteCount,
   });
 
-  GifInfo._fromFramesAndImageInfo({
+  AnimationInfo._fromFramesAndImageInfo({
     required this.fileSource,
-    required List<GifFrame> frames,
+    required List<AnimationFrame> frames,
     required ImageInfo imageInfo,
     this.isImageSequence = false,
     required this.isGif,
@@ -443,9 +444,9 @@ class GifInfo {
        isNonAnimated = isNonMoving(frames),
        isLoaded = true;
 
-  GifInfo.fromFrames({
+  AnimationInfo.fromFrames({
     required String fileSource,
-    required List<GifFrame> frames,
+    required List<AnimationFrame> frames,
     isImageSequence = false,
     required isGif,
     int? filesizeByteCount,
@@ -470,11 +471,11 @@ class GifInfo {
 
   Size get imageSize => Size(width.toDouble(), height.toDouble());
 
-  static bool isNonMoving(List<GifFrame> frames) {
+  static bool isNonMoving(List<AnimationFrame> frames) {
     return frames.length <= 1;
   }
 
-  static Duration? readFrameDuration(List<GifFrame> frames) {
+  static Duration? readFrameDuration(List<AnimationFrame> frames) {
     final duration = frames[0].duration;
     for (final frame in frames) {
       if (duration != frame.duration) return null;

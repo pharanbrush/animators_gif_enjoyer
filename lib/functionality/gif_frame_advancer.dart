@@ -19,7 +19,7 @@ class GifFrameAdvancer {
   int _start = 0;
   int _last = 0;
   final ValueNotifier<int> currentFrameNotifier;
-  List<GifFrame> _frames = [];
+  List<AnimationFrame> _frames = [];
 
   int getLastFrameIndex() => _frames.length - 1;
 
@@ -32,7 +32,7 @@ class GifFrameAdvancer {
     _lastTime = Duration.zero;
   }
 
-  void setFrames(List<GifFrame> frames) {
+  void setFrames(List<AnimationFrame> frames) {
     _frames = frames;
     _start = 0;
     _last = getLastFrameIndex();
