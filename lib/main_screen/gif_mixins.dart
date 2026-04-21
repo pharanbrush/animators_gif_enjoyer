@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:animators_gif_enjoyer/functionality/frame_sliders.dart';
-import 'package:animators_gif_enjoyer/functionality/gif_frame_advancer.dart';
+import 'package:animators_gif_enjoyer/functionality/frame_advancer.dart';
 import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
 import 'package:animators_gif_enjoyer/main_screen/frame_base.dart';
 import 'package:animators_gif_enjoyer/main_screen/main_screen.dart';
@@ -12,7 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:animators_gif_enjoyer/utils/path_extensions.dart'
     as path_extensions;
 
-mixin GifPlayer<T extends StatefulWidget>
+mixin AnimationPlayer<T extends StatefulWidget>
     on State<T>, TickerProvider, FrameBaseStorer<T> {
   ImageProvider? imageProvider;
 
@@ -229,7 +229,7 @@ mixin GifPlayer<T extends StatefulWidget>
   }
 }
 
-mixin GifLoader on GifPlayer<GifEnjoyerMainPage> {
+mixin AnimationLoader on AnimationPlayer<GifEnjoyerMainPage> {
   Future? inProgressLoadingProcess;
 
   final ValueNotifier<bool> isImageLoading = ValueNotifier(false);
