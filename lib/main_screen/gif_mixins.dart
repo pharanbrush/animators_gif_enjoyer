@@ -352,7 +352,7 @@ mixin AnimationLoader on AnimationPlayer<GifEnjoyerMainPage> {
           if (uri.host.contains('tenor') && !uri.path.endsWith('gif')) {
             final gifLinkError =
                 'Cannot access : $source \n'
-                '(Tenor embed links currently do not work.)';
+                '(Tenor embed links do not work.)';
             onImageLoadError(gifLinkError);
           }
         } catch (m) {
