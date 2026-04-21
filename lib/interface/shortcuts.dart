@@ -40,22 +40,34 @@ class Phshortcuts {
   static const firstFrame = SingleActivator(LogicalKeyboardKey.home);
   static const lastFrame = SingleActivator(LogicalKeyboardKey.end);
 
-  static const openFile =
-      SingleActivator(LogicalKeyboardKey.keyO, control: true);
-  static const openFolder =
-      SingleActivator(LogicalKeyboardKey.keyO, control: true, shift: true);
-  static const alwaysOnTop =
-      SingleActivator(LogicalKeyboardKey.keyT, control: true);
+  static const openFile = SingleActivator(
+    LogicalKeyboardKey.keyO,
+    control: true,
+  );
+  static const openFolder = SingleActivator(
+    LogicalKeyboardKey.keyO,
+    control: true,
+    shift: true,
+  );
+  static const alwaysOnTop = SingleActivator(
+    LogicalKeyboardKey.keyT,
+    control: true,
+  );
 
-  static const revealInExplorer =
-      SingleActivator(LogicalKeyboardKey.enter, shift: true);
+  static const revealInExplorer = SingleActivator(
+    LogicalKeyboardKey.enter,
+    shift: true,
+  );
 
-  static const preferences =
-      SingleActivator(LogicalKeyboardKey.comma, control: true);
+  static const preferences = SingleActivator(
+    LogicalKeyboardKey.comma,
+    control: true,
+  );
 
   static const toggleSounds = SingleActivator(LogicalKeyboardKey.keyM);
-  static const toggleSimplifiedInterface =
-      SingleActivator(LogicalKeyboardKey.keyH);
+  static const toggleSimplifiedInterface = SingleActivator(
+    LogicalKeyboardKey.keyH,
+  );
   static const help = SingleActivator(LogicalKeyboardKey.f1);
 
   static const escape = SingleActivator(LogicalKeyboardKey.escape);
