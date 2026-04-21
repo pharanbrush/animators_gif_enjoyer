@@ -23,11 +23,11 @@ import 'package:animators_gif_enjoyer/phlutter/remember_window_size.dart';
 import 'package:animators_gif_enjoyer/phlutter/windows/drag_listener.dart';
 import 'package:animators_gif_enjoyer/phlutter/windows/image_drop_target.dart';
 import 'package:animators_gif_enjoyer/phlutter/material_state_property_utils.dart';
-import 'package:animators_gif_enjoyer/phlutter/modal_panel.dart';
+// import 'package:animators_gif_enjoyer/phlutter/modal_panel.dart';
 import 'package:animators_gif_enjoyer/phlutter/windows/scroll_listener.dart';
 import 'package:animators_gif_enjoyer/phlutter/windows/windows_phwindow.dart';
 import 'package:animators_gif_enjoyer/utils/build_info.dart' as build_info;
-import 'package:animators_gif_enjoyer/functionality/download_file.dart';
+// import 'package:animators_gif_enjoyer/functionality/download_file.dart';
 import 'package:animators_gif_enjoyer/functionality/open_file.dart'
     as open_file;
 import 'package:animators_gif_enjoyer/phlutter/phclipboard.dart' as phclipboard;
@@ -119,36 +119,36 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
   bool get isAppBusy =>
       (inProgressExport != null) || (inProgressLoadingProcess != null);
 
-  late final ModalTextPanel bottomTextPanel = ModalTextPanel(
-    onClosed: () {
-      mainWindowFocus.requestFocus();
-    },
-    onTextSubmitted: (value) {
-      tryLoadGifFromUrl(value);
-    },
-    transitionBuilder: (child, animation) {
-      return SlideTransition(
-        position: Tween<Offset>(
-          begin: const Offset(0, 1),
-          end: Offset.zero,
-        ).animate(animation),
-        child: child,
-      );
-    },
-    textPanelBuilder:
-        (
-          context,
-          textController,
-          onTextFieldSubmitted,
-          onSubmitButtonPressed,
-        ) {
-          return EnjoyerBottomTextPanel(
-            textController: textController,
-            onTextFieldSubmitted: onTextFieldSubmitted,
-            onSubmitButtonPressed: onSubmitButtonPressed,
-          );
-        },
-  );
+  // late final ModalTextPanel bottomTextPanel = ModalTextPanel(
+  //   onClosed: () {
+  //     mainWindowFocus.requestFocus();
+  //   },
+  //   onTextSubmitted: (value) {
+  //     tryLoadGifFromUrl(value);
+  //   },
+  //   transitionBuilder: (child, animation) {
+  //     return SlideTransition(
+  //       position: Tween<Offset>(
+  //         begin: const Offset(0, 1),
+  //         end: Offset.zero,
+  //       ).animate(animation),
+  //       child: child,
+  //     );
+  //   },
+  //   textPanelBuilder:
+  //       (
+  //         context,
+  //         textController,
+  //         onTextFieldSubmitted,
+  //         onSubmitButtonPressed,
+  //       ) {
+  //         return EnjoyerBottomTextPanel(
+  //           textController: textController,
+  //           onTextFieldSubmitted: onTextFieldSubmitted,
+  //           onSubmitButtonPressed: onSubmitButtonPressed,
+  //         );
+  //       },
+  // );
 
   //
   //  Lifecycle
@@ -201,7 +201,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
   }
 
   void handleEscapeIntent() {
-    if (bottomTextPanel.isOpen) return;
+    // if (bottomTextPanel.isOpen) return;
     if (isAppBusy) {
       return;
     }
@@ -238,7 +238,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
       children: [
         mainLayerWidget(),
         topLeftControls(),
-        bottomTextPanel.widget(),
+        // bottomTextPanel.widget(),
         ValueListenableBuilder(
           valueListenable: isImageLoading,
           builder: (_, value, _) =>
@@ -419,10 +419,10 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
             label: menu_items.openGifLabel,
             onClick: (_) => openNewFile(),
           ),
-          MenuItem(
-            label: menu_items.pasteToAddressBarLabel,
-            onClick: (_) => openTextPanelAndPaste(),
-          ),
+          // MenuItem(
+          //   label: menu_items.pasteToAddressBarLabel,
+          //   onClick: (_) => openTextPanelAndPaste(),
+          // ),
           MenuItem.separator(),
           MenuItem.submenu(
             label: menu_items.advancedLabel,
@@ -522,11 +522,11 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
           onClick: (_) => openNewFile(),
           disabled: isAppBusy,
         ),
-        MenuItem(
-          label: menu_items.pasteToAddressBarLabel,
-          onClick: (_) => openTextPanelAndPaste(),
-          disabled: isAppBusy,
-        ),
+        // MenuItem(
+        //   label: menu_items.pasteToAddressBarLabel,
+        //   onClick: (_) => openTextPanelAndPaste(),
+        //   disabled: isAppBusy,
+        // ),
         MenuItem.separator(),
         MenuItem.submenu(
           label: menu_items.advancedLabel,
@@ -911,18 +911,18 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
   // UI Controls
   //
 
-  void closeAllPanels() {
-    bottomTextPanel.close();
-  }
+  // void closeAllPanels() {
+  //   bottomTextPanel.close();
+  // }
 
-  Future<void> openTextPanelAndPaste() async {
-    if (inProgressExport != null) return;
+  // Future<void> openTextPanelAndPaste() async {
+  //   if (inProgressExport != null) return;
 
-    final pastedText = await phclipboard.getStringFromClipboard();
-    if (pastedText != null) {
-      bottomTextPanel.openWithText(pastedText);
-    }
-  }
+  //   final pastedText = await phclipboard.getStringFromClipboard();
+  //   if (pastedText != null) {
+  //     bottomTextPanel.openWithText(pastedText);
+  //   }
+  // }
 
   void tryCopyFrameToClipboard() {
     if (!isImageLoaded) return;
@@ -972,15 +972,15 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
     loadAnimationFromProvider(gifImage, name);
   }
 
-  Future<void> tryLoadClipboardPath() async {
-    final clipboardString = await phclipboard.getStringFromClipboard();
-    if (clipboardString == null) return;
+  // Future<void> tryLoadClipboardPath() async {
+  //   final clipboardString = await phclipboard.getStringFromClipboard();
+  //   if (clipboardString == null) return;
 
-    tryLoadGifFromUrl(
-      clipboardString,
-      errorMessage: 'Pasted text was not a proper URL:\n "$clipboardString"',
-    );
-  }
+  //   tryLoadGifFromUrl(
+  //     clipboardString,
+  //     errorMessage: 'Pasted text was not a proper URL:\n "$clipboardString"',
+  //   );
+  // }
 
   Future<void> tryExportPngSequence() async {
     if (!isImageLoaded) return;
@@ -1154,23 +1154,23 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
     loadAnimationFromProvider(open_file.getFileImageFromPath(path), path);
   }
 
-  void tryLoadGifFromUrl(String url, {String? errorMessage}) {
-    if (isAppBusy) return;
+  // void tryLoadGifFromUrl(String url, {String? errorMessage}) {
+  //   if (isAppBusy) return;
 
-    if (url.trim().isEmpty) {
-      return;
-    }
+  //   if (url.trim().isEmpty) {
+  //     return;
+  //   }
 
-    if (isUrlString(url)) {
-      var provider = NetworkImage(url);
-      loadAnimationFromProvider(provider, url);
-    } else {
-      showSnackbar(
-        label: errorMessage ?? "Can't load url:\n$url",
-        icon: const Icon(SnackbarShower.errorIcon),
-      );
-    }
-  }
+  //   if (isUrlString(url)) {
+  //     var provider = NetworkImage(url);
+  //     loadAnimationFromProvider(provider, url);
+  //   } else {
+  //     showSnackbar(
+  //       label: errorMessage ?? "Can't load url:\n$url",
+  //       icon: const Icon(SnackbarShower.errorIcon),
+  //     );
+  //   }
+  // }
 
   //
   // Screen messages
@@ -1207,8 +1207,8 @@ class GifEnjoyerMainPageStateShortcuts {
     (PreviousIntent, (_) => state.incrementFrame(-1)),
     (NextIntent, (_) => state.incrementFrame(1)),
     (CopyIntent, (_) => state.tryCopyFrameToClipboard()),
-    (OpenTextMenu, (_) => state.bottomTextPanel.open()),
-    (PasteAndGoIntent, (_) => state.openTextPanelAndPaste()),
+    // (OpenTextMenu, (_) => state.bottomTextPanel.open()),
+    // (PasteAndGoIntent, (_) => state.openTextPanelAndPaste()),
     (PlayPauseIntent, (_) => state.togglePlayPause()),
     (EscapeIntent, (_) => state.handleEscapeIntent()),
     (FirstFrameIntent, (_) => state.setCurrentFrameToFirst()),

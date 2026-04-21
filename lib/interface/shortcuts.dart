@@ -26,9 +26,9 @@ class Phshortcuts {
   static const playPause2 = SingleActivator(LogicalKeyboardKey.space);
 
   static const restart = SingleActivator(LogicalKeyboardKey.keyR);
-  static const openTextMenu = SingleActivator(LogicalKeyboardKey.f2);
-  static const openTextMenu2 =
-      SingleActivator(LogicalKeyboardKey.keyT, control: true);
+  // static const openTextMenu = SingleActivator(LogicalKeyboardKey.f2);
+  // static const openTextMenu2 =
+  //     SingleActivator(LogicalKeyboardKey.keyT, control: true);
 
   static const copy = SingleActivator(LogicalKeyboardKey.keyC, control: true);
   static const pasteAndGo = SingleActivator(
@@ -75,7 +75,7 @@ class Phshortcuts {
     Phshortcuts.next5: NextIntent(),
     Phshortcuts.playPause: PlayPauseIntent(),
     Phshortcuts.playPause2: PlayPauseIntent(),
-    Phshortcuts.openTextMenu: OpenTextMenu(),
+    // Phshortcuts.openTextMenu: OpenTextMenu(),
     Phshortcuts.restart: RestartIntent(),
     Phshortcuts.firstFrame: FirstFrameIntent(),
     Phshortcuts.lastFrame: LastFrameIntent(),
@@ -143,9 +143,9 @@ class HelpIntent extends Intent {
   const HelpIntent();
 }
 
-class OpenTextMenu extends Intent {
-  const OpenTextMenu();
-}
+// class OpenTextMenu extends Intent {
+//   const OpenTextMenu();
+// }
 
 class SimpleInterfaceToggleIntent extends Intent {
   const SimpleInterfaceToggleIntent();

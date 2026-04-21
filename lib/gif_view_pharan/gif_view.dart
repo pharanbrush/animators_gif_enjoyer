@@ -7,7 +7,7 @@ import 'package:animators_gif_enjoyer/utils/path_extensions.dart'
     as path_extensions;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+// import 'package:http/http.dart' as http;
 
 ///
 /// Originally created by
@@ -103,46 +103,46 @@ Future<List<AnimationFrame>> loadFrames({
     Uint8List? data;
 
     switch (provider) {
-      case NetworkImage ni:
-        {
-          final Uri resolvedUri = Uri.base.resolve(ni.url);
-          Map<String, String> headers = {};
-          ni.headers?.forEach((String name, String value) {
-            headers[name] = value;
-          });
+      // case NetworkImage ni:
+      //   {
+      //     final Uri resolvedUri = Uri.base.resolve(ni.url);
+      //     Map<String, String> headers = {};
+      //     ni.headers?.forEach((String name, String value) {
+      //       headers[name] = value;
+      //     });
 
-          if (onProgressPercent != null) {
-            final streamedResponse = await http.Client().send(
-              http.Request('GET', resolvedUri),
-            );
+      //     if (onProgressPercent != null) {
+      //       final streamedResponse = await http.Client().send(
+      //         http.Request('GET', resolvedUri),
+      //       );
 
-            final total = streamedResponse.contentLength ?? 0;
-            int received = 0;
-            final List<int> bytes = [];
-            bool isDownloadDone = false;
-            streamedResponse.stream
-                .listen((value) {
-                  bytes.addAll(value);
-                  received += value.length;
-                })
-                .onDone(() {
-                  isDownloadDone = true;
-                });
+      //       final total = streamedResponse.contentLength ?? 0;
+      //       int received = 0;
+      //       final List<int> bytes = [];
+      //       bool isDownloadDone = false;
+      //       streamedResponse.stream
+      //           .listen((value) {
+      //             bytes.addAll(value);
+      //             received += value.length;
+      //           })
+      //           .onDone(() {
+      //             isDownloadDone = true;
+      //           });
 
-            while (!isDownloadDone) {
-              if (total > 0) {
-                onProgressPercent(received.toDouble() / total.toDouble());
-              }
-              await Future.delayed(const Duration(milliseconds: 100));
-            }
-            onProgressPercent(1);
+      //       while (!isDownloadDone) {
+      //         if (total > 0) {
+      //           onProgressPercent(received.toDouble() / total.toDouble());
+      //         }
+      //         await Future.delayed(const Duration(milliseconds: 100));
+      //       }
+      //       onProgressPercent(1);
 
-            data = Uint8List.fromList(bytes);
-          } else {
-            final response = await http.get(resolvedUri, headers: headers);
-            data = response.bodyBytes;
-          }
-        }
+      //       data = Uint8List.fromList(bytes);
+      //     } else {
+      //       final response = await http.get(resolvedUri, headers: headers);
+      //       data = response.bodyBytes;
+      //     }
+      //   }
 
       case AssetImage ai:
         {
