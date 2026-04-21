@@ -167,7 +167,7 @@ Future<List<AnimationFrame>> loadFrames({
     // This part overrides the use of dart::ui.Codec
     // for formats that it doesn't support.
     if (isProviderHasFileExtension(provider, extension: 'avif')) {
-      debugPrint("[avif] AVIF detected. Loading frames.");
+      debugPrint("[gif_view] AVIF detected. Loading frames with avif_enjoyer.");
       return await avif_enjoyer.loadAnimationFramesFromAvifFrames(
         data,
         onProgressPercent: onProgressPercent,
