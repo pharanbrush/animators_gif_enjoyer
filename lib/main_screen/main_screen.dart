@@ -182,8 +182,8 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
   }
 
   @override
-  void onGifLoadSuccess() {
-    super.onGifLoadSuccess();
+  void onFileLoadSuccess() {
+    super.onFileLoadSuccess();
     zoomLevelNotifier.value = ScrollZoomContainer.defaultZoom;
   }
 
@@ -513,7 +513,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
           onClick: (_) => tryCopyFrameToClipboard(),
         ),
         menu_items.revealMenuItem(
-          gifImageProvider,
+          imageProvider,
           source: loadedAnimationInfo.fileSource,
         ),
         MenuItem.separator(),
@@ -574,9 +574,9 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                   return GestureDetector(
                     onTap: () => togglePlayPause(),
                     onSecondaryTap: () => popUpContextualMenu(loadedMenu()),
-                    child: GifViewContainer(
-                      gifImageProvider: gifImageProvider,
-                      gifController: animationController,
+                    child: ImageViewContainer(
+                      imageProvider: imageProvider,
+                      frameController: frameController,
                       zoomLevelNotifier: zoomLevelNotifier,
                       isAppBusy: isAppBusy,
                       allowWideSliderNotifier: allowWideSliderNotifier,
@@ -590,7 +590,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
             ),
             DiscreteDragListener(
               cursor: SystemMouseCursors.resizeLeftRight,
-              sensitivity: animationController.frameCount * 0.004,
+              sensitivity: frameController.frameCount * 0.004,
               shiftMultiplier: 0.1,
               onDragUpdate: (delta) {
                 if (!isScrubbingAllowed) return;
@@ -693,7 +693,6 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                         primarySliderRange: primarySliderRange,
                         isUsingFocusRange: isUsingFocusRange,
                         currentFrame: currentFrame,
-                        gifController: animationController,
                         enabled: isPlayModeAvailable && isScrubMode.value,
                         allowWideNotifier: allowWideSliderNotifier,
                         toggleWideSlider: () => gif_enjoyer_preferences
@@ -865,7 +864,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                   valueListenable: currentFrame,
                   builder: (_, _, _) {
                     return Text(
-                      '(current: ${animationController.currentFrameData.duration.inMilliseconds} ms)',
+                      '(current: ${frameController.currentFrameData.duration.inMilliseconds} ms)',
                     );
                   },
                 ),
@@ -927,8 +926,8 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
 
   void tryCopyFrameToClipboard() {
     if (!isImageLoaded) return;
-    final image = animationController.currentFrameData.imageInfo.image;
-    final suggestedName = "gifFrameg${animationController.currentFrame}.png";
+    final image = frameController.currentFrameData.imageInfo.image;
+    final suggestedName = "gifFrameg${frameController.currentFrame}.png";
     phclipboard.copyImageToClipboardAsPng(image, suggestedName);
   }
 
@@ -970,7 +969,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
     var (gifImage, name) = await open_file.userOpenFilePickerForImages();
     if (gifImage == null || name == null) return;
 
-    loadGifFromProvider(gifImage, name);
+    loadAnimationFromProvider(gifImage, name);
   }
 
   Future<void> tryLoadClipboardPath() async {
@@ -987,11 +986,11 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
     if (!isImageLoaded) return;
     if (isAppBusy) return;
 
-    final imageList = animationController.frames
+    final imageList = frameController.frames
         .map<ui.Image>((frame) => frame.imageInfo.image)
         .toList(growable: false);
 
-    final gifPrefix = tryGetNameFromGifImageProvider(
+    final gifPrefix = tryGetNameFromImageProvider(
       defaultName: 'gif_enjoyer',
     );
 
@@ -1117,7 +1116,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
       final frameMicroseconds = (1000000 / possibleFramerate).round();
       frameDuration = Duration(microseconds: frameMicroseconds);
 
-      var gifFrameLoading = loadGifFramesFromImages(
+      var gifFrameLoading = loadAnimationFramesFromImages(
         fileImages: fileImages,
         frameDuration: frameDuration,
       );
@@ -1126,7 +1125,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
       var gifFrames = await gifFrameLoading;
       inProgressLoadingProcess = null;
 
-      await loadGifFromGifFrames(
+      await loadAnimationFromAnimationFrames(
         gifFrames,
         folderPath,
         isImageSequence: true,
@@ -1152,7 +1151,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
     if (isAppBusy) return;
 
     if (path.trim().isEmpty) return;
-    loadGifFromProvider(open_file.getFileImageFromPath(path), path);
+    loadAnimationFromProvider(open_file.getFileImageFromPath(path), path);
   }
 
   void tryLoadGifFromUrl(String url, {String? errorMessage}) {
@@ -1164,7 +1163,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
 
     if (isUrlString(url)) {
       var provider = NetworkImage(url);
-      loadGifFromProvider(provider, url);
+      loadAnimationFromProvider(provider, url);
     } else {
       showSnackbar(
         label: errorMessage ?? "Can't load url:\n$url",

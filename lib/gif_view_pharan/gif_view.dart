@@ -34,8 +34,8 @@ class AnimationFrame {
 }
 
 /// Loads a [AnimationFrame] List from a [FileImage] List that can then be passed
-/// to [GifFrameController.load].
-Future<List<AnimationFrame>> loadGifFramesFromImages({
+/// to [FrameController.load].
+Future<List<AnimationFrame>> loadAnimationFramesFromImages({
   required List<FileImage> fileImages,
   ValueChanged<Object?>? onError,
   Duration? frameDuration,
@@ -92,8 +92,8 @@ Future<List<AnimationFrame>> loadGifFramesFromImages({
 }
 
 /// Loads a [AnimationFrame] List from an ImageProvider which can then be passed
-/// to [GifFrameController.load].
-Future<List<AnimationFrame>> loadGifFrames({
+/// to [FrameController.load].
+Future<List<AnimationFrame>> loadFrames({
   required ImageProvider provider,
   ValueChanged<Object?>? onError,
   ValueChanged<double>? onProgressPercent,
@@ -168,7 +168,7 @@ Future<List<AnimationFrame>> loadGifFrames({
     // for formats that it doesn't support.
     if (isProviderHasFileExtension(provider, extension: 'avif')) {
       debugPrint("[avif] AVIF detected. Loading frames.");
-      return await avif_enjoyer.loadGifFramesFromAvifFrames(
+      return await avif_enjoyer.loadAnimationFramesFromAvifFrames(
         data,
         onProgressPercent: onProgressPercent,
       );
@@ -223,7 +223,7 @@ bool isProviderHasFileExtension(
 }
 
 class GifView extends StatefulWidget {
-  final GifFrameController controller;
+  final FrameController controller;
   final ImageProvider? image;
   final double? height;
   final double? width;
@@ -327,9 +327,9 @@ class GifView extends StatefulWidget {
 class GifViewState extends State<GifView> with TickerProviderStateMixin {
   @override
   void initState() {
-    widget.controller.addListener(_handleGifControllerUpdated);
+    widget.controller.addListener(_handleFrameControllerUpdated);
     widget.controller.currentFrameListenable.addListener(
-      _handleGifControllerUpdated,
+      _handleFrameControllerUpdated,
     );
     // Future.delayed(Duration.zero, _loadImage);
     super.initState();
@@ -357,22 +357,22 @@ class GifViewState extends State<GifView> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    widget.controller.removeListener(_handleGifControllerUpdated);
+    widget.controller.removeListener(_handleFrameControllerUpdated);
     widget.controller.currentFrameListenable.removeListener(
-      _handleGifControllerUpdated,
+      _handleFrameControllerUpdated,
     );
     super.dispose();
   }
 
-  void _handleGifControllerUpdated() {
+  void _handleFrameControllerUpdated() {
     if (mounted) {
       setState(() {});
     }
   }
 }
 
-class GifFrameController extends ChangeNotifier {
-  GifFrameController({
+class FrameController extends ChangeNotifier {
+  FrameController({
     required this.currentFrameListenable,
   });
 

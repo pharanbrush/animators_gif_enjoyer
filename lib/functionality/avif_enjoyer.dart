@@ -7,9 +7,9 @@ import 'package:flutter/rendering.dart' as rendering;
 import 'package:flutter_avif/flutter_avif.dart' as flutter_avif;
 
 /// Loads a [AnimationFrame] List from an [AvifFrameInfo] List that can then be passed
-/// to [GifFrameController.load].
+/// to [FrameController.load].
 /// This allows the app to hook into flutter_avif.
-Future<List<AnimationFrame>> loadGifFramesFromAvifFrames(
+Future<List<AnimationFrame>> loadAnimationFramesFromAvifFrames(
   Uint8List bytes, {
   void Function(double percentProgress)? onProgressPercent,
 }) async {

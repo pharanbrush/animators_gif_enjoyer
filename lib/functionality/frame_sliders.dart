@@ -1,4 +1,3 @@
-import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
 import 'package:animators_gif_enjoyer/main_screen/theme.dart';
 import 'package:animators_gif_enjoyer/phlutter/windows/scroll_listener.dart';
 import 'package:flutter/material.dart';
@@ -106,7 +105,6 @@ class MainSlider extends StatelessWidget {
     required this.primarySliderRange,
     required this.isUsingFocusRange,
     required this.currentFrame,
-    required this.gifController,
     required this.enabled,
     required this.allowWideNotifier,
     required this.toggleWideSlider,
@@ -121,7 +119,6 @@ class MainSlider extends StatelessWidget {
   final ValueNotifier<bool> isUsingFocusRange;
   final ValueNotifier<int> currentFrame;
   final ValueNotifier<bool> allowWideNotifier;
-  final GifFrameController gifController;
   final void Function(int increment) incrementFunction;
   final bool enabled;
 

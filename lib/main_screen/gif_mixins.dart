@@ -14,14 +14,14 @@ import 'package:animators_gif_enjoyer/utils/path_extensions.dart'
 
 mixin GifPlayer<T extends StatefulWidget>
     on State<T>, TickerProvider, FrameBaseStorer<T> {
-  ImageProvider? gifImageProvider;
+  ImageProvider? imageProvider;
 
-  late final animationController = GifFrameController(
+  late final frameController = FrameController(
     currentFrameListenable: displayedFrame,
   );
-  late GifFrameAdvancer gifAdvancer;
+  late FrameAdvancer frameAdvancer;
   late final playSpeedController = PlaybackSpeedController(
-    setter: (timeScale) => gifAdvancer.timeScale = timeScale,
+    setter: (timeScale) => frameAdvancer.timeScale = timeScale,
   );
 
   final ValueNotifier<int> displayedFrame = ValueNotifier(0);
@@ -52,7 +52,7 @@ mixin GifPlayer<T extends StatefulWidget>
     isLoaded: false,
   );
 
-  int get endGifFrame => animationController.frameCount - 1;
+  int get endAnimationFrame => frameController.frameCount - 1;
   bool get isPlaying => (isPlayModeAvailable && isScrubMode.value == false);
   bool get isImageLoaded => loadedAnimationInfo.isLoaded;
   bool get isPlayModeAvailable =>
@@ -60,9 +60,9 @@ mixin GifPlayer<T extends StatefulWidget>
   bool get isScrubbingAllowed =>
       isImageLoaded && !loadedAnimationInfo.isNonAnimated && isScrubMode.value;
 
-  /// Tries to get the filename of the loaded GIF.
-  String tryGetNameFromGifImageProvider({required String defaultName}) {
-    final nameWithoutExtension = switch (gifImageProvider) {
+  /// Tries to get the filename of the loaded image.
+  String tryGetNameFromImageProvider({required String defaultName}) {
+    final nameWithoutExtension = switch (imageProvider) {
       FileImage _ => path_extensions.filenameFromFullPathWithoutExtensions(
         loadedAnimationInfo.fileSource,
       ),
@@ -84,7 +84,7 @@ mixin GifPlayer<T extends StatefulWidget>
 
   @override
   void initState() {
-    gifAdvancer = GifFrameAdvancer(
+    frameAdvancer = FrameAdvancer(
       tickerProvider: this,
       currentFrameNotifier: currentFrame,
     );
@@ -97,8 +97,8 @@ mixin GifPlayer<T extends StatefulWidget>
 
   @override
   void dispose() {
-    animationController.dispose();
-    gifAdvancer.dispose();
+    frameController.dispose();
+    frameAdvancer.dispose();
     super.dispose();
   }
 
@@ -135,22 +135,22 @@ mixin GifPlayer<T extends StatefulWidget>
       final int last = range.end.toInt();
       setCurrentFrameClamped(currentFrame.value);
 
-      gifAdvancer.pause();
-      gifAdvancer.play(
+      frameAdvancer.pause();
+      frameAdvancer.play(
         start: start,
         last: last,
         current: currentFrame.value,
       );
     } else {
-      gifAdvancer.pause();
+      frameAdvancer.pause();
     }
   }
 
-  void onStartLoadNewGif() {
+  void onStartLoadNewFile() {
     setPlayMode(false);
   }
 
-  void onGifLoadSuccess() {
+  void onFileLoadSuccess() {
     if (isPlayOnLoad) {
       setPlayMode(true);
     }
@@ -238,13 +238,13 @@ mixin GifLoader on GifPlayer<GifEnjoyerMainPage> {
   void onImageDownloadSuccess();
   void onImageLoadError(String errorMessage);
 
-  Future<void> loadGifFromGifFrames(
+  Future<void> loadAnimationFromAnimationFrames(
     List<AnimationFrame> frames,
     String source, {
     bool isImageSequence = false,
     bool isGif = false,
   }) async {
-    onStartLoadNewGif();
+    onStartLoadNewFile();
 
     try {
       loadedAnimationInfo = AnimationInfo.fromFrames(
@@ -253,11 +253,11 @@ mixin GifLoader on GifPlayer<GifEnjoyerMainPage> {
         isImageSequence: isImageSequence,
         isGif: isGif,
       );
-      animationController.load(frames);
-      gifAdvancer.setFrames(frames);
+      frameController.load(frames);
+      frameAdvancer.setFrames(frames);
 
       // Reset sensible values for new file.
-      gifImageProvider = null;
+      imageProvider = null;
       resetViewerStateAfterLoad();
       setState(() {});
     } catch (e) {
@@ -267,22 +267,22 @@ mixin GifLoader on GifPlayer<GifEnjoyerMainPage> {
   }
 
   void resetViewerStateAfterLoad() {
-    int endFrame = endGifFrame;
+    int endFrame = endAnimationFrame;
     focusFrameRange.value = RangeValues(0, endFrame.toDouble());
     maxFrameIndex.value = endFrame;
     currentFrame.value = 0;
     playSpeedController.resetSpeed();
     isImageLoading.value = false;
     inProgressLoadingProcess = null;
-    onGifLoadSuccess();
+    onFileLoadSuccess();
     setState(() {});
   }
 
-  Future<void> loadGifFromProvider(
+  Future<void> loadAnimationFromProvider(
     ImageProvider provider,
     String source,
   ) async {
-    onStartLoadNewGif();
+    onStartLoadNewFile();
 
     try {
       final isDownload = provider is NetworkImage;
@@ -296,7 +296,7 @@ mixin GifLoader on GifPlayer<GifEnjoyerMainPage> {
             }
           : null;
 
-      final gifLoadProcess = loadGifFrames(
+      final framesLoadProcess = loadFrames(
         provider: provider,
         onProgressPercent: onProgressPercent,
       );
@@ -312,11 +312,11 @@ mixin GifLoader on GifPlayer<GifEnjoyerMainPage> {
         },
       );
 
-      inProgressLoadingProcess = gifLoadProcess;
-      await Future.any([gifLoadProcess, optionalTimeout]);
+      inProgressLoadingProcess = framesLoadProcess;
+      await Future.any([framesLoadProcess, optionalTimeout]);
 
-      final frames = await gifLoadProcess;
-      gifImageProvider = provider;
+      final frames = await framesLoadProcess;
+      imageProvider = provider;
 
       final int? fileSize;
       final file = File(source);
@@ -332,12 +332,12 @@ mixin GifLoader on GifPlayer<GifEnjoyerMainPage> {
         isGif: isProviderHasFileExtension(provider, extension: 'gif'),
         filesizeByteCount: fileSize,
       );
-      animationController.load(frames);
-      gifAdvancer.setFrames(frames);
+      frameController.load(frames);
+      frameAdvancer.setFrames(frames);
       inProgressLoadingProcess = null;
 
       resetViewerStateAfterLoad();
-      if (gifImageProvider is NetworkImage) {
+      if (imageProvider is NetworkImage) {
         onImageDownloadSuccess();
       }
       setState(() {});
@@ -346,7 +346,7 @@ mixin GifLoader on GifPlayer<GifEnjoyerMainPage> {
     } catch (e) {
       inProgressLoadingProcess = null;
 
-      if (gifImageProvider is NetworkImage) {
+      if (imageProvider is NetworkImage) {
         try {
           var uri = Uri.parse(source);
           if (uri.host.contains('tenor') && !uri.path.endsWith('gif')) {

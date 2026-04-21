@@ -2,8 +2,8 @@ import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 
-class GifFrameAdvancer {
-  GifFrameAdvancer({
+class FrameAdvancer {
+  FrameAdvancer({
     required TickerProvider tickerProvider,
     required this.currentFrameNotifier,
   }) {

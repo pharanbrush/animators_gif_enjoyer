@@ -7,11 +7,11 @@ import 'package:flutter/material.dart';
 const delayedTooltipDelay = Duration(milliseconds: 200);
 const slowTooltipDelay = Duration(milliseconds: 600);
 
-class GifViewContainer extends StatelessWidget {
-  const GifViewContainer({
+class ImageViewContainer extends StatelessWidget {
+  const ImageViewContainer({
     super.key,
-    required this.gifImageProvider,
-    required this.gifController,
+    required this.imageProvider,
+    required this.frameController,
     this.allowWideSliderNotifier,
     this.isAppBusy = false,
     this.zoomLevelNotifier,
@@ -20,8 +20,8 @@ class GifViewContainer extends StatelessWidget {
     this.hardMaxZoomGetter,
   });
 
-  final ImageProvider<Object>? gifImageProvider;
-  final GifFrameController gifController;
+  final ImageProvider<Object>? imageProvider;
+  final FrameController frameController;
   final double Function()? fitZoomGetter;
   final double Function()? hardMinZoomGetter;
   final double Function()? hardMaxZoomGetter;
@@ -37,8 +37,8 @@ class GifViewContainer extends StatelessWidget {
       hardMaxZoomGetter: hardMaxZoomGetter,
       hardMinZoomGetter: hardMinZoomGetter,
       child: GifView(
-        image: gifImageProvider,
-        controller: gifController,
+        image: imageProvider,
+        controller: frameController,
       ),
     );
   }
