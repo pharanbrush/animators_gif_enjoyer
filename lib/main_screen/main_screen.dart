@@ -927,7 +927,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
   void tryCopyFrameToClipboard() {
     if (!isImageLoaded) return;
     final image = frameController.currentFrameData.imageInfo.image;
-    final suggestedName = "gifFrameg${frameController.currentFrame}.png";
+    final suggestedName = "frameg${frameController.currentFrame}.png";
     phclipboard.copyImageToClipboardAsPng(image, suggestedName);
   }
 
