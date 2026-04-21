@@ -36,9 +36,18 @@ class ImageViewContainer extends StatelessWidget {
       fitZoomGetter: fitZoomGetter,
       hardMaxZoomGetter: hardMaxZoomGetter,
       hardMinZoomGetter: hardMinZoomGetter,
-      child: GifView(
-        image: imageProvider,
-        controller: frameController,
+      child: ListenableBuilder(
+        listenable: frameController,
+        builder: (_, _) {
+          return ListenableBuilder(
+            listenable: frameController.currentFrameListenable,
+            builder: (_, _) {
+              return RawImage(
+                image: frameController.currentFrameData.imageInfo.image,
+              );
+            },
+          );
+        },
       ),
     );
   }
