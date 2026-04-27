@@ -37,8 +37,9 @@ class _ImageDropTargetState extends State<ImageDropTarget> {
       color: Colors.transparent,
       borderRadius: BorderRadius.all(Radius.circular(15)),
     );
-    final textStyle =
-        theme.textTheme.displaySmall?.copyWith(color: foregroundColor);
+    final textStyle = theme.textTheme.displaySmall?.copyWith(
+      color: foregroundColor,
+    );
 
     final Widget hiddenDropWidget = Center(
       child: Material(
@@ -87,8 +88,9 @@ class _ImageDropTargetState extends State<ImageDropTarget> {
           duration: const Duration(milliseconds: 150),
           curve: Curves.easeOutQuart,
           key: const Key('dropContainer'),
-          margin:
-              _isDragging ? const EdgeInsets.all(30) : const EdgeInsets.all(50),
+          margin: _isDragging
+              ? const EdgeInsets.all(30)
+              : const EdgeInsets.all(50),
           decoration: _isDragging ? visibleBoxDecoration : hiddenBoxDecoration,
           child: _isDragging ? visibleDropWidget : hiddenDropWidget,
         ),
