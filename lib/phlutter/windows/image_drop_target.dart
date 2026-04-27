@@ -48,13 +48,13 @@ class _ImageDropTargetState extends State<ImageDropTarget> {
       ),
     );
 
-    final icon = Icon(
+    Widget icon() => Icon(
       Icons.image_outlined,
       size: 80,
       color: foregroundColor,
     );
 
-    final label = Text(
+    Widget label() => Text(
       'Drop GIF here.',
       style: textStyle,
     );
@@ -66,9 +66,9 @@ class _ImageDropTargetState extends State<ImageDropTarget> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            icon,
+            icon(),
             const SizedBox(height: 15),
-            label,
+            label(),
           ],
         ),
       ),
