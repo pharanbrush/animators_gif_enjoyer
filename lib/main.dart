@@ -1,9 +1,9 @@
 import 'package:animators_gif_enjoyer/phlutter/app_theme_cycler.dart';
 import 'package:animators_gif_enjoyer/main_screen/main_screen.dart';
 import 'package:animators_gif_enjoyer/main_screen/theme.dart' as app_theme;
-import 'package:animators_gif_enjoyer/phlutter/remember_window_size.dart'
+import 'package:animators_gif_enjoyer/phlutter/pheatures/remember_window_size.dart'
     as remember_window_size;
-import 'package:animators_gif_enjoyer/phlutter/single_instance.dart';
+import 'package:animators_gif_enjoyer/functionality/single_instance.dart';
 import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:windows_single_instance/windows_single_instance.dart';

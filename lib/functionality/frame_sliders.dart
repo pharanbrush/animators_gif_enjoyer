@@ -1,5 +1,5 @@
 import 'package:animators_gif_enjoyer/main_screen/theme.dart';
-import 'package:animators_gif_enjoyer/phlutter/windows/scroll_listener.dart';
+import 'package:animators_gif_enjoyer/phlutter/widgets/scroll_listener.dart';
 import 'package:flutter/material.dart';
 
 class FrameRangeSlider extends StatelessWidget {

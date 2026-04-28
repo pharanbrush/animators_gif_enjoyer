@@ -100,8 +100,8 @@ class _ModalPanelWidget extends StatelessWidget {
                 duration: fastDuration,
                 child: value
                     ? (isUnderlayTransparent
-                        ? const ModalUnderlay.transparent()
-                        : const ModalUnderlay())
+                          ? const ModalUnderlay.transparent()
+                          : const ModalUnderlay())
                     : null,
               ),
               AnimatedSwitcher(
@@ -128,7 +128,7 @@ class ModalUnderlay extends StatelessWidget {
   });
 
   const ModalUnderlay.transparent({super.key, this.onDismiss})
-      : isTransparent = true;
+    : isTransparent = true;
 
   final Function()? onDismiss;
   final bool isTransparent;
@@ -190,7 +190,8 @@ class ModalTextPanel extends ModalPanel {
     TextEditingController textController,
     Function(String value) onTextFieldSubmitted,
     VoidCallback onSubmitButtonPressed,
-  ) textPanelBuilder;
+  )
+  textPanelBuilder;
 
   @override
   Widget widget() {

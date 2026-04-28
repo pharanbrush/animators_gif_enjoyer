@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import '../phlutter/windows/scroll_listener.dart';
+import '../phlutter/widgets/scroll_listener.dart';
 
 const double minZoomingPixelDimension = 22; // Size of a Discord inline emote
 
