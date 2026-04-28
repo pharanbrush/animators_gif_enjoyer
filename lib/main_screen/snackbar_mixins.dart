@@ -17,6 +17,25 @@ mixin SnackbarShower<T extends StatefulWidget> on State<T> {
     messenger.showSnackBar(snackbar);
   }
 
+  Widget _snackbarThemes({required Widget child}) {
+    return IconTheme(
+      data: IconThemeData(
+        color: Theme.of(context).colorScheme.onInverseSurface,
+      ),
+      child: child,
+    );
+  }
+
+  Widget _iconThenLabel({required String label, Icon? icon}) {
+    return Row(
+      children: [
+        if (icon != null)
+          Padding(padding: const EdgeInsets.only(right: 10), child: icon),
+        Flexible(child: Text(label)),
+      ],
+    );
+  }
+
   void showSnackBarMessage({
     required String label,
     Icon? icon,
@@ -24,19 +43,10 @@ mixin SnackbarShower<T extends StatefulWidget> on State<T> {
   }) {
     showSnackBar(
       SnackBar(
-        content: IconTheme(
-          data: IconThemeData(
-            color: Theme.of(context).colorScheme.onInverseSurface,
-          ),
-          child: Row(
-            children: [
-              if (icon != null)
-                Padding(
-                  padding: const EdgeInsets.only(right: 10),
-                  child: icon,
-                ),
-              Flexible(child: Text(label)),
-            ],
+        content: _snackbarThemes(
+          child: _iconThenLabel(
+            label: label,
+            icon: icon,
           ),
         ),
         action: action,
@@ -54,21 +64,12 @@ mixin SnackbarShower<T extends StatefulWidget> on State<T> {
       SnackBar(
         duration: const Duration(days: 1),
         action: action,
-        content: IconTheme(
-          data: IconThemeData(
-            color: Theme.of(context).colorScheme.onInverseSurface,
-          ),
+        content: _snackbarThemes(
           child: Column(
             children: [
-              Row(
-                children: [
-                  if (icon != null)
-                    Padding(
-                      padding: const EdgeInsets.only(right: 10),
-                      child: icon,
-                    ),
-                  Flexible(child: Text(label)),
-                ],
+              _iconThenLabel(
+                label: label,
+                icon: icon,
               ),
               ValueListenableBuilder(
                 valueListenable: progressListenable,
