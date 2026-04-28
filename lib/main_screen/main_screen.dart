@@ -26,12 +26,14 @@ import 'package:animators_gif_enjoyer/phlutter/widgets/widget_state_property_uti
 // import 'package:animators_gif_enjoyer/phlutter/modal_panel.dart';
 import 'package:animators_gif_enjoyer/phlutter/widgets/scroll_listener.dart';
 import 'package:animators_gif_enjoyer/phlutter/windows/windows_phwindow.dart';
-import 'package:animators_gif_enjoyer/utils/build_info.dart' as build_info;
+import 'package:animators_gif_enjoyer/phlutter/dart/build_info.dart'
+    as build_info;
 // import 'package:animators_gif_enjoyer/functionality/download_file.dart';
 import 'package:animators_gif_enjoyer/functionality/open_file.dart'
     as open_file;
-import 'package:animators_gif_enjoyer/phlutter/pheatures/phclipboard.dart' as phclipboard;
-import 'package:animators_gif_enjoyer/utils/plural.dart';
+import 'package:animators_gif_enjoyer/phlutter/pheatures/phclipboard.dart'
+    as phclipboard;
+import 'package:animators_gif_enjoyer/phlutter/dart/plural.dart';
 import 'package:animators_gif_enjoyer/functionality/reveal_file_source.dart';
 import 'package:animators_gif_enjoyer/functionality/save_image_as_png.dart';
 import 'package:contextual_menu/contextual_menu.dart';
