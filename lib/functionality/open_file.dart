@@ -1,13 +1,14 @@
 import 'dart:io';
 
-import 'package:animators_gif_enjoyer/utils/path_extensions.dart';
+import 'package:animators_gif_enjoyer/phlutter/dart/path_extensions.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
+import 'package:path/path.dart' as p;
 
 const acceptedExtensions = ['gif', 'webp', 'apng', 'png', 'avif'];
 
 Future<(FileImage? gifImage, String? fullFilePath)>
-    userOpenFilePickerForImages() async {
+userOpenFilePickerForImages() async {
   const typeGroup = XTypeGroup(
     label: 'Animated Images',
     extensions: acceptedExtensions,
@@ -71,7 +72,7 @@ Future<int> tryGetFramerateFromFolder(
 
     await for (final FileSystemEntity entry in directoryContents) {
       if (entry is File) {
-        final fileName = entry.name;
+        final fileName = p.basename(entry.path);
 
         if (!fileName.endsWith(' fps.txt')) continue;
 
@@ -106,7 +107,7 @@ Future<List<FileImage>?> loadFolderAsFileImages(String folderPath) async {
   final List<FileImage> fileImages = [];
   await for (final FileSystemEntity entry in directoryContents) {
     if (entry is File) {
-      if (isCompatibleFile(filename: entry.name)) {
+      if (isCompatibleFile(filename: entry.basename)) {
         fileImages.add(FileImage(entry));
       }
     }
@@ -121,7 +122,7 @@ final imageSequencePattern = RegExp(r'(?<=\D|^)(\d+)\.(?=\D*$)');
 void trySortFileSequence(List<FileImage> fileImages) {
   bool regexCheckPassed = true;
   for (final fileImage in fileImages) {
-    if (!imageSequencePattern.hasMatch(fileImage.file.name)) {
+    if (!imageSequencePattern.hasMatch(fileImage.file.basename)) {
       regexCheckPassed = false;
       break;
     }
@@ -136,12 +137,12 @@ void trySortFileSequence(List<FileImage> fileImages) {
 }
 
 int basicStringCompare(FileImage a, FileImage b) {
-  return a.file.name.compareTo(b.file.name);
+  return a.file.basename.compareTo(b.file.basename);
 }
 
 int regexSequenceCompare(FileImage a, FileImage b) {
-  final matchA = imageSequencePattern.firstMatch(a.file.name);
-  final matchB = imageSequencePattern.firstMatch(b.file.name);
+  final matchA = imageSequencePattern.firstMatch(a.file.basename);
+  final matchB = imageSequencePattern.firstMatch(b.file.basename);
 
   if (matchA == null || matchB == null) {
     return 0;
@@ -152,7 +153,7 @@ int regexSequenceCompare(FileImage a, FileImage b) {
   final int sequenceComparison = numA.compareTo(numB);
 
   if (sequenceComparison == 0) {
-    return a.file.name.compareTo(b.file.name);
+    return a.file.basename.compareTo(b.file.basename);
   }
 
   return sequenceComparison;

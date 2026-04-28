@@ -3,8 +3,8 @@ import 'dart:ui';
 
 import 'package:animators_gif_enjoyer/functionality/avif_enjoyer.dart'
     as avif_enjoyer;
-import 'package:animators_gif_enjoyer/utils/path_extensions.dart'
-    as path_extensions;
+import 'package:animators_gif_enjoyer/phlutter/dart/uri_paths.dart'
+    as uri_paths;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 // import 'package:http/http.dart' as http;
@@ -213,7 +213,7 @@ bool isProviderHasFileExtension(
   }
 
   if (sourceUri != null) {
-    final providerExtension = path_extensions.getExtensionFromUri(sourceUri);
+    final providerExtension = uri_paths.getExtensionFromUri(sourceUri);
     if (providerExtension != null) {
       return providerExtension.toLowerCase().startsWith(extension);
     }

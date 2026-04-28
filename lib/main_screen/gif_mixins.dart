@@ -6,11 +6,12 @@ import 'package:animators_gif_enjoyer/functionality/frame_advancer.dart';
 import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
 import 'package:animators_gif_enjoyer/main_screen/frame_base.dart';
 import 'package:animators_gif_enjoyer/main_screen/main_screen.dart';
+import 'package:animators_gif_enjoyer/phlutter/dart/uri_paths.dart'
+    as uri_paths;
 import 'package:animators_gif_enjoyer/phlutter/value_notifier_extensions.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:animators_gif_enjoyer/utils/path_extensions.dart'
-    as path_extensions;
+import 'package:path/path.dart' as p;
 
 mixin AnimationPlayer<T extends StatefulWidget>
     on State<T>, TickerProvider, FrameBaseStorer<T> {
@@ -63,13 +64,13 @@ mixin AnimationPlayer<T extends StatefulWidget>
   /// Tries to get the filename of the loaded image.
   String tryGetNameFromImageProvider({required String defaultName}) {
     final nameWithoutExtension = switch (imageProvider) {
-      FileImage _ => path_extensions.filenameFromFullPathWithoutExtensions(
+      FileImage _ => p.basenameWithoutExtension(
         loadedAnimationInfo.fileSource,
       ),
-      NetworkImage _ => path_extensions.filenameFromUrlWithoutExtension(
+      NetworkImage _ => uri_paths.filenameFromUrlWithoutExtension(
         loadedAnimationInfo.fileSource,
       ),
-      null => path_extensions.filenameFromFullPathWithoutExtensions(
+      null => p.basenameWithoutExtension(
         loadedAnimationInfo.fileSource,
       ),
       _ => defaultName,
