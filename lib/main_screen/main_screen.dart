@@ -189,7 +189,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
 
   @override
   void onImageDownloadSuccess() {
-    showSnackbar(
+    showSnackBarMessage(
       label: 'Download complete',
       icon: const Icon(SnackbarShower.okIcon),
     );
@@ -892,7 +892,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
         }
 
         if (!open_file.isAcceptedFile(filename: file.name)) {
-          showSnackbar(
+          showSnackBarMessage(
             label: 'Incompatible format.',
             icon: const Icon(SnackbarShower.errorIcon),
           );
@@ -1004,7 +1004,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
             exportCancel: isExportCancelled,
             onExportStart: () {
               exportPercentProgress.value = 0;
-              showProgressSnackbar(
+              showProgressSnackBar(
                 icon: const Icon(Icons.save_alt),
                 label: 'Exporting PNGs...',
                 progressListenable: exportPercentProgress,
@@ -1020,7 +1020,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
               );
             },
             onExportCanceled: (totalFiles, directory) {
-              showSnackbar(
+              showSnackBarMessage(
                 icon: const Icon(SnackbarShower.canceledIcon),
                 label: 'Export canceled.',
                 action: (directory == null)
@@ -1032,7 +1032,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
               );
             },
             onExportSuccess: (totalFiles, directory) {
-              showSnackbar(
+              showSnackBarMessage(
                 label:
                     'PNG Sequence exported: $totalFiles image${pluralS(totalFiles)}',
                 icon: const Icon(SnackbarShower.okIcon),
@@ -1050,7 +1050,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
               setState(() {
                 clearExportStatus();
               });
-              showSnackbar(
+              showSnackBarMessage(
                 icon: const Icon(SnackbarShower.errorIcon),
                 label: 'Error exporting PNG sequence.',
               );
@@ -1073,7 +1073,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
       openImageSequenceFolder(folderPath);
     } catch (e) {
       inProgressLoadingProcess = null;
-      showSnackbar(
+      showSnackBarMessage(
         label: e.toString(),
         icon: const Icon(SnackbarShower.errorIcon),
       );
@@ -1084,7 +1084,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
     if (isAppBusy) return;
     if (folderPath.isEmpty || !open_file.isFolder(folderPath)) {
       inProgressLoadingProcess = null;
-      showSnackbar(
+      showSnackBarMessage(
         label: "Could not find folder : '$folderPath'",
         icon: const Icon(SnackbarShower.errorIcon),
       );
@@ -1100,7 +1100,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
 
       if (fileImages == null) return;
       if (fileImages.isEmpty) {
-        showSnackbar(
+        showSnackBarMessage(
           label: 'Could not find any images in folder.',
           icon: const Icon(SnackbarShower.errorIcon),
         );
@@ -1133,14 +1133,14 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
       );
 
       final frameCount = gifFrames.length;
-      showSnackbar(
+      showSnackBarMessage(
         label:
             'Loaded image sequence with $frameCount frame${pluralS(frameCount)} at $possibleFramerate fps.',
         icon: const Icon(SnackbarShower.okIcon),
       );
     } catch (e) {
       inProgressLoadingProcess = null;
-      showSnackbar(
+      showSnackBarMessage(
         label: e.toString(),
         icon: const Icon(SnackbarShower.errorIcon),
       );
@@ -1177,7 +1177,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
   //
 
   void showImageLoadFailedAlert(String errorText) {
-    showSnackbar(
+    showSnackBarMessage(
       label:
           'Loading failed\n'
           '$errorText',

@@ -11,15 +11,18 @@ mixin SnackbarShower<T extends StatefulWidget> on State<T> {
   static const IconData copyIcon = Icons.copy;
   static const IconData canceledIcon = Icons.cancel;
 
-  void showSnackbar({
+  void showSnackBar(SnackBar snackbar) {
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.clearSnackBars();
+    messenger.showSnackBar(snackbar);
+  }
+
+  void showSnackBarMessage({
     required String label,
     Icon? icon,
     SnackBarAction? action,
   }) {
-    final messenger = ScaffoldMessenger.of(context);
-    messenger.clearSnackBars();
-
-    messenger.showSnackBar(
+    showSnackBar(
       SnackBar(
         content: IconTheme(
           data: IconThemeData(
@@ -41,15 +44,13 @@ mixin SnackbarShower<T extends StatefulWidget> on State<T> {
     );
   }
 
-  void showProgressSnackbar({
+  void showProgressSnackBar({
     Icon? icon,
     required String label,
     required ValueListenable<double> progressListenable,
     SnackBarAction? action,
   }) {
-    final messenger = ScaffoldMessenger.of(context);
-    messenger.clearSnackBars();
-    messenger.showSnackBar(
+    showSnackBar(
       SnackBar(
         duration: const Duration(days: 1),
         action: action,
