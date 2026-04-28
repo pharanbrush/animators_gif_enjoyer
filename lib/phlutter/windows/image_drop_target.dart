@@ -41,7 +41,7 @@ class _ImageDropTargetState extends State<ImageDropTarget> {
       color: foregroundColor,
     );
 
-    final Widget hiddenDropWidget = Center(
+    Widget hiddenDropWidget() => Center(
       child: Material(
         textStyle: textStyle,
         type: MaterialType.transparency,
@@ -60,7 +60,7 @@ class _ImageDropTargetState extends State<ImageDropTarget> {
       style: textStyle,
     );
 
-    final Widget visibleDropWidget = Center(
+    Widget visibleDropWidget() => Center(
       child: Material(
         textStyle: textStyle,
         type: MaterialType.transparency,
@@ -92,7 +92,7 @@ class _ImageDropTargetState extends State<ImageDropTarget> {
               ? const EdgeInsets.all(30)
               : const EdgeInsets.all(50),
           decoration: _isDragging ? visibleBoxDecoration : hiddenBoxDecoration,
-          child: _isDragging ? visibleDropWidget : hiddenDropWidget,
+          child: _isDragging ? visibleDropWidget() : hiddenDropWidget(),
         ),
       ),
     );
