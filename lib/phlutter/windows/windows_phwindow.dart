@@ -1,4 +1,5 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
+import 'package:flutter/foundation.dart';
 
 import 'window_manager_titlebar.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +17,7 @@ class WindowsPhwindow extends StatelessWidget {
     this.addExtraResizingFrame = true,
     this.isAlwaysOnTopNotifier,
     this.titleBarHeight = defaultTitleBarHeight,
+    this.titleListenable,
     required this.child,
   });
 
@@ -26,11 +28,13 @@ class WindowsPhwindow extends StatelessWidget {
   final bool addExtraResizingFrame;
   final ValueNotifier<bool>? isAlwaysOnTopNotifier;
   final double titleBarHeight;
+  final ValueListenable<String?>? titleListenable;
 
   @override
   Widget build(BuildContext context) {
     Widget titleBar() => WindowTitlebar(
       title: title,
+      titleListenable: titleListenable,
       titleColor: titleColor,
       iconWidget: iconWidget,
       includeTopWindowResizer: !addExtraResizingFrame,

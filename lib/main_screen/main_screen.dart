@@ -121,6 +121,8 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
   bool get isAppBusy =>
       (inProgressExport != null) || (inProgressLoadingProcess != null);
 
+  final currentOpenFilename = ValueNotifier<String?>(null);
+
   // late final ModalTextPanel bottomTextPanel = ModalTextPanel(
   //   onClosed: () {
   //     mainWindowFocus.requestFocus();
@@ -187,6 +189,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
   void onFileLoadSuccess() {
     super.onFileLoadSuccess();
     zoomLevelNotifier.value = ScrollZoomContainer.defaultZoom;
+    currentOpenFilename.value = loadedAnimationInfo.sourceName;
   }
 
   @override
@@ -251,6 +254,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
 
     return WindowsPhwindow(
       title: appName,
+      titleListenable: currentOpenFilename,
       titleColor: Theme.of(context).colorScheme.mutedSurfaceColor,
       iconWidget: Image.memory(app_theme.appIconDataBytes),
       addExtraResizingFrame: true,

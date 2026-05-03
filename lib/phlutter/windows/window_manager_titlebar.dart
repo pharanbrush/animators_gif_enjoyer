@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -18,6 +19,7 @@ class WindowTitlebar extends StatelessWidget {
     this.titleColor,
     this.iconWidget,
     this.extraWidgets,
+    this.titleListenable,
     this.includeTopWindowResizer = true,
   });
 
@@ -27,6 +29,7 @@ class WindowTitlebar extends StatelessWidget {
   final Image? iconWidget;
   final List<Widget>? extraWidgets;
   final bool includeTopWindowResizer;
+  final ValueListenable<String?>? titleListenable;
 
   static const double titleFontSize = 12;
   static const double iconSize = 17;
@@ -61,16 +64,10 @@ class WindowTitlebar extends StatelessWidget {
                         child: TitlebarGestureDetector(
                           child: Padding(
                             padding: const EdgeInsets.only(bottom: 2, left: 2),
-                            child: Text(
-                              title,
-                              style: TextStyle(
-                                fontSize: titleFontSize,
-                                color: titleColor,
-                              ),
-                            ),
+                            child: titleTextWidget(),
                           ),
                         ),
-                      )
+                      ),
                     ],
                   ),
                 ),
@@ -83,6 +80,29 @@ class WindowTitlebar extends StatelessWidget {
           if (includeTopWindowResizer) const TopWindowEdgeResizer(),
         ],
       ),
+    );
+  }
+
+  Widget titleTextWidget() {
+    final listenable = titleListenable;
+    if (listenable == null) {
+      return Text(
+        title,
+        style: TextStyle(fontSize: titleFontSize, color: titleColor),
+      );
+    }
+
+    return ValueListenableBuilder(
+      valueListenable: listenable,
+      builder: (_, value, _) {
+        final shownTitle = (value == null || value.isEmpty) ? title : value;
+
+        return Text(
+          shownTitle,
+          style: TextStyle(fontSize: titleFontSize, color: titleColor),
+          overflow: TextOverflow.ellipsis,
+        );
+      },
     );
   }
 }

@@ -470,6 +470,8 @@ class AnimationInfo {
   final bool isGif;
   final int? filesizeByteCount;
 
+  String get sourceName => p.basename(fileSource);
+
   Size get imageSize => Size(width.toDouble(), height.toDouble());
 
   static bool isNonMoving(List<AnimationFrame> frames) {
