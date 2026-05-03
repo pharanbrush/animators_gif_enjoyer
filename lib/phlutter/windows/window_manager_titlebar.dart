@@ -203,8 +203,9 @@ class ExtraTitlebarButtonsContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const double buttonSize = 20;
-    Color buttonColor =
-        Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.4);
+    Color buttonColor = Theme.of(
+      context,
+    ).colorScheme.onSurfaceVariant.withValues(alpha: 0.4);
 
     final iconButtonStyle = ButtonStyle(
       alignment: Alignment.topCenter,
@@ -334,16 +335,17 @@ class DefaultWindowButtonSet extends StatelessWidget {
           WindowButton(
             icon: const Icon(Icons.close),
             style: iconButtonStyle.copyWith(
-                overlayColor: const WidgetStatePropertyAll(Colors.transparent),
-                backgroundColor: _hoverPressedColors(
-                  idle: Colors.transparent,
-                  hover: _closeButttonHoverBgColor,
-                  pressed: _closeButtonPressedBgColor,
-                ),
-                iconColor: _hoverColors(
-                  idle: idleColor,
-                  hover: _closeButtonIconHoverColor,
-                )),
+              overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+              backgroundColor: _hoverPressedColors(
+                idle: Colors.transparent,
+                hover: _closeButttonHoverBgColor,
+                pressed: _closeButtonPressedBgColor,
+              ),
+              iconColor: _hoverColors(
+                idle: idleColor,
+                hover: _closeButtonIconHoverColor,
+              ),
+            ),
             onPressed: _closeWindow,
           ),
         ],
@@ -459,7 +461,8 @@ WidgetStateProperty<Color> _hoverColors({
   required Color hover,
 }) {
   return WidgetStateProperty.resolveWith(
-      (states) => states.contains(WidgetState.hovered) ? hover : idle);
+    (states) => states.contains(WidgetState.hovered) ? hover : idle,
+  );
 }
 
 WidgetStateProperty<Color> _hoverActiveColors({
