@@ -113,14 +113,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.7"
-  cupertino_icons:
-    dependency: "direct main"
-    description:
-      name: cupertino_icons
-      sha256: "41e005c33bd814be4d3096aff55b1908d419fde52ca656c8c47719ec745873cd"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.9"
   desktop_drop:
     dependency: "direct main"
     description:
@@ -265,10 +257,11 @@ packages:
   flutter_avif:
     dependency: "direct main"
     description:
-      name: flutter_avif
-      sha256: "6035f073189c1ae134affa73338c2eca79bf412e9abdb8f8628fdefcccff4444"
-      url: "https://pub.dev"
-    source: hosted
+      path: flutter_avif
+      ref: patch-1
+      resolved-ref: "679408ae3f61fd31363f02c8213f02d5da45da06"
+      url: "https://github.com/pharanbrush/flutter_avif"
+    source: git
     version: "3.1.0"
   flutter_avif_android:
     dependency: transitive
@@ -377,7 +370,7 @@ packages:
     source: hosted
     version: "1.0.2"
   http:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: http
       sha256: "87721a4a50b19c7f1d49001e51409bddc46303966ce89a65af4f4e6004896412"
@@ -561,7 +554,7 @@ packages:
     source: hosted
     version: "3.2.1"
   path:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: path
       sha256: "75cca69d1490965be98c73ceaea117e8a04dd21217b37b292c9ddbec0d955bc5"
