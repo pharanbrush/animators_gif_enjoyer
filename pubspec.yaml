@@ -34,9 +34,9 @@ dependencies:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.2
-  file_selector: ^1.0.1
+  # cupertino_icons: ^1.0.2
   #http: ^1.1.0
+  file_selector: ^1.0.1
   window_manager: ^0.5.1
   contextual_menu: ^0.1.2
   super_clipboard: ^0.9.1
@@ -47,7 +47,11 @@ dependencies:
   url_launcher: ^6.2.1
   sanitize_filename: ^1.0.5
   fluentui_system_icons: ^1.1.225
-  flutter_avif: ^3.1.0
+  flutter_avif: #^3.1.0
+    git:
+      url: https://github.com/pharanbrush/flutter_avif
+      ref: patch-1
+      path: flutter_avif
   proper_filesize: ^1.0.2
   path: ^1.9.1
 
