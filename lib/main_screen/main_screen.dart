@@ -713,75 +713,84 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                 ),
               ),
             ),
-            ValueListenableBuilder(
-              valueListenable: isUsingFocusRange,
-              builder: (_, isUseCustomRange, _) {
-                final double frameCount = focusFrameRange.value.rangeSize + 1;
-                final rangeSeconds = loadedAnimationInfo.frameDuration != null
-                    ? (frameCount *
-                          loadedAnimationInfo.frameDuration!.inMilliseconds
-                              .toDouble() *
-                          0.001)
-                    : -1;
+            ListenableBuilder(
+              listenable: focusFrameRange,
+              builder: (_, _) {
+                return ValueListenableBuilder(
+                  valueListenable: isUsingFocusRange,
+                  builder: (_, isUseCustomRange, _) {
+                    final double frameCount =
+                        focusFrameRange.value.rangeSize + 1;
+                    final rangeSeconds =
+                        loadedAnimationInfo.frameDuration != null
+                        ? (frameCount *
+                              loadedAnimationInfo.frameDuration!.inMilliseconds
+                                  .toDouble() *
+                              0.001)
+                        : -1;
 
-                final String rangeSecondsString = rangeSeconds >= 0
-                    ? '${rangeSeconds.toStringAsFixed(2)} seconds'
-                    : '';
+                    final String rangeSecondsString = rangeSeconds >= 0
+                        ? '~${rangeSeconds.toStringAsFixed(2)} seconds'
+                        : '';
 
-                const double buttonSize = 25;
-                const double buttonSpace = 4;
+                    const double buttonSize = 25;
+                    const double buttonSpace = 4;
 
-                if (!isUseCustomRange) return const SizedBox.shrink();
+                    if (!isUseCustomRange) return const SizedBox.shrink();
 
-                return Column(
-                  children: [
-                    FrameRangeSlider(
-                      displayedFrameOffset: displayedFrameBaseOffset,
-                      startEnd: focusFrameRange,
-                      maxFrameIndex: maxFrameIndex,
-                      enabled: isImageLoaded && isScrubMode.value,
-                      onChange: () =>
-                          setCurrentFrameClamped(currentFrame.value),
-                      onChangeRangeStart: () =>
-                          setDisplayedFrame(focusFrameRange.value.startInt),
-                      onChangeRangeEnd: () =>
-                          setDisplayedFrame(focusFrameRange.value.endInt),
-                      onChangeTapUp: () =>
-                          setDisplayedFrame(currentFrame.value),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                    return Column(
                       children: [
-                        if (isScrubMode.value)
-                          const SizedBox(width: buttonSize + buttonSpace + 3),
-                        Text(
-                          'Custom range: ${frameCount.toInt()} frames. ~$rangeSecondsString',
-                          style: const TextStyle(
-                            color: app_theme.focusRangeColor,
-                          ),
+                        FrameRangeSlider(
+                          displayedFrameOffset: displayedFrameBaseOffset,
+                          startEnd: focusFrameRange,
+                          maxFrameIndex: maxFrameIndex,
+                          enabled: isImageLoaded && isScrubMode.value,
+                          onChange: () =>
+                              setCurrentFrameClamped(currentFrame.value),
+                          onChangeRangeStart: () =>
+                              setDisplayedFrame(focusFrameRange.value.startInt),
+                          onChangeRangeEnd: () =>
+                              setDisplayedFrame(focusFrameRange.value.endInt),
+                          onChangeTapUp: () =>
+                              setDisplayedFrame(currentFrame.value),
                         ),
-                        isScrubMode.value
-                            ? Padding(
-                                padding: const EdgeInsets.only(
-                                  left: buttonSpace,
-                                ),
-                                child: IconButton(
-                                  style: const ButtonStyle(
-                                    minimumSize: WidgetStatePropertyAll(
-                                      Size(buttonSize, buttonSize),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            if (isScrubMode.value)
+                              const SizedBox(
+                                width: buttonSize + buttonSpace + 3,
+                              ),
+                            Text(
+                              'Custom range: ${frameCount.toInt()} frames. $rangeSecondsString',
+                              style: const TextStyle(
+                                color: app_theme.focusRangeColor,
+                              ),
+                            ),
+                            isScrubMode.value
+                                ? Padding(
+                                    padding: const EdgeInsets.only(
+                                      left: buttonSpace,
                                     ),
-                                  ),
-                                  tooltip: 'Disable frame range',
-                                  iconSize: 12,
-                                  onPressed: () => toggleUseFocus(),
-                                  icon: const Icon(Icons.close),
-                                ),
-                              )
-                            : const SizedBox(height: buttonSize + 3),
+                                    child: IconButton(
+                                      style: const ButtonStyle(
+                                        minimumSize: WidgetStatePropertyAll(
+                                          Size(buttonSize, buttonSize),
+                                        ),
+                                      ),
+                                      tooltip: 'Disable frame range',
+                                      iconSize: 12,
+                                      onPressed: () => toggleUseFocus(),
+                                      icon: const Icon(Icons.close),
+                                    ),
+                                  )
+                                : const SizedBox(height: buttonSize + 3),
+                          ],
+                        ),
                       ],
-                    ),
-                  ],
+                    );
+                  },
                 );
               },
             ),
