@@ -1,9 +1,11 @@
+import 'package:animators_gif_enjoyer/phlutter/dart/command_rate_limiter.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 mixin ThemeCycler<T extends StatefulWidget> on State<T> {
   late final ValueNotifier<String> themeString;
-  int _queuedThemeSaveId = 0;
+
+  final saveLimiter = CommandRateLimiter();
 
   // Abstract members
   String get defaultThemeString;
@@ -32,23 +34,9 @@ mixin ThemeCycler<T extends StatefulWidget> on State<T> {
     }
 
     themeContext.themeData.value = getThemeFromString(themeString.value);
-
-    void queueSaveThemetoPreferences() async {
-      int getLatestSaveCommandId() => _queuedThemeSaveId;
-      int saveCommandId = DateTime.now().millisecondsSinceEpoch;
-      _queuedThemeSaveId = saveCommandId;
-
-      for (int i = 0; i < 5; i++) {
-        await Future.delayed(const Duration(milliseconds: 250));
-        if (getLatestSaveCommandId() != saveCommandId) return;
-      }
-
-      if (getLatestSaveCommandId() == saveCommandId) {
-        storeThemeStringPreference(themeString.value);
-      }
-    }
-
-    queueSaveThemetoPreferences();
+    saveLimiter.queueCommand(
+      () => storeThemeStringPreference(themeString.value),
+    );
   }
 
   void cycleTheme() {
