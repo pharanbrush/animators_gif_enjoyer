@@ -13,8 +13,7 @@ import 'package:animators_gif_enjoyer/main_screen/gif_enjoyer_preferences.dart';
 import 'package:animators_gif_enjoyer/main_screen/gif_enjoyer_preferences.dart'
     as gif_enjoyer_preferences;
 import 'package:animators_gif_enjoyer/main_screen/gif_mixins.dart';
-import 'package:animators_gif_enjoyer/main_screen/menu_items.dart'
-    as menu_items;
+import 'package:animators_gif_enjoyer/main_screen/menu_items.dart';
 import 'package:animators_gif_enjoyer/main_screen/snackbar_mixins.dart';
 import 'package:animators_gif_enjoyer/phlutter/app_theme_cycler.dart';
 import 'package:animators_gif_enjoyer/main_screen/main_screen_widgets.dart';
@@ -412,32 +411,26 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
   Widget unloadedInterface() {
     Menu unloadedMenu() {
       final menu = Menu();
-      menu_items.menuItem(
-        label: menu_items.openGifLabel,
+      addMenuItem(
+        label: openGifLabel,
         menu: menu,
         onClick: () => openNewFile(),
       );
       menu.addSeparator();
 
-      final advancedMenu = Menu();
-      menu_items.menuItem(label: menu_items.advancedLabel, menu: menu).submenu =
-          advancedMenu;
+      final advancedSubmenu = Menu();
+      addMenuItem(label: advancedLabel, menu: menu).submenu = advancedSubmenu;
 
-      menu_items
-              .menuItem(
-                label: menu_items.openImageSequenceFolderLabel,
-                menu: advancedMenu,
-                onClick: () => userOpenImageSequenceFolder(),
-              )
-              .enabled =
-          !isAppBusy;
-      advancedMenu.addSeparator();
-      menu_items.allowMultipleWindowsMenuItem(advancedMenu);
-      menu_items.rememberWindowSizeMenuItem(menu);
+      addMenuItem(
+        label: openImageSequenceFolderLabel,
+        menu: advancedSubmenu,
+        onClick: () => userOpenImageSequenceFolder(),
+      ).enabled = !isAppBusy;
+      advancedSubmenu.addSeparator();
+      addAllowMultipleWindowsMenuItem(advancedSubmenu);
+      addRememberWindowSizeMenuItem(advancedSubmenu);
 
-      if (build_info.packageInfo != null) {
-        menu_items.addAboutItemsTo(menu);
-      }
+      tryAddAboutItemsTo(menu);
 
       return menu;
     }
@@ -502,13 +495,13 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
   Menu loadedMenu() {
     final menu = Menu();
 
-    menu_items.menuItem(
-      label: menu_items.copyFrameImageLabel,
+    addMenuItem(
+      label: copyFrameImageLabel,
       menu: menu,
       onClick: () => tryCopyFrameToClipboard(),
     );
 
-    menu_items.revealMenuItem(
+    addRevealMenuItem(
       imageProvider,
       menu: menu,
       source: loadedAnimationInfo.fileSource,
@@ -516,14 +509,11 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
 
     menu.addSeparator();
 
-    menu_items
-            .menuItem(
-              label: menu_items.openGifLabel,
-              menu: menu,
-              onClick: () => openNewFile(),
-            )
-            .enabled =
-        !isAppBusy;
+    addMenuItem(
+      label: openGifLabel,
+      menu: menu,
+      onClick: () => openNewFile(),
+    ).enabled = !isAppBusy;
 
     // MenuItem(
     //   label: menu_items.pasteToAddressBarLabel,
@@ -532,35 +522,26 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
     // ),
     menu.addSeparator();
 
-    final advancedMenu = Menu();
-    menu_items.menuItem(label: menu_items.advancedLabel, menu: menu).submenu =
-        advancedMenu;
+    final advancedSubmenu = Menu();
+    addMenuItem(label: advancedLabel, menu: menu).submenu = advancedSubmenu;
 
-    menu_items
-            .menuItem(
-              label: menu_items.exportPngSequenceLabel,
-              menu: advancedMenu,
-              onClick: () => tryExportPngSequence(),
-            )
-            .enabled =
-        !isAppBusy;
-    menu_items
-            .menuItem(
-              label: menu_items.openImageSequenceFolderLabel,
-              menu: advancedMenu,
-              onClick: () => userOpenImageSequenceFolder(),
-            )
-            .enabled =
-        !isAppBusy;
-    advancedMenu.addSeparator();
-    menu_items.allowWideSliderMenuItem(allowWideSliderNotifier, menu);
-    advancedMenu.addSeparator();
-    menu_items.allowMultipleWindowsMenuItem(advancedMenu);
-    menu_items.rememberWindowSizeMenuItem(menu);
+    addMenuItem(
+      label: exportPngSequenceLabel,
+      menu: advancedSubmenu,
+      onClick: () => tryExportPngSequence(),
+    ).enabled = !isAppBusy;
+    addMenuItem(
+      label: openImageSequenceFolderLabel,
+      menu: advancedSubmenu,
+      onClick: () => userOpenImageSequenceFolder(),
+    ).enabled = !isAppBusy;
+    advancedSubmenu.addSeparator();
+    addAllowWideSliderMenuItem(allowWideSliderNotifier, menu);
+    advancedSubmenu.addSeparator();
+    addAllowMultipleWindowsMenuItem(advancedSubmenu);
+    addRememberWindowSizeMenuItem(advancedSubmenu);
 
-    if (build_info.packageInfo != null) {
-      menu_items.addAboutItemsTo(menu);
-    }
+    tryAddAboutItemsTo(menu);
 
     return menu;
   }
@@ -642,7 +623,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
 
                             final menu = Menu();
 
-                            menu_items.menuItem(
+                            addMenuItem(
                                 label: "Use zero-based frames",
                                 menu: menu,
                                 type: .radio,
@@ -655,7 +636,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                                   ? .checked
                                   : .unchecked;
 
-                            menu_items.menuItem(
+                            addMenuItem(
                                 label: "Use one-based frames",
                                 menu: menu,
                                 type: .radio,
