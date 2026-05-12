@@ -36,9 +36,9 @@ import 'package:animators_gif_enjoyer/phlutter/pheatures/phclipboard.dart'
 import 'package:animators_gif_enjoyer/phlutter/dart/plural.dart';
 import 'package:animators_gif_enjoyer/functionality/reveal_file_source.dart';
 import 'package:animators_gif_enjoyer/functionality/save_image_as_png.dart';
-import 'package:contextual_menu/contextual_menu.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:nativeapi/nativeapi.dart' hide Image;
 import 'package:proper_filesize/proper_filesize.dart' as proper_filesize;
 import 'package:window_manager/window_manager.dart';
 
@@ -419,45 +419,41 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
 
   Widget unloadedInterface() {
     Menu unloadedMenu() {
-      return Menu(
-        items: [
-          MenuItem(
-            label: menu_items.openGifLabel,
-            onClick: (_) => openNewFile(),
-          ),
-          // MenuItem(
-          //   label: menu_items.pasteToAddressBarLabel,
-          //   onClick: (_) => openTextPanelAndPaste(),
-          // ),
-          MenuItem.separator(),
-          MenuItem.submenu(
-            label: menu_items.advancedLabel,
-            submenu: Menu(
-              items: [
-                MenuItem(
-                  label: menu_items.openImageSequenceFolderLabel,
-                  onClick: (_) => userOpenImageSequenceFolder(),
-                ),
-                MenuItem.separator(),
-                menu_items.allowMultipleWindowsMenuItem(),
-                menu_items.rememberWindowSizeMenuItem(),
-              ],
-            ),
-          ),
-          MenuItem.separator(),
-          if (build_info.packageInfo != null)
-            MenuItem(
-              label: 'Build ${build_info.buildName}',
-              disabled: true,
-            ),
-        ],
+      final menu = Menu();
+      menu_items.menuItem(
+        label: menu_items.openGifLabel,
+        menu: menu,
+        onClick: () => openNewFile(),
       );
+      menu.addSeparator();
+
+      final advancedMenu = Menu();
+      menu_items.menuItem(label: menu_items.advancedLabel, menu: menu).submenu =
+          advancedMenu;
+
+      menu_items
+              .menuItem(
+                label: menu_items.openImageSequenceFolderLabel,
+                menu: advancedMenu,
+                onClick: () => userOpenImageSequenceFolder(),
+              )
+              .enabled =
+          !isAppBusy;
+      advancedMenu.addSeparator();
+      menu_items.allowMultipleWindowsMenuItem(advancedMenu);
+      menu_items.rememberWindowSizeMenuItem(menu);
+
+      if (build_info.packageInfo != null) {
+        menu_items.addAboutItemsTo(menu);
+      }
+
+      return menu;
     }
 
     return Builder(
       builder: (context) {
         return GestureDetector(
-          onSecondaryTap: () => popUpContextualMenu(unloadedMenu()),
+          onSecondaryTap: () => unloadedMenu().open(.cursorPosition()),
           onDoubleTap: () => openNewFile(),
           child: Container(
             decoration: BoxDecoration(
@@ -512,53 +508,69 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
   }
 
   Menu loadedMenu() {
-    return Menu(
-      items: [
-        MenuItem(
-          label: menu_items.copyFrameImageLabel,
-          onClick: (_) => tryCopyFrameToClipboard(),
-        ),
-        menu_items.revealMenuItem(
-          imageProvider,
-          source: loadedAnimationInfo.fileSource,
-        ),
-        MenuItem.separator(),
-        MenuItem(
-          label: menu_items.openGifLabel,
-          onClick: (_) => openNewFile(),
-          disabled: isAppBusy,
-        ),
-        // MenuItem(
-        //   label: menu_items.pasteToAddressBarLabel,
-        //   onClick: (_) => openTextPanelAndPaste(),
-        //   disabled: isAppBusy,
-        // ),
-        MenuItem.separator(),
-        MenuItem.submenu(
-          label: menu_items.advancedLabel,
-          submenu: Menu(
-            items: [
-              MenuItem(
-                label: menu_items.exportPngSequenceLabel,
-                onClick: (_) => tryExportPngSequence(),
-                disabled: isAppBusy,
-              ),
-              MenuItem(
-                label: menu_items.openImageSequenceFolderLabel,
-                onClick: (_) => userOpenImageSequenceFolder(),
-                disabled: isAppBusy,
-              ),
-              MenuItem.separator(),
-              menu_items.allowWideSliderMenuItem(allowWideSliderNotifier),
-              MenuItem.separator(),
-              menu_items.allowMultipleWindowsMenuItem(),
-              menu_items.rememberWindowSizeMenuItem(),
-            ],
-          ),
-        ),
-        if (build_info.packageInfo != null) ...menu_items.aboutItem,
-      ],
+    final menu = Menu();
+
+    menu_items.menuItem(
+      label: menu_items.copyFrameImageLabel,
+      menu: menu,
+      onClick: () => tryCopyFrameToClipboard(),
     );
+
+    menu_items.revealMenuItem(
+      imageProvider,
+      menu: menu,
+      source: loadedAnimationInfo.fileSource,
+    );
+
+    menu.addSeparator();
+
+    menu_items
+            .menuItem(
+              label: menu_items.openGifLabel,
+              menu: menu,
+              onClick: () => openNewFile(),
+            )
+            .enabled =
+        !isAppBusy;
+
+    // MenuItem(
+    //   label: menu_items.pasteToAddressBarLabel,
+    //   onClick: (_) => openTextPanelAndPaste(),
+    //   disabled: isAppBusy,
+    // ),
+    menu.addSeparator();
+
+    final advancedMenu = Menu();
+    menu_items.menuItem(label: menu_items.advancedLabel, menu: menu).submenu =
+        advancedMenu;
+
+    menu_items
+            .menuItem(
+              label: menu_items.exportPngSequenceLabel,
+              menu: advancedMenu,
+              onClick: () => tryExportPngSequence(),
+            )
+            .enabled =
+        !isAppBusy;
+    menu_items
+            .menuItem(
+              label: menu_items.openImageSequenceFolderLabel,
+              menu: advancedMenu,
+              onClick: () => userOpenImageSequenceFolder(),
+            )
+            .enabled =
+        !isAppBusy;
+    advancedMenu.addSeparator();
+    menu_items.allowWideSliderMenuItem(allowWideSliderNotifier, menu);
+    advancedMenu.addSeparator();
+    menu_items.allowMultipleWindowsMenuItem(advancedMenu);
+    menu_items.rememberWindowSizeMenuItem(menu);
+
+    if (build_info.packageInfo != null) {
+      menu_items.addAboutItemsTo(menu);
+    }
+
+    return menu;
   }
 
   Widget loadedInterface() {
@@ -579,7 +591,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                 builder: (_, getFitZoom, getMinZoom, getMaxZoom) {
                   return GestureDetector(
                     onTap: () => togglePlayPause(),
-                    onSecondaryTap: () => popUpContextualMenu(loadedMenu()),
+                    onSecondaryTap: () => loadedMenu().open(.cursorPosition()),
                     child: ImageViewContainer(
                       imageProvider: imageProvider,
                       frameController: frameController,
@@ -636,29 +648,35 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                             final currentFrameBase = displayFrameBaseOffset;
                             if (frameBaseContext == null) return;
 
-                            Menu menu() {
-                              return Menu(
-                                items: currentFrameBase != 0
-                                    ? [
-                                        MenuItem(
-                                          label: 'Switch to zero-based frames',
-                                          onClick: (_) =>
-                                              setDisplayFrameBase(0),
-                                          checked: currentFrameBase == 0,
-                                        ),
-                                      ]
-                                    : [
-                                        MenuItem(
-                                          label: 'Switch to one-based frames',
-                                          onClick: (_) =>
-                                              setDisplayFrameBase(1),
-                                          checked: currentFrameBase == 1,
-                                        ),
-                                      ],
-                              );
-                            }
+                            final menu = Menu();
 
-                            popUpContextualMenu(menu());
+                            menu_items.menuItem(
+                                label: "Use zero-based frames",
+                                menu: menu,
+                                type: .radio,
+                                onClick: currentFrameBase == 0
+                                    ? null
+                                    : () => setDisplayFrameBase(0),
+                              )
+                              ..radioGroup = 1
+                              ..state = currentFrameBase == 0
+                                  ? .checked
+                                  : .unchecked;
+
+                            menu_items.menuItem(
+                                label: "Use one-based frames",
+                                menu: menu,
+                                type: .radio,
+                                onClick: currentFrameBase != 0
+                                    ? null
+                                    : () => setDisplayFrameBase(1),
+                              )
+                              ..radioGroup = 1
+                              ..state = currentFrameBase != 0
+                                  ? .checked
+                                  : .unchecked;
+
+                            menu.open(.cursorPosition());
                           },
                           child: Wrap(
                             alignment: WrapAlignment.center,

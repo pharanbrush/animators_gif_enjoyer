@@ -38,7 +38,6 @@ dependencies:
   #http: ^1.1.0
   file_selector: ^1.0.1
   window_manager: ^0.5.1
-  contextual_menu: ^0.1.2
   super_clipboard: ^0.9.1
   desktop_drop: ^0.7.0
   windows_single_instance: ^1.0.0
@@ -54,6 +53,7 @@ dependencies:
       path: flutter_avif
   proper_filesize: ^1.0.2
   path: ^1.9.1
+  nativeapi: ^0.1.1
 
 dev_dependencies:
   flutter_test:
