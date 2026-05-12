@@ -214,14 +214,6 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
   }
 
   void _exitApplication() {
-    //SystemChannels.platform.invokeMethod<void>('SystemNavigator.pop');
-
-    // This is the dirty workaround for a nonfunctional application exit method on Flutter Windows.
-    // For more info: https://github.com/flutter/flutter/issues/66631
-    // debugger();
-    // exit(0);
-
-    //Separate workaround that uses window_manager since already it's a dependency.
     windowManager.close();
   }
 
