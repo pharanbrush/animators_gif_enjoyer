@@ -37,6 +37,12 @@ class Phshortcuts {
     //shift: true,
   );
 
+  static const markFrame = SingleActivator(LogicalKeyboardKey.keyM);
+  static const markFrame2 = SingleActivator(
+    LogicalKeyboardKey.digit8,
+    control: true,
+  );
+
   static const firstFrame = SingleActivator(LogicalKeyboardKey.home);
   static const lastFrame = SingleActivator(LogicalKeyboardKey.end);
 
@@ -100,6 +106,8 @@ class Phshortcuts {
     // Phshortcuts.preferences: OpenPreferencesIntent(),
     Phshortcuts.copy: CopyIntent(),
     Phshortcuts.pasteAndGo: PasteAndGoIntent(),
+    Phshortcuts.markFrame: MarkFrameIntent(),
+    Phshortcuts.markFrame2: MarkFrameIntent(),
   };
 }
 
@@ -173,4 +181,8 @@ class RevealInExplorerIntent extends Intent {
 
 class OpenPreferencesIntent extends Intent {
   const OpenPreferencesIntent();
+}
+
+class MarkFrameIntent extends Intent {
+  const MarkFrameIntent();
 }

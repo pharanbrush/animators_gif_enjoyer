@@ -13,7 +13,9 @@ class FrameSlider extends StatefulWidget {
     this.minCellWidth = 6.0,
     this.borderRadius = 4.0,
     this.hoverColor,
+    this.markerColor,
     this.wrapWhenDragging = false,
+    this.frameMarkers,
   });
 
   final int min;
@@ -26,7 +28,9 @@ class FrameSlider extends StatefulWidget {
   final double minCellWidth;
   final double borderRadius;
   final Color? hoverColor;
+  final Color? markerColor;
   final bool wrapWhenDragging;
+  final Iterable<int>? frameMarkers;
 
   @override
   State<FrameSlider> createState() => _FrameSliderState();
@@ -71,6 +75,12 @@ class _FrameSliderState extends State<FrameSlider> {
         : colorScheme.surfaceContainerLow;
     final hoverColor =
         widget.hoverColor ?? colorScheme.primary.withValues(alpha: 0.4);
+    final markerColor = widget.markerColor ?? Colors.orange;
+    final markerInactiveColor = markerColor.withValues(alpha: 0.4);
+    final markerTrackColors = (
+      hover: markerColor,
+      inactive: markerInactiveColor,
+    );
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -85,9 +95,12 @@ class _FrameSliderState extends State<FrameSlider> {
             value: widget.value,
             activeColor: activeColor,
             inactiveColor: inactiveColor,
+            markerColor: markerInactiveColor,
+            activeMarkerColor: markerColor,
             cellHeight: widget.cellHeight,
             selectedCellHeight: widget.selectedCellHeight,
             borderRadius: widget.borderRadius,
+            frameMarkers: widget.frameMarkers,
             thumbWidth: widget.borderRadius * 2,
           ),
         );
@@ -121,6 +134,13 @@ class _FrameSliderState extends State<FrameSlider> {
                         radius = BorderRadius.horizontal(right: r);
                       }
 
+                      final isMarkerFrame =
+                          widget.frameMarkers?.contains(boxValue) ?? false;
+
+                      final overrideColors =
+                          (isMarkerFrame ? markerTrackColors : null) ??
+                          const (hover: null, inactive: null);
+
                       return Expanded(
                         child: MouseRegion(
                           onEnter: (_) => setState(() => _hoveredIndex = index),
@@ -134,11 +154,15 @@ class _FrameSliderState extends State<FrameSlider> {
                                     ? widget.selectedCellHeight
                                     : widget.cellHeight,
                                 decoration: BoxDecoration(
+                                  border: isMarkerFrame && isSelected
+                                      ? Border.all(color: markerColor, width: 2)
+                                      : null,
                                   color: isSelected
                                       ? activeColor
                                       : isHovered
-                                      ? hoverColor
-                                      : inactiveColor,
+                                      ? overrideColors.hover ?? hoverColor
+                                      : overrideColors.inactive ??
+                                            inactiveColor,
                                   borderRadius: radius,
                                 ),
                               ),
@@ -162,10 +186,13 @@ class _ContinuousSliderPainter extends CustomPainter {
     required this.value,
     required this.activeColor,
     required this.inactiveColor,
+    required this.markerColor,
+    required this.activeMarkerColor,
     required this.cellHeight,
     required this.selectedCellHeight,
     required this.borderRadius,
     required this.thumbWidth,
+    this.frameMarkers,
   });
 
   final int min;
@@ -173,21 +200,24 @@ class _ContinuousSliderPainter extends CustomPainter {
   final int value;
   final Color activeColor;
   final Color inactiveColor;
+  final Color markerColor;
+  final Color activeMarkerColor;
   final double cellHeight;
   final double selectedCellHeight;
   final double borderRadius;
   final double thumbWidth;
+  final Iterable<int>? frameMarkers;
 
   @override
   void paint(Canvas canvas, Size size) {
     final itemCount = max - min + 1;
     final squareWidth = size.width / itemCount;
 
-    // Position of selected value
-    final selectedX = (value - min) * squareWidth;
+    final selectedIsMarker = frameMarkers?.contains(value) ?? false;
 
     final paintInactive = Paint()..color = inactiveColor;
-    final paintActive = Paint()..color = activeColor;
+    final paintActive = Paint()
+      ..color = selectedIsMarker ? activeMarkerColor : activeColor;
 
     // Track
     final barRect = Rect.fromLTWH(
@@ -201,7 +231,32 @@ class _ContinuousSliderPainter extends CustomPainter {
       paintInactive,
     );
 
+    // Markers
+    if (frameMarkers != null) {
+      final paintMarker = Paint()..color = markerColor;
+      final markerWidth = thumbWidth * 0.35;
+
+      for (final marker in frameMarkers!) {
+        if (marker < min) continue;
+        if (marker > max) continue;
+
+        final markerX = (marker - min) * squareWidth;
+        final markerRect = Rect.fromLTWH(
+          markerX - (markerWidth / 2),
+          (size.height - cellHeight) / 2,
+          markerWidth,
+          cellHeight,
+        );
+
+        canvas.drawRRect(
+          RRect.fromRectAndRadius(markerRect, Radius.circular(borderRadius)),
+          paintMarker,
+        );
+      }
+    }
+
     // Thumb
+    final selectedX = (value - min) * squareWidth;
     final selectedRect = Rect.fromLTWH(
       selectedX - (thumbWidth / 2),
       (size.height - selectedCellHeight) / 2,

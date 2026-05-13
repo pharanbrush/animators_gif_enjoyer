@@ -38,6 +38,7 @@ import 'package:nativeapi/nativeapi.dart' hide Image;
 import 'package:proper_filesize/proper_filesize.dart' as proper_filesize;
 import 'package:window_manager/window_manager.dart';
 
+import '../features/frame_marker.dart';
 import '../phlutter/widget/sized_box_fitted.dart';
 
 class MyApp extends StatelessWidget {
@@ -107,6 +108,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
         FrameBaseStorer,
         AnimationPlayer,
         AnimationLoader,
+        FrameMarker,
         ThemeCycler,
         GifEnjoyerWindowPreferences,
         WindowSizeRememberer,
@@ -186,6 +188,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
   @override
   void onFileLoadSuccess() {
     super.onFileLoadSuccess();
+    clearMarkers();
     zoomLevelNotifier.value = ScrollZoomContainer.defaultZoom;
     currentOpenFilename.value = loadedAnimationInfo.sourceName;
   }
@@ -657,6 +660,8 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                         currentFrame: currentFrame,
                         enabled: isPlayModeAvailable && isScrubMode.value,
                         allowWidePreference: allowWideSliderPreference,
+                        frameMarkers: frameMarkers,
+                        markerNotifier: frameMarkersChanged,
                         allowWrapAroundPreference:
                             allowSliderWrapAroundDragPreference,
                         incrementFunction: incrementFrame,
@@ -1225,6 +1230,7 @@ class GifEnjoyerMainPageStateShortcuts {
     (EscapeIntent, (_) => state.handleEscapeIntent()),
     (FirstFrameIntent, (_) => state.setCurrentFrameToFirst()),
     (LastFrameIntent, (_) => state.setCurrentFrameToLast()),
+    (MarkFrameIntent, (_) => state.toggleFrame(state.currentFrame.value)),
   ];
 
   Widget shortcutsWrapper({required Widget child}) {
