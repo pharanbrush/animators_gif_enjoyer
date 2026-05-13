@@ -90,18 +90,8 @@ MenuItem addRememberWindowSizeMenuItem(Menu menu) {
   return addMenuItemCheckbox(
     label: "Remember window size",
     menu: menu,
-    checked: remember_window_size.appRememberWindowSize,
-    onClick: () async {
-      remember_window_size.storeRememberWindowSizePreference(
-        !remember_window_size.appRememberWindowSize,
-      );
-      remember_window_size.appRememberWindowSize = await remember_window_size
-          .getRememberWindowSizePreference();
-
-      if (remember_window_size.appRememberWindowSize) {
-        remember_window_size.storeCurrentWindowSize();
-      }
-    },
+    checked: remember_window_size.appRememberWindowSize.value,
+    onClick: () => remember_window_size.appRememberWindowSize.toggle(),
   );
 }
 

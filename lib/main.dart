@@ -40,13 +40,14 @@ void main(List<String> args) async {
     );
   }
 
-  remember_window_size.appRememberWindowSize = await remember_window_size
-      .getRememberWindowSizePreference();
+  await remember_window_size.appRememberWindowSize.loadFromPreferences();
+
+  const defaultWindowSize = Size(500, 540);
   final Size startingWindowSize;
-  if (remember_window_size.appRememberWindowSize) {
+  if (remember_window_size.appRememberWindowSize.value) {
     startingWindowSize = await remember_window_size.getWindowSizePreference();
   } else {
-    startingWindowSize = const Size(500, 540);
+    startingWindowSize = defaultWindowSize;
   }
 
   await windowManager.ensureInitialized();

@@ -1,3 +1,5 @@
+import 'package:animators_gif_enjoyer/phlutter/phdart/command_rate_limiter.dart';
+import 'package:animators_gif_enjoyer/phlutter/widget/preferences_stored_bool.dart';
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:window_manager/window_manager.dart';
@@ -6,24 +8,12 @@ const rememberWindowSizeKey = 'remember_window_size';
 const windowWidthKey = 'window_width';
 const windowHeightKey = 'window_height';
 
-bool appRememberWindowSize = false;
+final appRememberWindowSize = PreferencesStoredBool(
+  preferenceKey: rememberWindowSizeKey,
+  defaultValue: false,
+);
 
-void storeRememberWindowSizePreference(bool remember) async {
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.setBool(rememberWindowSizeKey, remember);
-}
-
-Future<bool> getRememberWindowSizePreference({
-  bool defaultPreference = false,
-}) async {
-  final prefs = await SharedPreferences.getInstance();
-  final shouldRemember = prefs.getBool(rememberWindowSizeKey);
-  if (shouldRemember == null) return defaultPreference;
-
-  return shouldRemember;
-}
-
-void storeWindowSizePreference(int width, int height) async {
+void _storeWindowSizePreference(int width, int height) async {
   final prefs = await SharedPreferences.getInstance();
   await prefs.setInt(windowWidthKey, width);
   await prefs.setInt(windowHeightKey, height);
@@ -42,27 +32,30 @@ Future<Size> getWindowSizePreference({
   return Size(width.toDouble(), height.toDouble());
 }
 
-Future<void> storeCurrentWindowSize() async {
+Future<void> _storeCurrentWindowSize() async {
   if (await windowManager.isMaximized()) return;
 
   final size = await windowManager.getSize();
-  storeWindowSizePreference(size.width.toInt(), size.height.toInt());
+  _storeWindowSizePreference(size.width.toInt(), size.height.toInt());
   // debugPrint('window size saved $size');
 }
 
 mixin WindowSizeRememberer<T extends StatefulWidget>
     on State<T>, WindowListener {
-  int _windowSizeSaveCommandId = 0;
+  final limiter = CommandRateLimiter();
 
   @override
   void initState() {
     super.initState();
+    appRememberWindowSize.valueNotifier.addListener(_handleWindowResize);
     windowManager.addListener(this);
   }
 
   @override
   void dispose() {
     windowManager.removeListener(this);
+    appRememberWindowSize.valueNotifier.removeListener(_handleWindowResize);
+    appRememberWindowSize.dispose();
     super.dispose();
   }
 
@@ -73,31 +66,12 @@ mixin WindowSizeRememberer<T extends StatefulWidget>
   }
 
   void _handleWindowResize() {
-    // debugPrint("window resized");
-    void queueSavetoPreferences() async {
-      if (!appRememberWindowSize) return;
-      int getLatestSaveCommandId() => _windowSizeSaveCommandId;
-      final int saveCommandId = DateTime.now().millisecondsSinceEpoch;
-      _windowSizeSaveCommandId = saveCommandId;
-
-      const long = Duration(milliseconds: 250);
-      const short = Duration(milliseconds: 15);
-      const checkDurations = [short, short, short, long, long, long, long];
-      for (final waitDuration in checkDurations) {
-        await Future.delayed(waitDuration);
-        if (getLatestSaveCommandId() != saveCommandId) {
-          // debugPrint('save canceled.');
-          return;
-        }
-      }
-
-      if (getLatestSaveCommandId() == saveCommandId) {
-        if (appRememberWindowSize) {
-          storeCurrentWindowSize();
-        }
-      }
-    }
-
-    if (appRememberWindowSize) queueSavetoPreferences();
+    if (!appRememberWindowSize.value) return;
+    limiter.queueCommand(
+      () {
+        if (!appRememberWindowSize.value) return;
+        _storeCurrentWindowSize();
+      },
+    );
   }
 }
