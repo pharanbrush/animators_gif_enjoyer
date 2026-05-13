@@ -624,16 +624,54 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                             final separator = Text(' - ', style: bigStyleGray);
 
                             return GestureDetector(
-                              onSecondaryTap: () => addFrameControls(
-                                context,
-                                Menu()..addMenuItem(
-                                  hasMarker(currentFrame.value)
+                              onSecondaryTap: () {
+                                final menu = Menu();
+
+                                addMenuItem(
+                                  label: hasMarker(currentFrame.value)
                                       ? "Remove frame marker to frame (M)"
                                       : "Add frame marker to frame (M)",
-                                  onClick: () =>
-                                      toggleMarkerForFrame(currentFrame.value),
-                                ),
-                              ).open(.cursorPosition()),
+                                  onClick: () => toggleMarkerForFrame(
+                                    currentFrame.value,
+                                  ),
+                                  menu: menu,
+                                );
+
+                                final frameBaseContext = FrameBaseContext.of(
+                                  context,
+                                );
+                                final currentFrameBase = displayFrameBaseOffset;
+
+                                if (frameBaseContext != null) {
+                                  addMenuItem(
+                                      label: "Use zero-based frames",
+                                      menu: menu,
+                                      type: .radio,
+                                      onClick: currentFrameBase == 0
+                                          ? null
+                                          : () => setDisplayFrameBase(0),
+                                    )
+                                    ..radioGroup = 1
+                                    ..state = currentFrameBase == 0
+                                        ? .checked
+                                        : .unchecked;
+
+                                  addMenuItem(
+                                      label: "Use one-based frames",
+                                      menu: menu,
+                                      type: .radio,
+                                      onClick: currentFrameBase != 0
+                                          ? null
+                                          : () => setDisplayFrameBase(1),
+                                    )
+                                    ..radioGroup = 1
+                                    ..state = currentFrameBase != 0
+                                        ? .checked
+                                        : .unchecked;
+                                }
+
+                                menu.open(.cursorPosition());
+                              },
                               child: Wrap(
                                 alignment: WrapAlignment.center,
                                 crossAxisAlignment: WrapCrossAlignment.center,
@@ -878,32 +916,6 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
 
   Menu addFrameControls(BuildContext context, Menu menu) {
     if (menu.itemCount > 0) {
-      menu.addSeparator();
-    }
-
-    final frameBaseContext = FrameBaseContext.of(
-      context,
-    );
-    final currentFrameBase = displayFrameBaseOffset;
-
-    if (frameBaseContext != null) {
-      addMenuItem(
-          label: "Use zero-based frames",
-          menu: menu,
-          type: .radio,
-          onClick: currentFrameBase == 0 ? null : () => setDisplayFrameBase(0),
-        )
-        ..radioGroup = 1
-        ..state = currentFrameBase == 0 ? .checked : .unchecked;
-
-      addMenuItem(
-          label: "Use one-based frames",
-          menu: menu,
-          type: .radio,
-          onClick: currentFrameBase != 0 ? null : () => setDisplayFrameBase(1),
-        )
-        ..radioGroup = 1
-        ..state = currentFrameBase != 0 ? .checked : .unchecked;
       menu.addSeparator();
     }
 
