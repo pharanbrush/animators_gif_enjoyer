@@ -1,4 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+enum SnapMode {
+  none,
+  nearest,
+  force,
+}
 
 class FrameSlider extends StatefulWidget {
   const FrameSlider({
@@ -44,20 +51,49 @@ class _FrameSliderState extends State<FrameSlider> {
   void _updateValue(Offset localPosition, double totalWidth) {
     if (!enabled) return;
 
-    final itemCount = widget.max - widget.min + 1;
+    final min = widget.min;
+    final itemCount = widget.max - min + 1;
     final squareWidth = totalWidth / itemCount;
 
     int index = (localPosition.dx ~/ squareWidth);
 
     if (widget.wrapWhenDragging) {
-      // Wrap mode
       index = (index % itemCount + itemCount) % itemCount;
     } else {
-      // Clamp mode
       index = index.clamp(0, itemCount - 1);
     }
 
-    final newValue = widget.min + index;
+    int newValue = min + index;
+
+    // Snapping
+    final keyboard = HardwareKeyboard.instance;
+    final snapMode = keyboard.isControlPressed
+        ? SnapMode.force
+        : keyboard.isShiftPressed
+        ? SnapMode.none
+        : SnapMode.nearest;
+
+    if (snapMode != .none) {
+      final frameMarkers = widget.frameMarkers;
+      if (frameMarkers != null && frameMarkers.isNotEmpty) {
+        final nearestMarker = frameMarkers.reduce((a, b) {
+          return (a - newValue).abs() < (b - newValue).abs() ? a : b;
+        });
+
+        // Snap within distance
+        if (snapMode == .nearest) {
+          final nearestMarkerPosition = (nearestMarker - min) * squareWidth;
+          final newValuePosition = (newValue - min) * squareWidth;
+          const snapThresholdPixels = 10.0;
+          if ((nearestMarkerPosition - newValuePosition).abs() <=
+              snapThresholdPixels) {
+            newValue = nearestMarker;
+          }
+        } else {
+          newValue = nearestMarker;
+        }
+      }
+    }
 
     if (newValue != widget.value) {
       widget.onChanged?.call(newValue);
