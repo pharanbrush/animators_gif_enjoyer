@@ -38,6 +38,8 @@ import 'package:nativeapi/nativeapi.dart' hide Image;
 import 'package:proper_filesize/proper_filesize.dart' as proper_filesize;
 import 'package:window_manager/window_manager.dart';
 
+import '../phlutter/widget/sized_box_fitted.dart';
+
 class MyApp extends StatelessWidget {
   const MyApp({
     super.key,
@@ -792,7 +794,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
   Widget bottomBarWidget() {
     return SizedBox(
       child: Padding(
-        padding: const EdgeInsets.all(4.0),
+        padding: const EdgeInsets.only(left: 4, right: 4, bottom: 4),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
@@ -810,18 +812,24 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
               spacing: 8,
               children: [
                 if (isImageLoaded)
-                  BottomPlayPauseButton(
-                    isScrubMode: isScrubMode,
-                    onPressed: () => togglePlayPause(),
+                  SizedBoxFitted(
+                    height: 32,
+                    child: BottomPlayPauseButton(
+                      isScrubMode: isScrubMode,
+                      onPressed: () => togglePlayPause(),
+                    ),
                   ),
                 Tooltip(
                   message:
                       'Open GIF file...\n'
                       'Or use ${Phshortcuts.shortcutString(Phshortcuts.pasteAndGo)} to paste a link to a GIF.',
-                  child: IconButton(
-                    onPressed: () => openNewFile(),
-                    color: Theme.of(context).colorScheme.mutedSurfaceColor,
-                    icon: const Icon(FluentIcons.folder_open_24_regular),
+                  child: SizedBoxFitted(
+                    height: 32,
+                    child: IconButton(
+                      onPressed: () => openNewFile(),
+                      color: Theme.of(context).colorScheme.mutedSurfaceColor,
+                      icon: const Icon(FluentIcons.folder_open_24_regular),
+                    ),
                   ),
                 ),
               ],
