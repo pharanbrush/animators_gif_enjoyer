@@ -79,6 +79,20 @@ MenuItem addAllowWideSliderMenuItem(
   );
 }
 
+MenuItem addAllowSliderWrapMenuItem(
+  ValueNotifier<bool> allowSliderToWrapNotifier,
+  Menu menu,
+) {
+  return addMenuItemCheckbox(
+    label: "Loop when dragging slider",
+    menu: menu,
+    checked: allowSliderToWrapNotifier.value,
+    onClick: () => gif_enjoyer_preferences.toggleSliderWrapPreference(
+      allowSliderToWrapNotifier,
+    ),
+  );
+}
+
 MenuItem addRememberWindowSizeMenuItem(Menu menu) {
   return addMenuItemCheckbox(
     label: "Remember window size",

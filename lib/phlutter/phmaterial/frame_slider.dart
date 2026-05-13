@@ -13,6 +13,7 @@ class FrameSlider extends StatefulWidget {
     this.minCellWidth = 6.0,
     this.borderRadius = 4.0,
     this.hoverColor,
+    this.wrapWhenDragging = false,
   });
 
   final int min;
@@ -25,6 +26,7 @@ class FrameSlider extends StatefulWidget {
   final double minCellWidth;
   final double borderRadius;
   final Color? hoverColor;
+  final bool wrapWhenDragging;
 
   @override
   State<FrameSlider> createState() => _FrameSliderState();
@@ -41,7 +43,16 @@ class _FrameSliderState extends State<FrameSlider> {
     final itemCount = widget.max - widget.min + 1;
     final squareWidth = totalWidth / itemCount;
 
-    final index = (localPosition.dx ~/ squareWidth).clamp(0, itemCount - 1);
+    int index = (localPosition.dx ~/ squareWidth);
+
+    if (widget.wrapWhenDragging) {
+      // Wrap mode
+      index = (index % itemCount + itemCount) % itemCount;
+    } else {
+      // Clamp mode
+      index = index.clamp(0, itemCount - 1);
+    }
+
     final newValue = widget.min + index;
 
     if (newValue != widget.value) {

@@ -659,6 +659,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                         currentFrame: currentFrame,
                         enabled: isPlayModeAvailable && isScrubMode.value,
                         allowWideNotifier: allowWideSliderNotifier,
+                        allowWrapAroundNotifier: allowSliderWrapAroundDragNotifier,
                         toggleWideSlider: () => gif_enjoyer_preferences
                             .toggleAllowWideSliderPreference(
                               allowWideSliderNotifier,
@@ -790,6 +791,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
     }
 
     addAllowWideSliderMenuItem(allowWideSliderNotifier, menu);
+    addAllowSliderWrapMenuItem(allowSliderWrapAroundDragNotifier, menu);
 
     return menu;
   }

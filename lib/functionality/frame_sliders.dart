@@ -110,6 +110,7 @@ class MainSlider extends StatelessWidget {
     required this.currentFrame,
     required this.enabled,
     required this.allowWideNotifier,
+    required this.allowWrapAroundNotifier,
     required this.toggleWideSlider,
     required this.incrementFunction,
     this.displayedFrameOffset = 0,
@@ -122,14 +123,18 @@ class MainSlider extends StatelessWidget {
   final ValueNotifier<bool> isUsingFocusRange;
   final ValueNotifier<int> currentFrame;
   final ValueNotifier<bool> allowWideNotifier;
+  final ValueNotifier<bool> allowWrapAroundNotifier;
   final void Function(int increment) incrementFunction;
   final bool enabled;
 
   @override
   Widget build(BuildContext context) {
-    Widget sliderPart() => ValueListenableBuilder(
-      valueListenable: allowWideNotifier,
-      builder: (_, allowWideValue, _) {
+    Widget sliderPart() => ListenableBuilder(
+      listenable: Listenable.merge([
+        allowWideNotifier,
+        allowWrapAroundNotifier,
+      ]),
+      builder: (_, _) {
         Widget insideExpanded() => ValueListenableBuilder(
           valueListenable: currentFrame,
           builder: (_, currentFrameValue, _) {
@@ -152,6 +157,7 @@ class MainSlider extends StatelessWidget {
               min: sliderMin.toInt(),
               max: sliderMax.toInt(),
               value: currentFrameValue,
+              wrapWhenDragging: allowWrapAroundNotifier.value,
               onChanged: enabled
                   ? (newValue) => currentFrame.value = newValue
                   : null,
@@ -160,7 +166,7 @@ class MainSlider extends StatelessWidget {
             return GestureDetector(
               onTertiaryTapDown: (_) => toggleWideSlider(),
               child: SizedBox(
-                width: allowWideValue ? null : width,
+                width: allowWideNotifier.value ? null : width,
                 child: Focus(
                   canRequestFocus: false,
                   autofocus: false,
@@ -178,7 +184,7 @@ class MainSlider extends StatelessWidget {
           },
         );
 
-        return allowWideValue
+        return allowWideNotifier.value
             ? Expanded(child: insideExpanded())
             : insideExpanded();
       },
