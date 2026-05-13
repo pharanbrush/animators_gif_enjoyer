@@ -3,7 +3,7 @@ import 'package:animators_gif_enjoyer/main_screen/theme.dart';
 import 'package:flutter/material.dart';
 
 import '../phlutter/phmaterial/frame_slider.dart';
-import '../phlutter/widgets/scroll_listener.dart';
+import '../phlutter/widget/scroll_listener.dart';
 
 class FrameRangeSlider extends StatelessWidget {
   const FrameRangeSlider({
