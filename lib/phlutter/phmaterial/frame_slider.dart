@@ -65,12 +65,10 @@ class _FrameSliderState extends State<FrameSlider> {
     final itemCount = widget.max - widget.min + 1;
     final colorScheme = Theme.of(context).colorScheme;
 
-    final activeColor = enabled
-        ? colorScheme.primary
-        : colorScheme.primary.withValues(alpha: 0.75);
+    final activeColor = enabled ? colorScheme.primary : colorScheme.outline;
     final inactiveColor = enabled
         ? colorScheme.surfaceContainerHigh
-        : colorScheme.surfaceContainer.withValues(alpha: 0.12);
+        : colorScheme.surfaceContainerLow;
     final hoverColor =
         widget.hoverColor ?? colorScheme.primary.withValues(alpha: 0.4);
 
