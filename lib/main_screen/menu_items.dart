@@ -131,7 +131,7 @@ MenuItem addRevealMenuItem(
 }
 
 void tryAddAboutItemsTo(Menu menu) {
-  if (build_info.packageInfo != null) return;
+  if (build_info.packageInfo == null) return;
 
   menu.addSeparator();
   addMenuItem(label: "Build ${build_info.buildName}", menu: menu).enabled =
