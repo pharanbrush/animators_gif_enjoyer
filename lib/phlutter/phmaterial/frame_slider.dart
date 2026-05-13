@@ -23,6 +23,7 @@ class FrameSlider extends StatefulWidget {
     this.markerColor,
     this.wrapWhenDragging = false,
     this.frameMarkers,
+    this.snapMode = SnapMode.nearest,
   });
 
   final int min;
@@ -38,6 +39,7 @@ class FrameSlider extends StatefulWidget {
   final Color? markerColor;
   final bool wrapWhenDragging;
   final Iterable<int>? frameMarkers;
+  final SnapMode snapMode;
 
   @override
   State<FrameSlider> createState() => _FrameSliderState();
@@ -67,11 +69,15 @@ class _FrameSliderState extends State<FrameSlider> {
 
     // Snapping
     final keyboard = HardwareKeyboard.instance;
-    final snapMode = keyboard.isControlPressed
-        ? SnapMode.force
-        : keyboard.isShiftPressed
-        ? SnapMode.none
-        : SnapMode.nearest;
+
+    SnapMode snapMode = widget.snapMode;
+    // Snap mode keyboard overrides
+    if (keyboard.isShiftPressed) {
+      snapMode = .none;
+    }
+    if (keyboard.isControlPressed) {
+      snapMode = .force;
+    }
 
     if (snapMode != .none) {
       final frameMarkers = widget.frameMarkers;
