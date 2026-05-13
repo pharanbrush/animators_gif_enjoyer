@@ -536,8 +536,6 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
       onClick: () => userOpenImageSequenceFolder(),
     ).enabled = !isAppBusy;
     advancedSubmenu.addSeparator();
-    addAllowWideSliderMenuItem(allowWideSliderNotifier, menu);
-    advancedSubmenu.addSeparator();
     addAllowMultipleWindowsMenuItem(advancedSubmenu);
     addRememberWindowSizeMenuItem(advancedSubmenu);
 
@@ -614,43 +612,10 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                         final separator = Text(' - ', style: bigStyleGray);
 
                         return GestureDetector(
-                          onSecondaryTap: () {
-                            final frameBaseContext = FrameBaseContext.of(
-                              context,
-                            );
-                            final currentFrameBase = displayFrameBaseOffset;
-                            if (frameBaseContext == null) return;
-
-                            final menu = Menu();
-
-                            addMenuItem(
-                                label: "Use zero-based frames",
-                                menu: menu,
-                                type: .radio,
-                                onClick: currentFrameBase == 0
-                                    ? null
-                                    : () => setDisplayFrameBase(0),
-                              )
-                              ..radioGroup = 1
-                              ..state = currentFrameBase == 0
-                                  ? .checked
-                                  : .unchecked;
-
-                            addMenuItem(
-                                label: "Use one-based frames",
-                                menu: menu,
-                                type: .radio,
-                                onClick: currentFrameBase != 0
-                                    ? null
-                                    : () => setDisplayFrameBase(1),
-                              )
-                              ..radioGroup = 1
-                              ..state = currentFrameBase != 0
-                                  ? .checked
-                                  : .unchecked;
-
-                            menu.open(.cursorPosition());
-                          },
+                          onSecondaryTap: () => addFrameControls(
+                            context,
+                            Menu(),
+                          ).open(.cursorPosition()),
                           child: Wrap(
                             alignment: WrapAlignment.center,
                             crossAxisAlignment: WrapCrossAlignment.center,
@@ -679,6 +644,8 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                 width: double.infinity,
                 child: GestureDetector(
                   onTap: isScrubMode.value ? null : () => setPlayMode(false),
+                  onSecondaryTap: () =>
+                      addFrameControls(context, Menu()).open(.cursorPosition()),
                   child: ListenableBuilder(
                     listenable: Listenable.merge([
                       focusFrameRange,
@@ -789,6 +756,42 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
         );
       },
     );
+  }
+
+  Menu addFrameControls(BuildContext context, Menu menu) {
+    if (menu.itemCount > 0) {
+      menu.addSeparator();
+    }
+
+    final frameBaseContext = FrameBaseContext.of(
+      context,
+    );
+    final currentFrameBase = displayFrameBaseOffset;
+
+    if (frameBaseContext != null) {
+      addMenuItem(
+          label: "Use zero-based frames",
+          menu: menu,
+          type: .radio,
+          onClick: currentFrameBase == 0 ? null : () => setDisplayFrameBase(0),
+        )
+        ..radioGroup = 1
+        ..state = currentFrameBase == 0 ? .checked : .unchecked;
+
+      addMenuItem(
+          label: "Use one-based frames",
+          menu: menu,
+          type: .radio,
+          onClick: currentFrameBase != 0 ? null : () => setDisplayFrameBase(1),
+        )
+        ..radioGroup = 1
+        ..state = currentFrameBase != 0 ? .checked : .unchecked;
+      menu.addSeparator();
+    }
+
+    addAllowWideSliderMenuItem(allowWideSliderNotifier, menu);
+
+    return menu;
   }
 
   Widget bottomBarWidget() {
