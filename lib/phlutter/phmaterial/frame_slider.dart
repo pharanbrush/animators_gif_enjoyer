@@ -49,16 +49,21 @@ class _FrameSliderState extends State<FrameSlider> {
   int? _hoveredIndex;
 
   bool get enabled => widget.onChanged != null;
+  bool _isDragging = false;
 
-  void _updateValue(Offset localPosition, double totalWidth) {
+  void _updateValue(
+    Offset localPosition,
+    double totalWidth,
+    double squareWidth,
+    bool useSpaceBasedSnap,
+  ) {
     if (!enabled) return;
+    _isDragging = true;
 
     final min = widget.min;
     final itemCount = widget.max - min + 1;
-    final squareWidth = totalWidth / itemCount;
 
     int index = (localPosition.dx ~/ squareWidth);
-
     if (widget.wrapWhenDragging) {
       index = (index % itemCount + itemCount) % itemCount;
     } else {
@@ -68,10 +73,9 @@ class _FrameSliderState extends State<FrameSlider> {
     int newValue = min + index;
 
     // Snapping
-    final keyboard = HardwareKeyboard.instance;
-
     SnapMode snapMode = widget.snapMode;
     // Snap mode keyboard overrides
+    final keyboard = HardwareKeyboard.instance;
     if (keyboard.isShiftPressed) {
       snapMode = .none;
     }
@@ -88,12 +92,19 @@ class _FrameSliderState extends State<FrameSlider> {
 
         // Snap within distance
         if (snapMode == .nearest) {
-          final nearestMarkerPosition = (nearestMarker - min) * squareWidth;
-          final newValuePosition = (newValue - min) * squareWidth;
-          const snapThresholdPixels = 10.0;
-          if ((nearestMarkerPosition - newValuePosition).abs() <=
-              snapThresholdPixels) {
-            newValue = nearestMarker;
+          if (useSpaceBasedSnap) {
+            final nearestMarkerPosition = (nearestMarker - min) * squareWidth;
+            final newValuePosition = (newValue - min) * squareWidth;
+            const snapThresholdPixels = 10.0;
+            if ((nearestMarkerPosition - newValuePosition).abs() <=
+                snapThresholdPixels) {
+              newValue = nearestMarker;
+            }
+          } else {
+            const snapThreshold = 2;
+            if ((nearestMarker - newValue).abs() <= snapThreshold) {
+              newValue = nearestMarker;
+            }
           }
         } else {
           newValue = nearestMarker;
@@ -104,6 +115,10 @@ class _FrameSliderState extends State<FrameSlider> {
     if (newValue != widget.value) {
       widget.onChanged?.call(newValue);
     }
+  }
+
+  bool willUseContinuous(double squareWidth) {
+    return squareWidth < widget.minCellWidth;
   }
 
   @override
@@ -128,7 +143,7 @@ class _FrameSliderState extends State<FrameSlider> {
       builder: (context, constraints) {
         final totalWidth = constraints.maxWidth;
         final squareWidth = totalWidth / itemCount;
-        final useContinuous = squareWidth < widget.minCellWidth;
+        final useContinuous = willUseContinuous(squareWidth);
 
         Widget continuousSlider() => CustomPaint(
           painter: _ContinuousSliderPainter(
@@ -150,11 +165,23 @@ class _FrameSliderState extends State<FrameSlider> {
         return GestureDetector(
           behavior: HitTestBehavior.translucent,
           onPanDown: enabled
-              ? (details) => _updateValue(details.localPosition, totalWidth)
+              ? (details) => _updateValue(
+                  details.localPosition,
+                  totalWidth,
+                  squareWidth,
+                  useContinuous,
+                )
               : null,
           onPanUpdate: enabled
-              ? (details) => _updateValue(details.localPosition, totalWidth)
+              ? (details) => _updateValue(
+                  details.localPosition,
+                  totalWidth,
+                  squareWidth,
+                  useContinuous,
+                )
               : null,
+          onPanEnd: (details) => _isDragging = false,
+          onPanCancel: () => _isDragging = false,
           child: SizedBox(
             height: widget.hitHeight,
             child: useContinuous
@@ -196,13 +223,15 @@ class _FrameSliderState extends State<FrameSlider> {
                                     ? widget.selectedCellHeight
                                     : widget.cellHeight,
                                 decoration: BoxDecoration(
-                                  border: isMarkerFrame && isSelected
-                                      ? Border.all(color: markerColor, width: 2)
-                                      : null,
                                   color: isSelected
-                                      ? activeColor
+                                      ? (isMarkerFrame
+                                            ? markerColor
+                                            : activeColor)
                                       : isHovered
-                                      ? overrideColors.hover ?? hoverColor
+                                      ? (_isDragging
+                                                ? inactiveColor
+                                                : overrideColors.hover) ??
+                                            hoverColor
                                       : overrideColors.inactive ??
                                             inactiveColor,
                                   borderRadius: radius,
