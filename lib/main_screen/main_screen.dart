@@ -944,7 +944,8 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                 Tooltip(
                   message:
                       'Open GIF file...\n'
-                      'Or use ${Phshortcuts.shortcutString(Phshortcuts.pasteAndGo)} to paste a link to a GIF.',
+                      //'Or use ${Phshortcuts.shortcutString(Phshortcuts.pasteAndGo)} to paste a link to a GIF.',
+                      'You can also open a file in the right-click menu.',
                   child: SizedBoxFitted(
                     height: 32,
                     child: IconButton(
