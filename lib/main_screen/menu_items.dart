@@ -1,16 +1,13 @@
-import 'package:animators_gif_enjoyer/main.dart';
-import 'package:animators_gif_enjoyer/app/gif_enjoyer_preferences.dart'
-    as gif_enjoyer_preferences;
-import 'package:animators_gif_enjoyer/phlutter/pheatures/remember_window_size.dart'
-    as remember_window_size;
-import 'package:animators_gif_enjoyer/features/single_instance.dart'
-    as single_instance;
-import 'package:animators_gif_enjoyer/features/reveal_file_source.dart'
-    as reveal_file_source;
-import 'package:animators_gif_enjoyer/phlutter/phdart/build_info.dart'
-    as build_info;
 import 'package:flutter/material.dart';
 import 'package:nativeapi/nativeapi.dart';
+
+import '../features/reveal_file_source.dart' as reveal_file_source;
+import '../features/single_instance.dart' as single_instance;
+import '../main.dart';
+import '../phlutter/phdart/build_info.dart' as build_info;
+import '../phlutter/pheatures/remember_window_size.dart'
+    as remember_window_size;
+import '../phlutter/widget/preferences_stored_bool.dart';
 
 const String openImageSequenceFolderLabel = 'Open image sequence folder...';
 const String advancedLabel = 'Advanced';
@@ -66,30 +63,26 @@ MenuItem addAllowMultipleWindowsMenuItem(Menu menu) {
 }
 
 MenuItem addAllowWideSliderMenuItem(
-  ValueNotifier<bool> allowWideSliderNotifier,
+  PreferencesStoredBool allowWideSliderPreference,
   Menu menu,
 ) {
   return addMenuItemCheckbox(
     label: "Allow wide frame slider",
     menu: menu,
-    checked: allowWideSliderNotifier.value,
-    onClick: () => gif_enjoyer_preferences.toggleAllowWideSliderPreference(
-      allowWideSliderNotifier,
-    ),
+    checked: allowWideSliderPreference.value,
+    onClick: () => allowWideSliderPreference.toggle(),
   );
 }
 
 MenuItem addAllowSliderWrapMenuItem(
-  ValueNotifier<bool> allowSliderToWrapNotifier,
+  PreferencesStoredBool allowWrapDragPreference,
   Menu menu,
 ) {
   return addMenuItemCheckbox(
     label: "Loop when dragging slider",
     menu: menu,
-    checked: allowSliderToWrapNotifier.value,
-    onClick: () => gif_enjoyer_preferences.toggleSliderWrapPreference(
-      allowSliderToWrapNotifier,
-    ),
+    checked: allowWrapDragPreference.value,
+    onClick: () => allowWrapDragPreference.toggle(),
   );
 }
 

@@ -10,8 +10,6 @@ import 'package:animators_gif_enjoyer/main.dart';
 import 'package:animators_gif_enjoyer/main_screen/exporter_mixins.dart';
 import 'package:animators_gif_enjoyer/main_screen/frame_base.dart';
 import 'package:animators_gif_enjoyer/app/gif_enjoyer_preferences.dart';
-import 'package:animators_gif_enjoyer/app/gif_enjoyer_preferences.dart'
-    as gif_enjoyer_preferences;
 import 'package:animators_gif_enjoyer/main_screen/gif_mixins.dart';
 import 'package:animators_gif_enjoyer/main_screen/menu_items.dart';
 import 'package:animators_gif_enjoyer/app/snackbar_mixins.dart';
@@ -28,8 +26,7 @@ import 'package:animators_gif_enjoyer/phlutter/windows/windows_phwindow.dart';
 import 'package:animators_gif_enjoyer/phlutter/phdart/build_info.dart'
     as build_info;
 // import 'package:animators_gif_enjoyer/functionality/download_file.dart';
-import 'package:animators_gif_enjoyer/features/open_file.dart'
-    as open_file;
+import 'package:animators_gif_enjoyer/features/open_file.dart' as open_file;
 import 'package:animators_gif_enjoyer/phlutter/pheatures/phclipboard.dart'
     as phclipboard;
 import 'package:animators_gif_enjoyer/phlutter/phdart/plural.dart';
@@ -568,7 +565,6 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                       frameController: frameController,
                       zoomLevelNotifier: zoomLevelNotifier,
                       isAppBusy: isAppBusy,
-                      allowWideSliderNotifier: allowWideSliderNotifier,
                       fitZoomGetter: getFitZoom,
                       hardMaxZoomGetter: getMaxZoom,
                       hardMinZoomGetter: getMinZoom,
@@ -658,12 +654,9 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                         isUsingFocusRange: isUsingFocusRange,
                         currentFrame: currentFrame,
                         enabled: isPlayModeAvailable && isScrubMode.value,
-                        allowWideNotifier: allowWideSliderNotifier,
-                        allowWrapAroundNotifier: allowSliderWrapAroundDragNotifier,
-                        toggleWideSlider: () => gif_enjoyer_preferences
-                            .toggleAllowWideSliderPreference(
-                              allowWideSliderNotifier,
-                            ),
+                        allowWidePreference: allowWideSliderPreference,
+                        allowWrapAroundPreference:
+                            allowSliderWrapAroundDragPreference,
                         incrementFunction: incrementFrame,
                         displayedFrameOffset: displayedFrameBaseOffset,
                       );
@@ -790,8 +783,8 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
       menu.addSeparator();
     }
 
-    addAllowWideSliderMenuItem(allowWideSliderNotifier, menu);
-    addAllowSliderWrapMenuItem(allowSliderWrapAroundDragNotifier, menu);
+    addAllowWideSliderMenuItem(allowWideSliderPreference, menu);
+    addAllowSliderWrapMenuItem(allowSliderWrapAroundDragPreference, menu);
 
     return menu;
   }

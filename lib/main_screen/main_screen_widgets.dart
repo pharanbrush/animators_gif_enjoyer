@@ -1,8 +1,9 @@
-import 'package:animators_gif_enjoyer/features/zooming.dart';
-import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
-import 'package:animators_gif_enjoyer/app/theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
+import '../app/theme.dart';
+import '../features/zooming.dart';
+import '../gif_view_pharan/gif_view.dart';
 
 const delayedTooltipDelay = Duration(milliseconds: 200);
 const slowTooltipDelay = Duration(milliseconds: 600);
@@ -12,7 +13,6 @@ class ImageViewContainer extends StatelessWidget {
     super.key,
     required this.imageProvider,
     required this.frameController,
-    this.allowWideSliderNotifier,
     this.isAppBusy = false,
     this.zoomLevelNotifier,
     this.fitZoomGetter,
@@ -26,7 +26,6 @@ class ImageViewContainer extends StatelessWidget {
   final double Function()? hardMinZoomGetter;
   final double Function()? hardMaxZoomGetter;
   final ValueNotifier<double>? zoomLevelNotifier;
-  final ValueNotifier<bool>? allowWideSliderNotifier;
   final bool isAppBusy;
 
   @override

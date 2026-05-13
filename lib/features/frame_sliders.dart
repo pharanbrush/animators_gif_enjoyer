@@ -1,8 +1,8 @@
-import 'package:animators_gif_enjoyer/app/theme.dart';
-
 import 'package:flutter/material.dart';
 
+import '../app/theme.dart';
 import '../phlutter/phmaterial/frame_slider.dart';
+import '../phlutter/widget/preferences_stored_bool.dart';
 import '../phlutter/widget/scroll_listener.dart';
 
 class FrameRangeSlider extends StatelessWidget {
@@ -109,21 +109,19 @@ class MainSlider extends StatelessWidget {
     required this.isUsingFocusRange,
     required this.currentFrame,
     required this.enabled,
-    required this.allowWideNotifier,
-    required this.allowWrapAroundNotifier,
-    required this.toggleWideSlider,
+    required this.allowWidePreference,
+    required this.allowWrapAroundPreference,
     required this.incrementFunction,
     this.displayedFrameOffset = 0,
   });
 
   final int displayedFrameOffset;
   final VoidCallback toggleUseFocus;
-  final VoidCallback toggleWideSlider;
   final RangeValues primarySliderRange;
   final ValueNotifier<bool> isUsingFocusRange;
   final ValueNotifier<int> currentFrame;
-  final ValueNotifier<bool> allowWideNotifier;
-  final ValueNotifier<bool> allowWrapAroundNotifier;
+  final PreferencesStoredBool allowWidePreference;
+  final PreferencesStoredBool allowWrapAroundPreference;
   final void Function(int increment) incrementFunction;
   final bool enabled;
 
@@ -131,8 +129,8 @@ class MainSlider extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget sliderPart() => ListenableBuilder(
       listenable: Listenable.merge([
-        allowWideNotifier,
-        allowWrapAroundNotifier,
+        allowWidePreference.valueNotifier,
+        allowWrapAroundPreference.valueNotifier,
       ]),
       builder: (_, _) {
         Widget insideExpanded() => ValueListenableBuilder(
@@ -157,16 +155,16 @@ class MainSlider extends StatelessWidget {
               min: sliderMin.toInt(),
               max: sliderMax.toInt(),
               value: currentFrameValue,
-              wrapWhenDragging: allowWrapAroundNotifier.value,
+              wrapWhenDragging: allowWrapAroundPreference.value,
               onChanged: enabled
                   ? (newValue) => currentFrame.value = newValue
                   : null,
             );
 
             return GestureDetector(
-              onTertiaryTapDown: (_) => toggleWideSlider(),
+              onTertiaryTapDown: (_) => allowWidePreference.toggle(),
               child: SizedBox(
-                width: allowWideNotifier.value ? null : width,
+                width: allowWidePreference.value ? null : width,
                 child: Focus(
                   canRequestFocus: false,
                   autofocus: false,
@@ -184,7 +182,7 @@ class MainSlider extends StatelessWidget {
           },
         );
 
-        return allowWideNotifier.value
+        return allowWidePreference.value
             ? Expanded(child: insideExpanded())
             : insideExpanded();
       },

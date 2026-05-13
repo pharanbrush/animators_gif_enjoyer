@@ -1,55 +1,33 @@
-import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/widgets.dart';
 
-const allowWideSliderKey = "allow_wide_slider";
-const sliderWrapKey = "allow_wrap_slider";
+import '../phlutter/widget/preferences_stored_bool.dart';
 
-const kDefaultAllowWideSlider = false;
-const kDefaultSliderWrap = false;
+mixin GifEnjoyerWindowPreferences<T extends StatefulWidget> on State<T> {
+  final allowWideSliderPreference = PreferencesStoredBool(
+    preferenceKey: "allow_wide_slider",
+    defaultValue: false,
+    onLog: debugPrint,
+  );
+  final allowSliderWrapAroundDragPreference = PreferencesStoredBool(
+    preferenceKey: "allow_wrap_slider",
+    defaultValue: true,
+    onLog: debugPrint,
+  );
 
-mixin GifEnjoyerWindowPreferences {
-  final allowWideSliderNotifier = ValueNotifier<bool>(false);
-  final allowSliderWrapAroundDragNotifier = ValueNotifier<bool>(false);
-}
+  late final allPreferences = [
+    allowWideSliderPreference,
+    allowSliderWrapAroundDragPreference,
+  ];
 
-// Wide Slider
-void toggleAllowWideSliderPreference(
-  ValueNotifier<bool> allowWideSliderNotifier,
-) async {
-  storeAllowWideSliderPreference(!allowWideSliderNotifier.value);
-  allowWideSliderNotifier.value = await getAllowWideSliderPreference();
-}
+  @override
+  void initState() {
+    super.initState();
+    initializePreferences();
+  }
 
-void storeAllowWideSliderPreference(bool allowWideSlider) async {
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.setBool(allowWideSliderKey, allowWideSlider);
-}
-
-Future<bool> getAllowWideSliderPreference() async {
-  final prefs = await SharedPreferences.getInstance();
-  final storedValue = prefs.getBool(allowWideSliderKey);
-  if (storedValue == null) return kDefaultAllowWideSlider;
-
-  return storedValue;
-}
-
-// Drag wrap
-void toggleSliderWrapPreference(
-  ValueNotifier<bool> allowSliderWrapNotifier,
-) async {
-  storeSliderWrapPreference(!allowSliderWrapNotifier.value);
-  allowSliderWrapNotifier.value = await getSliderWrapPreference();
-}
-
-void storeSliderWrapPreference(bool allowSliderWrap) async {
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.setBool(sliderWrapKey, allowSliderWrap);
-}
-
-Future<bool> getSliderWrapPreference() async {
-  final prefs = await SharedPreferences.getInstance();
-  final storedValue = prefs.getBool(sliderWrapKey);
-  if (storedValue == null) return kDefaultSliderWrap;
-
-  return storedValue;
+  Future<void> initializePreferences() async {
+    for (final preference in allPreferences) {
+      await preference.loadFromPreferences();
+    }
+  }
 }

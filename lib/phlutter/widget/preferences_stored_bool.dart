@@ -29,6 +29,10 @@ class PreferencesStoredBool {
     valueNotifier.dispose();
   }
 
+  void toggle() {
+    valueNotifier.value = !valueNotifier.value;
+  }
+
   Future<void> loadFromPreferences() async {
     final loadedValue = await _getPreferenceBool(
       key: _preferenceKey,
