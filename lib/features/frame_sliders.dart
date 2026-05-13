@@ -1,4 +1,4 @@
-import 'package:animators_gif_enjoyer/main_screen/theme.dart';
+import 'package:animators_gif_enjoyer/app/theme.dart';
 
 import 'package:flutter/material.dart';
 

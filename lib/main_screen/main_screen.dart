@@ -1,23 +1,23 @@
 import 'dart:ui' as ui;
 
-import 'package:animators_gif_enjoyer/functionality/frame_sliders.dart';
-import 'package:animators_gif_enjoyer/functionality/gif_frame_info.dart'
+import 'package:animators_gif_enjoyer/features/frame_sliders.dart';
+import 'package:animators_gif_enjoyer/features/gif_frame_info.dart'
     as gif_frame_info;
-import 'package:animators_gif_enjoyer/functionality/zooming.dart';
+import 'package:animators_gif_enjoyer/features/zooming.dart';
 import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
-import 'package:animators_gif_enjoyer/interface/shortcuts.dart';
+import 'package:animators_gif_enjoyer/app/shortcuts.dart';
 import 'package:animators_gif_enjoyer/main.dart';
 import 'package:animators_gif_enjoyer/main_screen/exporter_mixins.dart';
 import 'package:animators_gif_enjoyer/main_screen/frame_base.dart';
-import 'package:animators_gif_enjoyer/main_screen/gif_enjoyer_preferences.dart';
-import 'package:animators_gif_enjoyer/main_screen/gif_enjoyer_preferences.dart'
+import 'package:animators_gif_enjoyer/app/gif_enjoyer_preferences.dart';
+import 'package:animators_gif_enjoyer/app/gif_enjoyer_preferences.dart'
     as gif_enjoyer_preferences;
 import 'package:animators_gif_enjoyer/main_screen/gif_mixins.dart';
 import 'package:animators_gif_enjoyer/main_screen/menu_items.dart';
-import 'package:animators_gif_enjoyer/main_screen/snackbar_mixins.dart';
+import 'package:animators_gif_enjoyer/app/snackbar_mixins.dart';
 import 'package:animators_gif_enjoyer/phlutter/app_theme_cycler.dart';
 import 'package:animators_gif_enjoyer/main_screen/main_screen_widgets.dart';
-import 'package:animators_gif_enjoyer/main_screen/theme.dart' as app_theme;
+import 'package:animators_gif_enjoyer/app/theme.dart' as app_theme;
 import 'package:animators_gif_enjoyer/phlutter/pheatures/remember_window_size.dart';
 import 'package:animators_gif_enjoyer/phlutter/phmaterial/drag_listener.dart';
 import 'package:animators_gif_enjoyer/phlutter/phmaterial/image_drop_target.dart';
@@ -28,13 +28,13 @@ import 'package:animators_gif_enjoyer/phlutter/windows/windows_phwindow.dart';
 import 'package:animators_gif_enjoyer/phlutter/phdart/build_info.dart'
     as build_info;
 // import 'package:animators_gif_enjoyer/functionality/download_file.dart';
-import 'package:animators_gif_enjoyer/functionality/open_file.dart'
+import 'package:animators_gif_enjoyer/features/open_file.dart'
     as open_file;
 import 'package:animators_gif_enjoyer/phlutter/pheatures/phclipboard.dart'
     as phclipboard;
 import 'package:animators_gif_enjoyer/phlutter/phdart/plural.dart';
-import 'package:animators_gif_enjoyer/functionality/reveal_file_source.dart';
-import 'package:animators_gif_enjoyer/functionality/save_image_as_png.dart';
+import 'package:animators_gif_enjoyer/features/reveal_file_source.dart';
+import 'package:animators_gif_enjoyer/features/save_image_as_png.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:nativeapi/nativeapi.dart' hide Image;

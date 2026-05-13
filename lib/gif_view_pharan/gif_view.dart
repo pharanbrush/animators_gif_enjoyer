@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:ui';
 
-import 'package:animators_gif_enjoyer/functionality/avif_enjoyer.dart'
+import 'package:animators_gif_enjoyer/features/avif_enjoyer.dart'
     as avif_enjoyer;
 import 'package:animators_gif_enjoyer/phlutter/phdart/uri_paths.dart'
     as uri_paths;

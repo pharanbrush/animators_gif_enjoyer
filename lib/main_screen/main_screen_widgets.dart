@@ -1,6 +1,6 @@
-import 'package:animators_gif_enjoyer/functionality/zooming.dart';
+import 'package:animators_gif_enjoyer/features/zooming.dart';
 import 'package:animators_gif_enjoyer/gif_view_pharan/gif_view.dart';
-import 'package:animators_gif_enjoyer/main_screen/theme.dart';
+import 'package:animators_gif_enjoyer/app/theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
