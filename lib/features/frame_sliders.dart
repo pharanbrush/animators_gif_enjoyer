@@ -114,6 +114,7 @@ class MainSlider extends StatelessWidget {
     required this.incrementFunction,
     required this.markerNotifier,
     required this.snapModeNotifier,
+    this.onSecondaryTapOnFrame,
     this.frameMarkers,
     this.displayedFrameOffset = 0,
   });
@@ -128,6 +129,7 @@ class MainSlider extends StatelessWidget {
   final ValueNotifier<SnapMode> snapModeNotifier;
   final ChangeNotifier? markerNotifier;
   final void Function(int increment) incrementFunction;
+  final void Function(int frame)? onSecondaryTapOnFrame;
   final Iterable<int>? frameMarkers;
   final bool enabled;
 
@@ -168,6 +170,7 @@ class MainSlider extends StatelessWidget {
                 wrapWhenDragging: allowWrapAroundPreference.value,
                 frameMarkers: frameMarkers,
                 snapMode: snapModeNotifier.value,
+                onSecondaryTapOnFrame: onSecondaryTapOnFrame,
                 onChanged: enabled
                     ? (newValue) => currentFrame.value = newValue
                     : null,

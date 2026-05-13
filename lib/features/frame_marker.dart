@@ -24,7 +24,7 @@ mixin FrameMarker {
     }
   }
 
-  void toggleFrame(int frameNumber) {
+  void toggleMarkerForFrame(int frameNumber) {
     if (hasMarker(frameNumber)) {
       removeMarker(frameNumber);
     } else {

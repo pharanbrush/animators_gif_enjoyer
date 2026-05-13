@@ -626,7 +626,13 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                             return GestureDetector(
                               onSecondaryTap: () => addFrameControls(
                                 context,
-                                Menu(),
+                                Menu()..addMenuItem(
+                                  hasMarker(currentFrame.value)
+                                      ? "Remove frame marker to frame (M)"
+                                      : "Add frame marker to frame (M)",
+                                  onClick: () =>
+                                      toggleMarkerForFrame(currentFrame.value),
+                                ),
                               ).open(.cursorPosition()),
                               child: Wrap(
                                 alignment: WrapAlignment.center,
@@ -731,8 +737,15 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                 width: double.infinity,
                 child: GestureDetector(
                   onTap: isScrubMode.value ? null : () => setPlayMode(false),
-                  onSecondaryTap: () =>
-                      addFrameControls(context, Menu()).open(.cursorPosition()),
+                  onSecondaryTap: () => addFrameControls(
+                    context,
+                    Menu()..addMenuItem(
+                      hasMarker(currentFrame.value)
+                          ? "Remove frame marker to current frame (M)"
+                          : "Add frame marker to current frame (M)",
+                      onClick: () => toggleMarkerForFrame(currentFrame.value),
+                    ),
+                  ).open(.cursorPosition()),
                   child: ListenableBuilder(
                     listenable: Listenable.merge([
                       focusFrameRange,
@@ -749,6 +762,23 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                         frameMarkers: frameMarkers,
                         markerNotifier: frameMarkersChanged,
                         snapModeNotifier: snapMode,
+                        onSecondaryTapOnFrame: (clickedFrame) {
+                          final clickedFrameHasMarker = hasMarker(clickedFrame);
+                          addFrameControls(
+                            context,
+                            Menu()..addMenuItem(
+                              clickedFrameHasMarker
+                                  ? "Remove frame marker (M)"
+                                  : "Add frame marker here (M)",
+                              onClick: () {
+                                toggleMarkerForFrame(clickedFrame);
+                                if (!clickedFrameHasMarker) {
+                                  currentFrame.value = clickedFrame;
+                                }
+                              },
+                            ),
+                          ).open(.cursorPosition());
+                        },
                         allowWrapAroundPreference:
                             allowSliderWrapAroundDragPreference,
                         incrementFunction: incrementFrame,
@@ -1317,7 +1347,10 @@ class GifEnjoyerMainPageStateShortcuts {
     (EscapeIntent, (_) => state.handleEscapeIntent()),
     (FirstFrameIntent, (_) => state.setCurrentFrameToFirst()),
     (LastFrameIntent, (_) => state.setCurrentFrameToLast()),
-    (MarkFrameIntent, (_) => state.toggleFrame(state.currentFrame.value)),
+    (
+      MarkFrameIntent,
+      (_) => state.toggleMarkerForFrame(state.currentFrame.value),
+    ),
   ];
 
   Widget shortcutsWrapper({required Widget child}) {

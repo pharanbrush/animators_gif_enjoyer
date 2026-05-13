@@ -139,6 +139,15 @@ void tryAddAboutItemsTo(Menu menu) {
 }
 
 extension MenuExtensions on Menu {
+  MenuItem addMenuItem(String label, {VoidCallback? onClick}) {
+    final menuItem = MenuItem(label);
+    if (onClick != null) {
+      menuItem.on<MenuItemClickedEvent>((event) => onClick());
+    }
+    addItem(menuItem);
+    return menuItem;
+  }
+
   void addItems(Iterable<MenuItem> items) {
     for (final item in items) {
       addItem(item);

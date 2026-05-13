@@ -23,6 +23,7 @@ class FrameSlider extends StatefulWidget {
     this.markerColor,
     this.wrapWhenDragging = false,
     this.frameMarkers,
+    this.onSecondaryTapOnFrame,
     this.snapMode = SnapMode.nearest,
   });
 
@@ -39,6 +40,7 @@ class FrameSlider extends StatefulWidget {
   final Color? markerColor;
   final bool wrapWhenDragging;
   final Iterable<int>? frameMarkers;
+  final void Function(int frame)? onSecondaryTapOnFrame;
   final SnapMode snapMode;
 
   @override
@@ -51,15 +53,11 @@ class _FrameSliderState extends State<FrameSlider> {
   bool get enabled => widget.onChanged != null;
   bool _isDragging = false;
 
-  void _updateValue(
+  int _findValueFromPosition(
     Offset localPosition,
-    double totalWidth,
-    double squareWidth,
-    bool useSpaceBasedSnap,
-  ) {
-    if (!enabled) return;
-    _isDragging = true;
-
+    double squareWidth, {
+    bool useSnap = false,
+  }) {
     final min = widget.min;
     final itemCount = widget.max - min + 1;
 
@@ -71,6 +69,37 @@ class _FrameSliderState extends State<FrameSlider> {
     }
 
     int newValue = min + index;
+
+    if (useSnap) {
+      final frameMarkers = widget.frameMarkers;
+      if (frameMarkers != null && frameMarkers.isNotEmpty) {
+        final nearestMarker = frameMarkers.reduce((a, b) {
+          return (a - newValue).abs() < (b - newValue).abs() ? a : b;
+        });
+
+        final nearestMarkerPosition = (nearestMarker - min) * squareWidth;
+        final newValuePosition = (newValue - min) * squareWidth;
+        const snapThresholdPixels = 9.0;
+        if ((nearestMarkerPosition - newValuePosition).abs() <=
+            snapThresholdPixels) {
+          newValue = nearestMarker;
+        }
+      }
+    }
+
+    return newValue;
+  }
+
+  void _updateValue(
+    Offset localPosition,
+    double squareWidth,
+    bool useSpaceBasedSnap,
+  ) {
+    if (!enabled) return;
+    _isDragging = true;
+
+    final min = widget.min;
+    int newValue = _findValueFromPosition(localPosition, squareWidth);
 
     // Snapping
     SnapMode snapMode = widget.snapMode;
@@ -167,7 +196,6 @@ class _FrameSliderState extends State<FrameSlider> {
           onPanDown: enabled
               ? (details) => _updateValue(
                   details.localPosition,
-                  totalWidth,
                   squareWidth,
                   useContinuous,
                 )
@@ -175,13 +203,25 @@ class _FrameSliderState extends State<FrameSlider> {
           onPanUpdate: enabled
               ? (details) => _updateValue(
                   details.localPosition,
-                  totalWidth,
                   squareWidth,
                   useContinuous,
                 )
               : null,
           onPanEnd: (details) => _isDragging = false,
           onPanCancel: () => _isDragging = false,
+          onSecondaryTapDown: enabled
+              ? (details) {
+                  if (widget.onSecondaryTapOnFrame == null) return;
+                  final frame = _findValueFromPosition(
+                    details.localPosition,
+                    squareWidth,
+                    useSnap: true,
+                  );
+                  widget.onSecondaryTapOnFrame?.call(frame);
+                }
+              : null,
+          onSecondaryTapUp: (_) => _isDragging = false,
+          onSecondaryTapCancel: () => _isDragging = false,
           child: SizedBox(
             height: widget.hitHeight,
             child: useContinuous
