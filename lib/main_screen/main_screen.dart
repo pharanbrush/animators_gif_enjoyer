@@ -599,38 +599,54 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                 child: Column(
                   children: [
                     ListenableBuilder(
-                      listenable: currentFrame,
+                      listenable: frameMarkersChanged,
                       builder: (context, _) {
-                        final bigStyle = Theme.of(
-                          context,
-                        ).textTheme.headlineMedium;
-                        final bigStyleGray =
-                            bigStyle?.copyWith(
-                              color: Theme.of(context).colorScheme.grayColor,
-                            ) ??
-                            Theme.of(context).grayStyle;
+                        return ListenableBuilder(
+                          listenable: currentFrame,
+                          builder: (context, _) {
+                            final currentFrameIsMarker = hasMarker(
+                              currentFrame.value,
+                            );
 
-                        final separator = Text(' - ', style: bigStyleGray);
+                            final bigStyle = Theme.of(
+                              context,
+                            ).textTheme.headlineMedium;
 
-                        return GestureDetector(
-                          onSecondaryTap: () => addFrameControls(
-                            context,
-                            Menu(),
-                          ).open(.cursorPosition()),
-                          child: Wrap(
-                            alignment: WrapAlignment.center,
-                            crossAxisAlignment: WrapCrossAlignment.center,
-                            children: [
-                              separator,
-                              Text(
-                                displayedCurrentFrameString,
-                                style: isScrubMode.value
-                                    ? bigStyle
-                                    : bigStyleGray,
+                            final bigStyleGray =
+                                bigStyle?.copyWith(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.grayColor,
+                                ) ??
+                                Theme.of(context).grayStyle;
+
+                            final separator = Text(' - ', style: bigStyleGray);
+
+                            return GestureDetector(
+                              onSecondaryTap: () => addFrameControls(
+                                context,
+                                Menu(),
+                              ).open(.cursorPosition()),
+                              child: Wrap(
+                                alignment: WrapAlignment.center,
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                children: [
+                                  separator,
+                                  Text(
+                                    displayedCurrentFrameString,
+                                    style: isScrubMode.value
+                                        ? (currentFrameIsMarker
+                                              ? bigStyle?.copyWith(
+                                                  color: Colors.orange,
+                                                )
+                                              : bigStyle)
+                                        : bigStyleGray,
+                                  ),
+                                  separator,
+                                ],
                               ),
-                              separator,
-                            ],
-                          ),
+                            );
+                          },
                         );
                       },
                     ),
