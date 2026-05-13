@@ -197,7 +197,10 @@ class MainSlider extends StatelessWidget {
           isFocusing: isUsingFocusRange.value,
           enabled: enabled,
         ),
-        sliderPart(),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6),
+          child: sliderPart(),
+        ),
         ToggleFocusButton(
           label: '${(primarySliderRange.endInt + displayedFrameOffset)}',
           handleToggle: () => toggleUseFocus(),
