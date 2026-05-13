@@ -133,53 +133,56 @@ class MainSlider extends StatelessWidget {
         allowWrapAroundPreference.valueNotifier,
       ]),
       builder: (_, _) {
-        Widget insideExpanded() => ValueListenableBuilder(
-          valueListenable: currentFrame,
-          builder: (_, currentFrameValue, _) {
-            final sliderMin = primarySliderRange.start;
-            final sliderMax = primarySliderRange.end;
+        Widget insideExpanded() => Padding(
+          padding: const .symmetric(horizontal: 6),
+          child: ValueListenableBuilder(
+            valueListenable: currentFrame,
+            builder: (_, currentFrameValue, _) {
+              final sliderMin = primarySliderRange.start;
+              final sliderMax = primarySliderRange.end;
 
-            const int minFramesBeforeShrink = 7;
-            const int reallyFewFrames = 4;
-            const double maximumSpacePerFrame = 40;
-            final limitedFrameCount = sliderMax - sliderMin;
+              const int minFramesBeforeShrink = 7;
+              const int reallyFewFrames = 4;
+              const double maximumSpacePerFrame = 40;
+              final limitedFrameCount = sliderMax - sliderMin;
 
-            final double width = switch (limitedFrameCount) {
-              (< reallyFewFrames) => reallyFewFrames * maximumSpacePerFrame,
-              (< minFramesBeforeShrink) =>
-                limitedFrameCount * maximumSpacePerFrame,
-              _ => minFramesBeforeShrink * maximumSpacePerFrame,
-            };
+              final double width = switch (limitedFrameCount) {
+                (< reallyFewFrames) => reallyFewFrames * maximumSpacePerFrame,
+                (< minFramesBeforeShrink) =>
+                  limitedFrameCount * maximumSpacePerFrame,
+                _ => minFramesBeforeShrink * maximumSpacePerFrame,
+              };
 
-            Widget slider() => FrameSlider(
-              min: sliderMin.toInt(),
-              max: sliderMax.toInt(),
-              value: currentFrameValue,
-              wrapWhenDragging: allowWrapAroundPreference.value,
-              onChanged: enabled
-                  ? (newValue) => currentFrame.value = newValue
-                  : null,
-            );
+              Widget slider() => FrameSlider(
+                min: sliderMin.toInt(),
+                max: sliderMax.toInt(),
+                value: currentFrameValue,
+                wrapWhenDragging: allowWrapAroundPreference.value,
+                onChanged: enabled
+                    ? (newValue) => currentFrame.value = newValue
+                    : null,
+              );
 
-            return GestureDetector(
-              onTertiaryTapDown: (_) => allowWidePreference.toggle(),
-              child: SizedBox(
-                width: allowWidePreference.value ? null : width,
-                child: Focus(
-                  canRequestFocus: false,
-                  autofocus: false,
-                  skipTraversal: true,
-                  descendantsAreFocusable: false,
-                  descendantsAreTraversable: false,
-                  child: ScrollListener(
-                    onScrollUp: () => incrementFunction(1),
-                    onScrollDown: () => incrementFunction(-1),
-                    child: slider(),
+              return GestureDetector(
+                onTertiaryTapDown: (_) => allowWidePreference.toggle(),
+                child: SizedBox(
+                  width: allowWidePreference.value ? null : width,
+                  child: Focus(
+                    canRequestFocus: false,
+                    autofocus: false,
+                    skipTraversal: true,
+                    descendantsAreFocusable: false,
+                    descendantsAreTraversable: false,
+                    child: ScrollListener(
+                      onScrollUp: () => incrementFunction(1),
+                      onScrollDown: () => incrementFunction(-1),
+                      child: slider(),
+                    ),
                   ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         );
 
         return allowWidePreference.value
@@ -197,10 +200,7 @@ class MainSlider extends StatelessWidget {
           isFocusing: isUsingFocusRange.value,
           enabled: enabled,
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6),
-          child: sliderPart(),
-        ),
+        sliderPart(),
         ToggleFocusButton(
           label: '${(primarySliderRange.endInt + displayedFrameOffset)}',
           handleToggle: () => toggleUseFocus(),
