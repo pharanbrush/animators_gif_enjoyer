@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class FrameSlider extends StatelessWidget {
+class FrameSlider extends StatefulWidget {
   const FrameSlider({
     super.key,
     required this.min,
@@ -10,8 +10,9 @@ class FrameSlider extends StatelessWidget {
     this.cellHeight = 15,
     this.selectedCellHeight = 23,
     this.hitHeight = 40,
-    this.minCellWidth = 8.0,
-    this.borderRadius = 5.0,
+    this.minCellWidth = 6.0,
+    this.borderRadius = 4.0,
+    this.hoverColor,
   });
 
   final int min;
@@ -23,26 +24,34 @@ class FrameSlider extends StatelessWidget {
   final double hitHeight;
   final double minCellWidth;
   final double borderRadius;
+  final Color? hoverColor;
 
-  bool get enabled => onChanged != null;
+  @override
+  State<FrameSlider> createState() => _FrameSliderState();
+}
+
+class _FrameSliderState extends State<FrameSlider> {
+  int? _hoveredIndex;
+
+  bool get enabled => widget.onChanged != null;
 
   void _updateValue(Offset localPosition, double totalWidth) {
     if (!enabled) return;
 
-    final itemCount = max - min + 1;
+    final itemCount = widget.max - widget.min + 1;
     final squareWidth = totalWidth / itemCount;
 
     final index = (localPosition.dx ~/ squareWidth).clamp(0, itemCount - 1);
-    final newValue = min + index;
+    final newValue = widget.min + index;
 
-    if (newValue != value) {
-      onChanged?.call(newValue);
+    if (newValue != widget.value) {
+      widget.onChanged?.call(newValue);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final itemCount = max - min + 1;
+    final itemCount = widget.max - widget.min + 1;
     final colorScheme = Theme.of(context).colorScheme;
 
     final activeColor = enabled
@@ -51,12 +60,28 @@ class FrameSlider extends StatelessWidget {
     final inactiveColor = enabled
         ? colorScheme.surfaceContainerHigh
         : colorScheme.surfaceContainer.withValues(alpha: 0.12);
+    final hoverColor =
+        widget.hoverColor ?? colorScheme.primary.withValues(alpha: 0.4);
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final totalWidth = constraints.maxWidth;
         final squareWidth = totalWidth / itemCount;
-        final useContinuous = squareWidth < minCellWidth;
+        final useContinuous = squareWidth < widget.minCellWidth;
+
+        Widget continuousSlider() => CustomPaint(
+          painter: _ContinuousSliderPainter(
+            min: widget.min,
+            max: widget.max,
+            value: widget.value,
+            activeColor: activeColor,
+            inactiveColor: inactiveColor,
+            cellHeight: widget.cellHeight,
+            selectedCellHeight: widget.selectedCellHeight,
+            borderRadius: widget.borderRadius,
+            thumbWidth: widget.borderRadius * 2,
+          ),
+        );
 
         return GestureDetector(
           behavior: HitTestBehavior.translucent,
@@ -67,28 +92,17 @@ class FrameSlider extends StatelessWidget {
               ? (details) => _updateValue(details.localPosition, totalWidth)
               : null,
           child: SizedBox(
-            height: hitHeight,
+            height: widget.hitHeight,
             child: useContinuous
-                ? CustomPaint(
-                    painter: _ContinuousSliderPainter(
-                      min: min,
-                      max: max,
-                      value: value,
-                      activeColor: activeColor,
-                      inactiveColor: inactiveColor,
-                      cellHeight: cellHeight,
-                      selectedCellHeight: selectedCellHeight,
-                      borderRadius: borderRadius,
-                      minCellWidth: minCellWidth,
-                    ),
-                  )
+                ? continuousSlider()
                 : Row(
                     children: List.generate(itemCount, (index) {
-                      final boxValue = min + index;
-                      final isSelected = boxValue == value;
+                      final boxValue = widget.min + index;
+                      final isSelected = boxValue == widget.value;
+                      final isHovered = _hoveredIndex == index;
 
                       BorderRadius radius = BorderRadius.zero;
-                      final r = Radius.circular(borderRadius);
+                      final r = Radius.circular(widget.borderRadius);
 
                       if (isSelected) {
                         radius = BorderRadius.all(r);
@@ -99,17 +113,25 @@ class FrameSlider extends StatelessWidget {
                       }
 
                       return Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 1),
-                          child: Align(
-                            alignment: Alignment.center,
-                            child: Container(
-                              height: isSelected
-                                  ? selectedCellHeight
-                                  : cellHeight,
-                              decoration: BoxDecoration(
-                                color: isSelected ? activeColor : inactiveColor,
-                                borderRadius: radius,
+                        child: MouseRegion(
+                          onEnter: (_) => setState(() => _hoveredIndex = index),
+                          onExit: (_) => setState(() => _hoveredIndex = null),
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 1),
+                            child: Align(
+                              alignment: Alignment.center,
+                              child: Container(
+                                height: isSelected
+                                    ? widget.selectedCellHeight
+                                    : widget.cellHeight,
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? activeColor
+                                      : isHovered
+                                      ? hoverColor
+                                      : inactiveColor,
+                                  borderRadius: radius,
+                                ),
                               ),
                             ),
                           ),
@@ -134,7 +156,7 @@ class _ContinuousSliderPainter extends CustomPainter {
     required this.cellHeight,
     required this.selectedCellHeight,
     required this.borderRadius,
-    required this.minCellWidth,
+    required this.thumbWidth,
   });
 
   final int min;
@@ -145,7 +167,7 @@ class _ContinuousSliderPainter extends CustomPainter {
   final double cellHeight;
   final double selectedCellHeight;
   final double borderRadius;
-  final double minCellWidth;
+  final double thumbWidth;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -172,9 +194,9 @@ class _ContinuousSliderPainter extends CustomPainter {
 
     // Thumb
     final selectedRect = Rect.fromLTWH(
-      selectedX - (minCellWidth / 2),
+      selectedX - (thumbWidth / 2),
       (size.height - selectedCellHeight) / 2,
-      minCellWidth,
+      thumbWidth,
       selectedCellHeight,
     );
 
@@ -190,6 +212,6 @@ class _ContinuousSliderPainter extends CustomPainter {
         oldDelegate.activeColor != activeColor ||
         oldDelegate.inactiveColor != inactiveColor ||
         oldDelegate.borderRadius != borderRadius ||
-        oldDelegate.minCellWidth != minCellWidth;
+        oldDelegate.thumbWidth != thumbWidth;
   }
 }
