@@ -1,6 +1,9 @@
 import 'package:animators_gif_enjoyer/main_screen/theme.dart';
-import 'package:animators_gif_enjoyer/phlutter/widgets/scroll_listener.dart';
+
 import 'package:flutter/material.dart';
+
+import '../phlutter/phmaterial/frame_slider.dart';
+import '../phlutter/widgets/scroll_listener.dart';
 
 class FrameRangeSlider extends StatelessWidget {
   const FrameRangeSlider({
@@ -145,15 +148,12 @@ class MainSlider extends StatelessWidget {
               _ => minFramesBeforeShrink * maximumSpacePerFrame,
             };
 
-            Widget slider() => Slider(
-              min: sliderMin,
-              max: sliderMax,
-              value: currentFrameValue.toDouble(),
-              label: '${(currentFrameValue + displayedFrameOffset)}',
+            Widget slider() => FrameSlider(
+              min: sliderMin.toInt(),
+              max: sliderMax.toInt(),
+              value: currentFrameValue,
               onChanged: enabled
-                  ? (newValue) {
-                      currentFrame.value = newValue.toInt();
-                    }
+                  ? (newValue) => currentFrame.value = newValue
                   : null,
             );
 
