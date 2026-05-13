@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:animators_gif_enjoyer/phlutter/dart/path_extensions.dart';
+import 'package:animators_gif_enjoyer/phlutter/phdart/path_extensions.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;

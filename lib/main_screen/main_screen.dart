@@ -21,18 +21,18 @@ import 'package:animators_gif_enjoyer/main_screen/theme.dart' as app_theme;
 import 'package:animators_gif_enjoyer/phlutter/pheatures/remember_window_size.dart';
 import 'package:animators_gif_enjoyer/phlutter/phmaterial/drag_listener.dart';
 import 'package:animators_gif_enjoyer/phlutter/phmaterial/image_drop_target.dart';
-import 'package:animators_gif_enjoyer/phlutter/widgets/widget_state_property_utils.dart';
+import 'package:animators_gif_enjoyer/phlutter/widget/widget_state_property_utils.dart';
 // import 'package:animators_gif_enjoyer/phlutter/modal_panel.dart';
-import 'package:animators_gif_enjoyer/phlutter/widgets/scroll_listener.dart';
+import 'package:animators_gif_enjoyer/phlutter/widget/scroll_listener.dart';
 import 'package:animators_gif_enjoyer/phlutter/windows/windows_phwindow.dart';
-import 'package:animators_gif_enjoyer/phlutter/dart/build_info.dart'
+import 'package:animators_gif_enjoyer/phlutter/phdart/build_info.dart'
     as build_info;
 // import 'package:animators_gif_enjoyer/functionality/download_file.dart';
 import 'package:animators_gif_enjoyer/functionality/open_file.dart'
     as open_file;
 import 'package:animators_gif_enjoyer/phlutter/pheatures/phclipboard.dart'
     as phclipboard;
-import 'package:animators_gif_enjoyer/phlutter/dart/plural.dart';
+import 'package:animators_gif_enjoyer/phlutter/phdart/plural.dart';
 import 'package:animators_gif_enjoyer/functionality/reveal_file_source.dart';
 import 'package:animators_gif_enjoyer/functionality/save_image_as_png.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';

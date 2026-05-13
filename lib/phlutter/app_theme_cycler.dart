@@ -1,4 +1,4 @@
-import 'package:animators_gif_enjoyer/phlutter/dart/command_rate_limiter.dart';
+import 'package:animators_gif_enjoyer/phlutter/phdart/command_rate_limiter.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

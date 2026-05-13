@@ -7,7 +7,7 @@ import 'package:animators_gif_enjoyer/functionality/single_instance.dart'
     as single_instance;
 import 'package:animators_gif_enjoyer/functionality/reveal_file_source.dart'
     as reveal_file_source;
-import 'package:animators_gif_enjoyer/phlutter/dart/build_info.dart'
+import 'package:animators_gif_enjoyer/phlutter/phdart/build_info.dart'
     as build_info;
 import 'package:flutter/material.dart';
 import 'package:nativeapi/nativeapi.dart';

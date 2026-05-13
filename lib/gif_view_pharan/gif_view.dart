@@ -3,7 +3,7 @@ import 'dart:ui';
 
 import 'package:animators_gif_enjoyer/functionality/avif_enjoyer.dart'
     as avif_enjoyer;
-import 'package:animators_gif_enjoyer/phlutter/dart/uri_paths.dart'
+import 'package:animators_gif_enjoyer/phlutter/phdart/uri_paths.dart'
     as uri_paths;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
