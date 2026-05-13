@@ -157,31 +157,20 @@ class MainSlider extends StatelessWidget {
                   : null,
             );
 
-            var originalSliderThemeData = Theme.of(context).sliderTheme;
-            return SliderTheme(
-              data: originalSliderThemeData.copyWith(
-                thumbColor: Theme.of(context).colorScheme.secondary,
-                trackHeight: enabled ? 10 : 2,
-                thumbShape: const RoundSliderThumbShape(
-                  disabledThumbRadius: 0,
-                  elevation: 2,
-                ),
-              ),
-              child: GestureDetector(
-                onTertiaryTapDown: (_) => toggleWideSlider(),
-                child: SizedBox(
-                  width: allowWideValue ? null : width,
-                  child: Focus(
-                    canRequestFocus: false,
-                    autofocus: false,
-                    skipTraversal: true,
-                    descendantsAreFocusable: false,
-                    descendantsAreTraversable: false,
-                    child: ScrollListener(
-                      onScrollUp: () => incrementFunction(1),
-                      onScrollDown: () => incrementFunction(-1),
-                      child: slider(),
-                    ),
+            return GestureDetector(
+              onTertiaryTapDown: (_) => toggleWideSlider(),
+              child: SizedBox(
+                width: allowWideValue ? null : width,
+                child: Focus(
+                  canRequestFocus: false,
+                  autofocus: false,
+                  skipTraversal: true,
+                  descendantsAreFocusable: false,
+                  descendantsAreTraversable: false,
+                  child: ScrollListener(
+                    onScrollUp: () => incrementFunction(1),
+                    onScrollDown: () => incrementFunction(-1),
+                    child: slider(),
                   ),
                 ),
               ),
