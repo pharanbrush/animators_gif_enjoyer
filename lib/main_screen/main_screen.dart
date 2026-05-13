@@ -575,8 +575,8 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
             ),
             DiscreteDragListener(
               cursor: SystemMouseCursors.resizeLeftRight,
-              sensitivity: frameController.frameCount * 0.004,
-              shiftMultiplier: 0.1,
+              sensitivity: 0.05,
+              shiftMultiplier: 0.05,
               onDragUpdate: (delta) {
                 if (!isScrubbingAllowed) return;
                 final increment = delta.dx;
