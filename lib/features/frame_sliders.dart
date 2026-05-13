@@ -113,6 +113,7 @@ class MainSlider extends StatelessWidget {
     required this.allowWrapAroundPreference,
     required this.incrementFunction,
     required this.markerNotifier,
+    required this.snapModeNotifier,
     this.frameMarkers,
     this.displayedFrameOffset = 0,
   });
@@ -124,7 +125,8 @@ class MainSlider extends StatelessWidget {
   final ValueNotifier<int> currentFrame;
   final PreferencesStoredBool allowWidePreference;
   final PreferencesStoredBool allowWrapAroundPreference;
-  final ChangeNotifier markerNotifier;
+  final ValueNotifier<SnapMode> snapModeNotifier;
+  final ChangeNotifier? markerNotifier;
   final void Function(int increment) incrementFunction;
   final Iterable<int>? frameMarkers;
   final bool enabled;
@@ -136,6 +138,7 @@ class MainSlider extends StatelessWidget {
         allowWidePreference.valueNotifier,
         allowWrapAroundPreference.valueNotifier,
         markerNotifier,
+        snapModeNotifier,
       ]),
       builder: (_, _) {
         Widget insideExpanded() => Padding(
@@ -164,6 +167,7 @@ class MainSlider extends StatelessWidget {
                 value: currentFrameValue,
                 wrapWhenDragging: allowWrapAroundPreference.value,
                 frameMarkers: frameMarkers,
+                snapMode: snapModeNotifier.value,
                 onChanged: enabled
                     ? (newValue) => currentFrame.value = newValue
                     : null,

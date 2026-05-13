@@ -1,8 +1,12 @@
+import 'package:flutter/material.dart';
+
+import '../phlutter/phmaterial/frame_slider.dart';
 import '../phlutter/simple_notifier.dart';
 
 mixin FrameMarker {
   final frameMarkersChanged = SimpleNotifier();
   final frameMarkers = <int>{};
+  final snapMode = ValueNotifier(SnapMode.nearest);
 
   void addMarker(int frameNumber) {
     final changed = frameMarkers.add(frameNumber);

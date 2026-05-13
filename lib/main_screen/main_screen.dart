@@ -18,6 +18,7 @@ import 'package:animators_gif_enjoyer/main_screen/main_screen_widgets.dart';
 import 'package:animators_gif_enjoyer/app/theme.dart' as app_theme;
 import 'package:animators_gif_enjoyer/phlutter/pheatures/remember_window_size.dart';
 import 'package:animators_gif_enjoyer/phlutter/phmaterial/drag_listener.dart';
+import 'package:animators_gif_enjoyer/phlutter/phmaterial/frame_slider.dart';
 import 'package:animators_gif_enjoyer/phlutter/phmaterial/image_drop_target.dart';
 import 'package:animators_gif_enjoyer/phlutter/widget/widget_state_property_utils.dart';
 // import 'package:animators_gif_enjoyer/phlutter/modal_panel.dart';
@@ -655,6 +656,75 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                 ),
               ),
             ),
+            ListenableBuilder(
+              listenable: frameMarkersChanged,
+              builder: (context, _) {
+                if (frameMarkers.isEmpty) return SizedBox.shrink();
+
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: .center,
+                    spacing: 10,
+                    children: [
+                      Tooltip(
+                        preferBelow: false,
+                        message:
+                            "You can also hold Shift to scrub freely\n"
+                            "and hold Ctrl to lock scrubbing to markers only.",
+                        child: Text(
+                          "Markers",
+                          style:
+                              Theme.of(
+                                context,
+                              ).textTheme.labelMedium?.copyWith(
+                                color: app_theme.markerColor,
+                              ),
+                        ),
+                      ),
+                      ListenableBuilder(
+                        listenable: snapMode,
+                        builder: (context, _) {
+                          return SegmentedButtonTheme(
+                            data: app_theme.getMarkerSegmentedButtonTheme(),
+                            child: SegmentedButton<SnapMode>(
+                              showSelectedIcon: false,
+                              segments: [
+                                ButtonSegment(
+                                  value: .none,
+                                  label: Text("Ignore"),
+                                ),
+                                ButtonSegment(
+                                  value: .nearest,
+                                  label: Text("Snap"),
+                                ),
+                                ButtonSegment(
+                                  value: .force,
+                                  label: Text("Locked"),
+                                ),
+                              ],
+                              multiSelectionEnabled: false,
+                              onSelectionChanged: (selection) {
+                                snapMode.value = selection.first;
+                              },
+                              selected: {snapMode.value},
+                            ),
+                          );
+                        },
+                      ),
+                      SizedBoxFitted(
+                        height: 30,
+                        child: IconButton(
+                          tooltip: "Delete all markers",
+                          onPressed: () => clearMarkers(),
+                          icon: Icon(FluentIcons.delete_16_regular),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: SizedBox(
@@ -678,6 +748,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                         allowWidePreference: allowWideSliderPreference,
                         frameMarkers: frameMarkers,
                         markerNotifier: frameMarkersChanged,
+                        snapModeNotifier: snapMode,
                         allowWrapAroundPreference:
                             allowSliderWrapAroundDragPreference,
                         incrementFunction: incrementFrame,

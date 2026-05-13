@@ -22,6 +22,7 @@ final appIconDataBytes = const Base64Decoder().convert(_appIconData);
 const double smallTextSize = 12;
 const Color focusRangeColor = Color.fromARGB(255, 137, 175, 76);
 const Color defaultActiveColor = Colors.orange;
+const Color markerColor = Colors.orange;
 
 const double borderRadius = 5;
 const Radius borderRadiusRadius = Radius.circular(borderRadius);
@@ -33,6 +34,50 @@ const ButtonStyle buttonStyle = ButtonStyle(
   shape: WidgetStatePropertyAll(appButtonShape),
 );
 
+Color markerOverlayColor(Set<WidgetState> state) {
+  if (state.contains(WidgetState.hovered)) {
+    return markerColor.withValues(alpha: 0.5);
+  }
+
+  return Colors.transparent;
+}
+
+Color markerBackgroundColor(Set<WidgetState> state) {
+  if (state.contains(WidgetState.selected)) {
+    return markerColor.withValues(alpha: 0.6);
+  }
+
+  return Colors.transparent;
+}
+
+// Methods while still styling.
+ButtonStyle markerSegmentedButtonStyle() => ButtonStyle(
+  visualDensity: VisualDensity(horizontal: -3, vertical: -3),
+  shape: WidgetStatePropertyAll(appButtonShape),
+  textStyle: WidgetStatePropertyAll(TextStyle(fontSize: 13)),
+  padding: WidgetStatePropertyAll(.symmetric(horizontal: 10)),
+  overlayColor: WidgetStateColor.resolveWith(markerOverlayColor),
+  backgroundColor: WidgetStateColor.resolveWith(markerBackgroundColor),
+  side: WidgetStatePropertyAll(
+    BorderSide(color: markerColor.withValues(alpha: 0.5)),
+  ),
+);
+
+SegmentedButtonThemeData getMarkerSegmentedButtonTheme() {
+  return SegmentedButtonThemeData(style: markerSegmentedButtonStyle());
+}
+
+const segmentedButtonStyle = ButtonStyle(
+  visualDensity: VisualDensity(horizontal: -3, vertical: -3),
+  shape: WidgetStatePropertyAll(appButtonShape),
+  textStyle: WidgetStatePropertyAll(TextStyle(fontSize: 12)),
+  padding: WidgetStatePropertyAll(.symmetric(horizontal: 10)),
+);
+
+const segmentedButtonTheme = SegmentedButtonThemeData(
+  style: segmentedButtonStyle,
+);
+
 ThemeData focusTheme = ThemeData(
   colorScheme: ColorScheme.fromSeed(
     seedColor: focusRangeColor,
@@ -41,8 +86,9 @@ ThemeData focusTheme = ThemeData(
 );
 
 ThemeData paleButtonTheme = ThemeData(
-  colorScheme:
-      ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 128, 170, 190)),
+  colorScheme: ColorScheme.fromSeed(
+    seedColor: const Color.fromARGB(255, 128, 170, 190),
+  ),
   textButtonTheme: const TextButtonThemeData(style: buttonStyle),
   iconButtonTheme: const IconButtonThemeData(style: buttonStyle),
   buttonTheme: const ButtonThemeData(shape: appButtonShape),
@@ -138,6 +184,7 @@ ThemeData getEnjoyerTheme() {
     ),
     textButtonTheme: const TextButtonThemeData(style: buttonStyle),
     iconButtonTheme: const IconButtonThemeData(style: buttonStyle),
+    segmentedButtonTheme: segmentedButtonTheme,
     buttonTheme: const ButtonThemeData(shape: appButtonShape),
     useMaterial3: true,
   );
@@ -184,6 +231,7 @@ ThemeData getPhriendsTheme() {
     ),
     textButtonTheme: const TextButtonThemeData(style: buttonStyle),
     iconButtonTheme: const IconButtonThemeData(style: buttonStyle),
+    segmentedButtonTheme: segmentedButtonTheme,
     buttonTheme: const ButtonThemeData(shape: appButtonShape),
     useMaterial3: true,
   );
@@ -204,6 +252,7 @@ ThemeData getEnjoyerThemeGray() {
     ),
     textButtonTheme: const TextButtonThemeData(style: buttonStyle),
     iconButtonTheme: const IconButtonThemeData(style: buttonStyle),
+    segmentedButtonTheme: segmentedButtonTheme,
     buttonTheme: const ButtonThemeData(shape: appButtonShape),
     useMaterial3: true,
   );
@@ -224,6 +273,7 @@ ThemeData getEnjoyerThemeBlack() {
     ),
     textButtonTheme: const TextButtonThemeData(style: buttonStyle),
     iconButtonTheme: const IconButtonThemeData(style: buttonStyle),
+    segmentedButtonTheme: segmentedButtonTheme,
     buttonTheme: const ButtonThemeData(shape: appButtonShape),
     useMaterial3: true,
   );
