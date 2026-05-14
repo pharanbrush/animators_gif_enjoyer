@@ -637,6 +637,8 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                                   menu: menu,
                                 );
 
+                                menu.addSeparator();
+
                                 final frameBaseContext = FrameBaseContext.of(
                                   context,
                                 );
