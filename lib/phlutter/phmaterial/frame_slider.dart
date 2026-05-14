@@ -182,6 +182,7 @@ class _FrameSliderState extends State<FrameSlider> {
         widget.hoverColor ?? colorScheme.primary.withValues(alpha: 0.4);
     final markerColor = widget.markerColor ?? Colors.orange;
     final markerInactiveColor = markerColor.withValues(alpha: 0.4);
+    final hoveredMarkerColor = markerColor.withValues(alpha: .8);
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -265,6 +266,7 @@ class _FrameSliderState extends State<FrameSlider> {
                           inactiveColor: inactiveColor,
                           hoverColor: hoverColor,
                           markerColor: markerColor,
+                          hoveredMarkerColor: hoveredMarkerColor,
                           markerInactiveColor: markerInactiveColor,
                           frameMarkers: widget.frameMarkers,
                           dividerColor: colorScheme.outlineVariant,
@@ -291,6 +293,7 @@ class _DiscreteSliderPainter extends CustomPainter {
   final Color activeColor;
   final Color inactiveColor;
   final Color hoverColor;
+  final Color hoveredMarkerColor;
   final Color markerColor;
   final Color markerInactiveColor;
   final Iterable<int>? frameMarkers;
@@ -308,6 +311,7 @@ class _DiscreteSliderPainter extends CustomPainter {
     required this.activeColor,
     required this.inactiveColor,
     required this.hoverColor,
+    required this.hoveredMarkerColor,
     required this.markerColor,
     required this.markerInactiveColor,
     required this.frameMarkers,
@@ -367,7 +371,7 @@ class _DiscreteSliderPainter extends CustomPainter {
       if (isSelected) {
         fillColor = isMarkerFrame ? markerColor : activeColor;
       } else if (isHovered) {
-        fillColor = hoverColor;
+        fillColor = isMarkerFrame ? hoveredMarkerColor : hoverColor;
       } else {
         fillColor = isMarkerFrame ? markerInactiveColor : inactiveColor;
       }
