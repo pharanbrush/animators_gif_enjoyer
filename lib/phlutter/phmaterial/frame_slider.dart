@@ -163,6 +163,12 @@ class _FrameSliderState extends State<FrameSlider> {
     return squareWidth < widget.minCellWidth;
   }
 
+  void _updateHoveredIndex(Offset localPosition, double squareWidth) {
+    setState(() {
+      _hoveredIndex = _findValueFromPosition(localPosition, squareWidth);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final itemCount = widget.max - widget.min + 1;
@@ -176,33 +182,12 @@ class _FrameSliderState extends State<FrameSlider> {
         widget.hoverColor ?? colorScheme.primary.withValues(alpha: 0.4);
     final markerColor = widget.markerColor ?? Colors.orange;
     final markerInactiveColor = markerColor.withValues(alpha: 0.4);
-    final markerTrackColors = (
-      hover: markerColor,
-      inactive: markerInactiveColor,
-    );
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final totalWidth = constraints.maxWidth;
         final squareWidth = totalWidth / itemCount;
         final useContinuous = willUseContinuous(squareWidth);
-
-        Widget continuousSlider() => CustomPaint(
-          painter: _ContinuousSliderPainter(
-            min: widget.min,
-            max: widget.max,
-            value: widget.value,
-            activeColor: activeColor,
-            inactiveColor: inactiveColor,
-            markerColor: markerInactiveColor,
-            activeMarkerColor: markerColor,
-            cellHeight: widget.cellHeight,
-            selectedCellHeight: widget.selectedCellHeight,
-            borderRadius: widget.borderRadius,
-            frameMarkers: widget.frameMarkers,
-            thumbWidth: widget.borderRadius * 2,
-          ),
-        );
 
         return Focus(
           focusNode: _focusNode,
@@ -242,71 +227,188 @@ class _FrameSliderState extends State<FrameSlider> {
             onSecondaryTapCancel: () => _isDragging = false,
             child: SizedBox(
               height: widget.hitHeight,
-              child: useContinuous
-                  ? continuousSlider()
-                  : Row(
-                      children: List.generate(itemCount, (index) {
-                        final boxValue = widget.min + index;
-                        final isSelected = boxValue == widget.value;
-                        final isHovered = _hoveredIndex == index;
-
-                        BorderRadius radius = BorderRadius.zero;
-                        final r = Radius.circular(widget.borderRadius);
-
-                        if (isSelected) {
-                          radius = BorderRadius.all(r);
-                        } else if (index == 0) {
-                          radius = BorderRadius.horizontal(left: r);
-                        } else if (index == itemCount - 1) {
-                          radius = BorderRadius.horizontal(right: r);
-                        }
-
-                        final isMarkerFrame =
-                            widget.frameMarkers?.contains(boxValue) ?? false;
-
-                        final overrideColors =
-                            (isMarkerFrame ? markerTrackColors : null) ??
-                            const (hover: null, inactive: null);
-
-                        return Expanded(
-                          child: MouseRegion(
-                            onEnter: (_) =>
-                                setState(() => _hoveredIndex = index),
-                            onExit: (_) => setState(() => _hoveredIndex = null),
-                            child: Padding(
-                              padding: const EdgeInsets.only(right: 1),
-                              child: Align(
-                                alignment: Alignment.center,
-                                child: Container(
-                                  height: isSelected
-                                      ? widget.selectedCellHeight
-                                      : widget.cellHeight,
-                                  decoration: BoxDecoration(
-                                    color: isSelected
-                                        ? (isMarkerFrame
-                                              ? markerColor
-                                              : activeColor)
-                                        : isHovered
-                                        ? (_isDragging
-                                                  ? inactiveColor
-                                                  : overrideColors.hover) ??
-                                              hoverColor
-                                        : overrideColors.inactive ??
-                                              inactiveColor,
-                                    borderRadius: radius,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      }),
-                    ),
+              child: MouseRegion(
+                onEnter: (event) =>
+                    _updateHoveredIndex(event.localPosition, squareWidth),
+                onHover: (event) =>
+                    _updateHoveredIndex(event.localPosition, squareWidth),
+                onExit: (_) => setState(() => _hoveredIndex = null),
+                child: useContinuous
+                    ? CustomPaint(
+                        painter: _ContinuousSliderPainter(
+                          min: widget.min,
+                          max: widget.max,
+                          value: widget.value,
+                          activeColor: activeColor,
+                          inactiveColor: inactiveColor,
+                          markerColor: markerInactiveColor,
+                          activeMarkerColor: markerColor,
+                          cellHeight: widget.cellHeight,
+                          selectedCellHeight: widget.selectedCellHeight,
+                          borderRadius: widget.borderRadius,
+                          frameMarkers: widget.frameMarkers,
+                          thumbWidth: widget.borderRadius * 2,
+                        ),
+                      )
+                    : CustomPaint(
+                        painter: _DiscreteSliderPainter(
+                          min: widget.min,
+                          max: widget.max,
+                          value: widget.value,
+                          hoveredIndex: _isDragging
+                              ? widget.value
+                              : _hoveredIndex,
+                          cellHeight: widget.cellHeight,
+                          selectedCellHeight: widget.selectedCellHeight,
+                          borderRadius: widget.borderRadius,
+                          activeColor: activeColor,
+                          inactiveColor: inactiveColor,
+                          hoverColor: hoverColor,
+                          markerColor: markerColor,
+                          markerInactiveColor: markerInactiveColor,
+                          frameMarkers: widget.frameMarkers,
+                          dividerColor: colorScheme.outlineVariant,
+                          dividerWidth: 1,
+                        ),
+                      ),
+              ),
             ),
           ),
         );
       },
     );
+  }
+}
+
+class _DiscreteSliderPainter extends CustomPainter {
+  final int min;
+  final int max;
+  final int value;
+  final int? hoveredIndex;
+  final double cellHeight;
+  final double selectedCellHeight;
+  final double borderRadius;
+  final Color activeColor;
+  final Color inactiveColor;
+  final Color hoverColor;
+  final Color markerColor;
+  final Color markerInactiveColor;
+  final Iterable<int>? frameMarkers;
+  final Color dividerColor;
+  final double dividerWidth;
+
+  _DiscreteSliderPainter({
+    required this.min,
+    required this.max,
+    required this.value,
+    required this.hoveredIndex,
+    required this.cellHeight,
+    required this.selectedCellHeight,
+    required this.borderRadius,
+    required this.activeColor,
+    required this.inactiveColor,
+    required this.hoverColor,
+    required this.markerColor,
+    required this.markerInactiveColor,
+    required this.frameMarkers,
+    this.dividerColor = Colors.black,
+    this.dividerWidth = 1.0,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final itemCount = max - min + 1;
+    final squareWidth = size.width / itemCount;
+    final r = Radius.circular(borderRadius);
+
+    // Track
+    final trackTop = (size.height - cellHeight) / 2;
+    final trackPaint = Paint()..color = inactiveColor;
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromLTWH(0, trackTop, size.width, cellHeight),
+        r,
+      ),
+      trackPaint,
+    );
+
+    // Special and selected cells
+    for (int i = 0; i < itemCount; i++) {
+      final boxValue = min + i;
+      final isSelected = boxValue == value;
+      final isHovered = hoveredIndex == i;
+      final isMarkerFrame = frameMarkers?.contains(boxValue) ?? false;
+      if (!isSelected && !isHovered && !isMarkerFrame) continue;
+
+      final cellHeight = isSelected ? selectedCellHeight : this.cellHeight;
+      final cellTop = (size.height - cellHeight) / 2;
+
+      final rect = Rect.fromLTWH(
+        i * squareWidth,
+        cellTop,
+        squareWidth,
+        cellHeight,
+      );
+
+      BorderRadius radius = BorderRadius.zero;
+      if (isSelected) {
+        radius = BorderRadius.all(r);
+      } else if (i == 0) {
+        radius = BorderRadius.horizontal(left: r);
+      } else if (i == itemCount - 1) {
+        radius = BorderRadius.horizontal(right: r);
+      }
+
+      Color fillColor;
+      if (isSelected) {
+        fillColor = isMarkerFrame ? markerColor : activeColor;
+      } else if (isHovered) {
+        fillColor = hoverColor;
+      } else {
+        fillColor = isMarkerFrame ? markerInactiveColor : inactiveColor;
+      }
+
+      final paint = Paint()..color = fillColor;
+      final rrect = RRect.fromRectAndCorners(
+        rect,
+        topLeft: radius.topLeft,
+        topRight: radius.topRight,
+        bottomLeft: radius.bottomLeft,
+        bottomRight: radius.bottomRight,
+      );
+      canvas.drawRRect(rrect, paint);
+    }
+
+    // Dividers
+    final beforeSelectedBoxValue = value - min - 1;
+    for (int i = 0; i < itemCount; i++) {
+      if (i == beforeSelectedBoxValue) {
+        // Skip this line and the next one to remove the lines on both sides of the selected box.
+        i++;
+        continue;
+      }
+
+      if (i < itemCount - 1) {
+        final linePaint = Paint()
+          ..color = dividerColor
+          ..strokeWidth = dividerWidth;
+        final x = (i + 1) * squareWidth;
+        canvas.drawLine(
+          Offset(x, trackTop + 1),
+          Offset(x, trackTop + cellHeight - 1),
+          linePaint,
+        );
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _DiscreteSliderPainter old) {
+    return old.value != value ||
+        old.hoveredIndex != hoveredIndex ||
+        old.frameMarkers != frameMarkers ||
+        old.dividerColor != dividerColor ||
+        old.dividerWidth != dividerWidth;
   }
 }
 
