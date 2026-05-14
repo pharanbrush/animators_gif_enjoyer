@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:nativeapi/nativeapi.dart';
 
 import '../app/theme.dart';
+import '../main_screen/menu_items.dart';
 import '../phlutter/phmaterial/frame_slider.dart';
 import '../phlutter/phmaterial/material_desktop.dart';
 import '../phlutter/widget/preferences_stored_bool.dart';
@@ -206,20 +208,25 @@ class MainSlider extends StatelessWidget {
       },
     );
 
+    final firstFrame = primarySliderRange.startInt + displayedFrameOffset;
+    final lastFrame = primarySliderRange.endInt + displayedFrameOffset;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        ToggleFocusButton(
-          label: '${(primarySliderRange.startInt + displayedFrameOffset)}',
-          handleToggle: () => toggleUseFocus(),
-          isFocusing: isUsingFocusRange.value,
+        StartEndFrameButton(
+          label: firstFrame.toString(),
+          onClick: () => currentFrame.value = firstFrame,
+          onTriggerCustomFrameRange: () => toggleUseFocus(),
+          isCustomFrameRangeEnabled: isUsingFocusRange.value,
           enabled: enabled,
         ),
         sliderPart(),
-        ToggleFocusButton(
-          label: '${(primarySliderRange.endInt + displayedFrameOffset)}',
-          handleToggle: () => toggleUseFocus(),
-          isFocusing: isUsingFocusRange.value,
+        StartEndFrameButton(
+          label: lastFrame.toString(),
+          onClick: () => currentFrame.value = lastFrame,
+          onTriggerCustomFrameRange: () => toggleUseFocus(),
+          isCustomFrameRangeEnabled: isUsingFocusRange.value,
           enabled: enabled,
         ),
       ],
@@ -227,39 +234,49 @@ class MainSlider extends StatelessWidget {
   }
 }
 
-class ToggleFocusButton extends StatelessWidget {
-  const ToggleFocusButton({
+class StartEndFrameButton extends StatelessWidget {
+  const StartEndFrameButton({
     super.key,
     required this.label,
-    required this.handleToggle,
-    required this.isFocusing,
+    required this.onClick,
+    required this.onTriggerCustomFrameRange,
+    required this.isCustomFrameRangeEnabled,
     required this.enabled,
   });
 
   final String label;
-  final VoidCallback handleToggle;
-  final bool isFocusing;
+  final VoidCallback onClick;
+  final VoidCallback onTriggerCustomFrameRange;
+  final bool isCustomFrameRangeEnabled;
   final bool enabled;
 
   @override
   Widget build(BuildContext context) {
     const customFocusStyle = TextStyle(color: focusRangeColor);
 
-    return Tooltip(
-      preferBelow: false,
-      message: !enabled
-          ? ''
-          : isFocusing
-          ? 'Click to disable frame range'
-          : 'Click to use custom frame range',
+    return GestureDetector(
+      onSecondaryTap: () {
+        Menu()
+          ..addMenuItem(
+            isCustomFrameRangeEnabled
+                ? "Disable custom frame range"
+                : "Enable custom frame range",
+            onClick: onTriggerCustomFrameRange,
+          )
+          ..open(.cursorPosition());
+      },
+      onTertiaryTapDown: (_) => onTriggerCustomFrameRange(),
       child: TextButton(
         style: const ButtonStyle(
-          padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 0)),
+          padding: WidgetStatePropertyAll(.symmetric(horizontal: 0)),
+          minimumSize: WidgetStatePropertyAll(Size(50, 40)),
         ),
-        onPressed: enabled ? handleToggle : null,
+        onPressed: enabled ? onClick : null,
         child: Text(
           label,
-          style: isFocusing ? customFocusStyle : Theme.of(context).grayStyle,
+          style: isCustomFrameRangeEnabled
+              ? customFocusStyle
+              : Theme.of(context).grayStyle,
         ),
       ),
     );
