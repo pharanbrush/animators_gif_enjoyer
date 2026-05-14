@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../app/theme.dart';
 import '../phlutter/phmaterial/frame_slider.dart';
+import '../phlutter/phmaterial/material_desktop.dart';
 import '../phlutter/widget/preferences_stored_bool.dart';
 import '../phlutter/widget/scroll_listener.dart';
 
@@ -33,6 +34,7 @@ class FrameRangeSlider extends StatelessWidget {
       disabledThumbRadius: 3,
       enabledThumbRadius: 4,
     ),
+    rangeThumbShape: VerticalPillRangeSliderThumbShape(),
   );
 
   @override

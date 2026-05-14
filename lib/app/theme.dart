@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 
+import '../phlutter/phmaterial/material_desktop.dart';
+
 // Settings
 
 const bool _cacheThemes = true;
@@ -182,6 +184,11 @@ ThemeData getEnjoyerTheme() {
       tertiary: defaultActiveColor,
       scrim: const Color(0xDD000000),
     ),
+    sliderTheme: const SliderThemeData(
+      thumbShape: VerticalPillSliderThumbShape(),
+      rangeThumbShape: VerticalPillRangeSliderThumbShape(),
+    ),
+
     textButtonTheme: const TextButtonThemeData(style: buttonStyle),
     iconButtonTheme: const IconButtonThemeData(style: buttonStyle),
     segmentedButtonTheme: segmentedButtonTheme,
@@ -228,6 +235,8 @@ ThemeData getPhriendsTheme() {
     tooltipTheme: tooltipTheme,
     sliderTheme: const SliderThemeData(
       inactiveTrackColor: sliderInactiveTrackColor,
+      thumbShape: VerticalPillSliderThumbShape(),
+      rangeThumbShape: VerticalPillRangeSliderThumbShape(),
     ),
     textButtonTheme: const TextButtonThemeData(style: buttonStyle),
     iconButtonTheme: const IconButtonThemeData(style: buttonStyle),
@@ -250,6 +259,10 @@ ThemeData getEnjoyerThemeGray() {
       tertiary: defaultActiveColor,
       scrim: const Color(0xDD000000),
     ),
+    sliderTheme: const SliderThemeData(
+      thumbShape: VerticalPillSliderThumbShape(),
+      rangeThumbShape: VerticalPillRangeSliderThumbShape(),
+    ),
     textButtonTheme: const TextButtonThemeData(style: buttonStyle),
     iconButtonTheme: const IconButtonThemeData(style: buttonStyle),
     segmentedButtonTheme: segmentedButtonTheme,
@@ -270,6 +283,10 @@ ThemeData getEnjoyerThemeBlack() {
       primary: interfaceColor,
       tertiary: defaultActiveColor,
       scrim: const Color(0xDD000000),
+    ),
+    sliderTheme: const SliderThemeData(
+      thumbShape: VerticalPillSliderThumbShape(),
+      rangeThumbShape: VerticalPillRangeSliderThumbShape(),
     ),
     textButtonTheme: const TextButtonThemeData(style: buttonStyle),
     iconButtonTheme: const IconButtonThemeData(style: buttonStyle),
