@@ -54,21 +54,22 @@ mixin FrameMarker {
     return frameMarkers.contains(frameNumber);
   }
 
-  void clearMarkers({bool undoable = false}) {
+  void userClearMarkers() {
     if (!allowEditMarker) return;
     if (frameMarkers.isEmpty) return;
 
-    if (undoable) {
-      doChange(
-        Change<Iterable<int>>(
-          [...frameMarkers], // copy
-          () => _doClearMarkers(),
-          (oldValue) => _doSetMarkers(oldValue),
-        ),
-      );
-    } else {
-      _doClearMarkers();
-    }
+    doChange(
+      Change<Iterable<int>>(
+        [...frameMarkers], // copy
+        () => _doClearMarkers(),
+        (oldValue) => _doSetMarkers(oldValue),
+      ),
+    );
+  }
+
+  void clearMarkersInternal() {
+    if (frameMarkers.isEmpty) return;
+    _doClearMarkers();
   }
 
   void _doAddMarker(int frameNumber) {

@@ -194,7 +194,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
   @override
   void onFileLoadSuccess() {
     super.onFileLoadSuccess();
-    clearMarkers(undoable: false);
+    clearMarkersInternal();
     clearUndoHistory();
     zoomLevelNotifier.value = ScrollZoomContainer.defaultZoom;
     currentOpenFilename.value = loadedAnimationInfo.sourceName;
@@ -773,7 +773,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                               tooltip: "Delete all markers",
                               icon: Icon(FluentIcons.delete_16_regular),
                               onPressed: isScrubModeValue
-                                  ? () => clearMarkers(undoable: true)
+                                  ? () => userClearMarkers()
                                   : null,
                             ),
                           );
