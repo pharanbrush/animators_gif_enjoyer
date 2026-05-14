@@ -332,13 +332,17 @@ class _DiscreteSliderPainter extends CustomPainter {
       trackPaint,
     );
 
-    // Special and selected cells
-    for (int i = 0; i < itemCount; i++) {
-      final boxValue = min + i;
-      final isSelected = boxValue == value;
-      final isHovered = hoveredIndex == i;
-      final isMarkerFrame = frameMarkers?.contains(boxValue) ?? false;
-      if (!isSelected && !isHovered && !isMarkerFrame) continue;
+    // Boxes
+    const firstBox = 0;
+    final lastBox = itemCount - 1;
+    void drawBox(
+      int boxValue, {
+      bool isSelected = false,
+      bool isHovered = false,
+      bool isMarkerFrame = false,
+    }) {
+      final i = boxValue - min;
+      if (!isSelected && !isHovered && !isMarkerFrame) return;
 
       final cellHeight = isSelected ? selectedCellHeight : this.cellHeight;
       final cellTop = (size.height - cellHeight) / 2;
@@ -353,9 +357,9 @@ class _DiscreteSliderPainter extends CustomPainter {
       BorderRadius radius = BorderRadius.zero;
       if (isSelected) {
         radius = BorderRadius.all(r);
-      } else if (i == 0) {
+      } else if (i == firstBox) {
         radius = BorderRadius.horizontal(left: r);
-      } else if (i == itemCount - 1) {
+      } else if (i == lastBox) {
         radius = BorderRadius.horizontal(right: r);
       }
 
@@ -379,6 +383,29 @@ class _DiscreteSliderPainter extends CustomPainter {
       canvas.drawRRect(rrect, paint);
     }
 
+    // Markers
+    final markers = frameMarkers;
+    if (markers != null) {
+      for (final frameNumber in markers) {
+        if (frameNumber == hoveredIndex) continue;
+        if (frameNumber == value) continue;
+        drawBox(
+          frameNumber,
+          isMarkerFrame: true,
+          isHovered: false,
+        );
+      }
+    }
+
+    // Hovered
+    if (hoveredIndex != null) {
+      drawBox(
+        hoveredIndex!,
+        isHovered: true,
+        isMarkerFrame: markers?.contains(hoveredIndex!) ?? false,
+      );
+    }
+
     // Dividers
     final beforeSelectedBoxValue = value - min - 1;
     for (int i = 0; i < itemCount; i++) {
@@ -400,6 +427,14 @@ class _DiscreteSliderPainter extends CustomPainter {
         );
       }
     }
+
+    // Selected
+    drawBox(
+      value,
+      isSelected: true,
+      isHovered: value == hoveredIndex,
+      isMarkerFrame: markers?.contains(value) ?? false,
+    );
   }
 
   @override
