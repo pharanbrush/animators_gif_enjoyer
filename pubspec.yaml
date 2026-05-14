@@ -54,6 +54,7 @@ dependencies:
   proper_filesize: ^1.0.2
   path: ^1.9.1
   nativeapi: ^0.1.1
+  undo: ^1.6.0
 
 dev_dependencies:
   flutter_test:
