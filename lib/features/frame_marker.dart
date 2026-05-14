@@ -8,7 +8,10 @@ mixin FrameMarker {
   final frameMarkers = <int>{};
   final snapMode = ValueNotifier(SnapMode.nearest);
 
+  bool get allowEditMarker;
+
   void addMarker(int frameNumber) {
+    if (!allowEditMarker) return;
     final changed = frameMarkers.add(frameNumber);
     if (changed) {
       frameMarkersChanged.notify();
@@ -17,6 +20,7 @@ mixin FrameMarker {
   }
 
   void removeMarker(int frameNumber) {
+    if (!allowEditMarker) return;
     final changed = frameMarkers.remove(frameNumber);
     if (changed) {
       frameMarkersChanged.notify();
@@ -37,6 +41,7 @@ mixin FrameMarker {
   }
 
   void clearMarkers() {
+    if (!allowEditMarker) return;
     if (frameMarkers.isEmpty) return;
     frameMarkers.clear();
     frameMarkersChanged.notify();

@@ -119,6 +119,9 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
   late GifEnjoyerMainPageStateShortcuts shortcuts =
       GifEnjoyerMainPageStateShortcuts(this);
 
+  @override
+  bool get allowEditMarker => isImageLoaded && !isAppBusy && !isPlaying;
+
   bool get isAppBusy =>
       (inProgressExport != null) || (inProgressLoadingProcess != null);
 
