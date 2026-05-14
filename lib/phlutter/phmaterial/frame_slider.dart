@@ -49,9 +49,22 @@ class FrameSlider extends StatefulWidget {
 
 class _FrameSliderState extends State<FrameSlider> {
   int? _hoveredIndex;
+  late FocusNode _focusNode;
 
   bool get enabled => widget.onChanged != null;
   bool _isDragging = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
 
   int _findValueFromPosition(
     Offset localPosition,
@@ -191,98 +204,105 @@ class _FrameSliderState extends State<FrameSlider> {
           ),
         );
 
-        return GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onPanDown: enabled
-              ? (details) => _updateValue(
-                  details.localPosition,
-                  squareWidth,
-                  useContinuous,
-                )
-              : null,
-          onPanUpdate: enabled
-              ? (details) => _updateValue(
-                  details.localPosition,
-                  squareWidth,
-                  useContinuous,
-                )
-              : null,
-          onPanEnd: (details) => _isDragging = false,
-          onPanCancel: () => _isDragging = false,
-          onSecondaryTapDown: enabled
-              ? (details) {
-                  if (widget.onSecondaryTapOnFrame == null) return;
-                  final frame = _findValueFromPosition(
+        return Focus(
+          focusNode: _focusNode,
+          child: GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onPanDown: enabled
+                ? (details) => _updateValue(
                     details.localPosition,
                     squareWidth,
-                    useSnap: true,
-                  );
-                  widget.onSecondaryTapOnFrame?.call(frame);
-                }
-              : null,
-          onSecondaryTapUp: (_) => _isDragging = false,
-          onSecondaryTapCancel: () => _isDragging = false,
-          child: SizedBox(
-            height: widget.hitHeight,
-            child: useContinuous
-                ? continuousSlider()
-                : Row(
-                    children: List.generate(itemCount, (index) {
-                      final boxValue = widget.min + index;
-                      final isSelected = boxValue == widget.value;
-                      final isHovered = _hoveredIndex == index;
+                    useContinuous,
+                  )
+                : null,
+            onPanUpdate: enabled
+                ? (details) => _updateValue(
+                    details.localPosition,
+                    squareWidth,
+                    useContinuous,
+                  )
+                : null,
+            onPanEnd: (details) {
+              _focusNode.requestFocus();
+              _isDragging = false;
+            },
+            onPanCancel: () => _isDragging = false,
+            onSecondaryTapDown: enabled
+                ? (details) {
+                    if (widget.onSecondaryTapOnFrame == null) return;
+                    final frame = _findValueFromPosition(
+                      details.localPosition,
+                      squareWidth,
+                      useSnap: true,
+                    );
+                    widget.onSecondaryTapOnFrame?.call(frame);
+                  }
+                : null,
+            onSecondaryTapUp: (_) => _isDragging = false,
+            onSecondaryTapCancel: () => _isDragging = false,
+            child: SizedBox(
+              height: widget.hitHeight,
+              child: useContinuous
+                  ? continuousSlider()
+                  : Row(
+                      children: List.generate(itemCount, (index) {
+                        final boxValue = widget.min + index;
+                        final isSelected = boxValue == widget.value;
+                        final isHovered = _hoveredIndex == index;
 
-                      BorderRadius radius = BorderRadius.zero;
-                      final r = Radius.circular(widget.borderRadius);
+                        BorderRadius radius = BorderRadius.zero;
+                        final r = Radius.circular(widget.borderRadius);
 
-                      if (isSelected) {
-                        radius = BorderRadius.all(r);
-                      } else if (index == 0) {
-                        radius = BorderRadius.horizontal(left: r);
-                      } else if (index == itemCount - 1) {
-                        radius = BorderRadius.horizontal(right: r);
-                      }
+                        if (isSelected) {
+                          radius = BorderRadius.all(r);
+                        } else if (index == 0) {
+                          radius = BorderRadius.horizontal(left: r);
+                        } else if (index == itemCount - 1) {
+                          radius = BorderRadius.horizontal(right: r);
+                        }
 
-                      final isMarkerFrame =
-                          widget.frameMarkers?.contains(boxValue) ?? false;
+                        final isMarkerFrame =
+                            widget.frameMarkers?.contains(boxValue) ?? false;
 
-                      final overrideColors =
-                          (isMarkerFrame ? markerTrackColors : null) ??
-                          const (hover: null, inactive: null);
+                        final overrideColors =
+                            (isMarkerFrame ? markerTrackColors : null) ??
+                            const (hover: null, inactive: null);
 
-                      return Expanded(
-                        child: MouseRegion(
-                          onEnter: (_) => setState(() => _hoveredIndex = index),
-                          onExit: (_) => setState(() => _hoveredIndex = null),
-                          child: Padding(
-                            padding: const EdgeInsets.only(right: 1),
-                            child: Align(
-                              alignment: Alignment.center,
-                              child: Container(
-                                height: isSelected
-                                    ? widget.selectedCellHeight
-                                    : widget.cellHeight,
-                                decoration: BoxDecoration(
-                                  color: isSelected
-                                      ? (isMarkerFrame
-                                            ? markerColor
-                                            : activeColor)
-                                      : isHovered
-                                      ? (_isDragging
-                                                ? inactiveColor
-                                                : overrideColors.hover) ??
-                                            hoverColor
-                                      : overrideColors.inactive ??
-                                            inactiveColor,
-                                  borderRadius: radius,
+                        return Expanded(
+                          child: MouseRegion(
+                            onEnter: (_) =>
+                                setState(() => _hoveredIndex = index),
+                            onExit: (_) => setState(() => _hoveredIndex = null),
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 1),
+                              child: Align(
+                                alignment: Alignment.center,
+                                child: Container(
+                                  height: isSelected
+                                      ? widget.selectedCellHeight
+                                      : widget.cellHeight,
+                                  decoration: BoxDecoration(
+                                    color: isSelected
+                                        ? (isMarkerFrame
+                                              ? markerColor
+                                              : activeColor)
+                                        : isHovered
+                                        ? (_isDragging
+                                                  ? inactiveColor
+                                                  : overrideColors.hover) ??
+                                              hoverColor
+                                        : overrideColors.inactive ??
+                                              inactiveColor,
+                                    borderRadius: radius,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      );
-                    }),
-                  ),
+                        );
+                      }),
+                    ),
+            ),
           ),
         );
       },
