@@ -346,6 +346,7 @@ class _DiscreteSliderPainter extends CustomPainter {
       bool isMarkerFrame = false,
     }) {
       final i = boxValue - min;
+      if (i < firstBox || i > lastBox) return;
       if (!isSelected && !isHovered && !isMarkerFrame) return;
 
       final cellHeight = isSelected ? selectedCellHeight : this.cellHeight;
