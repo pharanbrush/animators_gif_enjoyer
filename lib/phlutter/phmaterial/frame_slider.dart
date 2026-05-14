@@ -125,6 +125,7 @@ class _FrameSliderState extends State<FrameSlider> {
       snapMode = .force;
     }
 
+    bool willSnap = false;
     if (snapMode != .none) {
       final frameMarkers = widget.frameMarkers;
       if (frameMarkers != null && frameMarkers.isNotEmpty) {
@@ -133,22 +134,27 @@ class _FrameSliderState extends State<FrameSlider> {
         });
 
         // Snap within distance
+
         if (snapMode == .nearest) {
           if (useSpaceBasedSnap) {
+            const snapThresholdPixels = 10.0;
             final nearestMarkerPosition = (nearestMarker - min) * squareWidth;
             final newValuePosition = (newValue - min) * squareWidth;
-            const snapThresholdPixels = 10.0;
             if ((nearestMarkerPosition - newValuePosition).abs() <=
                 snapThresholdPixels) {
-              newValue = nearestMarker;
+              willSnap = true;
             }
           } else {
-            const snapThreshold = 2;
-            if ((nearestMarker - newValue).abs() <= snapThreshold) {
-              newValue = nearestMarker;
+            final snapThresholdBoxes = (20.0 / squareWidth).ceil();
+            if ((nearestMarker - newValue).abs() <= snapThresholdBoxes) {
+              willSnap = true;
             }
           }
         } else {
+          willSnap = true;
+        }
+
+        if (willSnap) {
           newValue = nearestMarker;
         }
       }
