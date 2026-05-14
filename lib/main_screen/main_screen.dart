@@ -986,7 +986,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
             loadedAnimationInfo.frameDuration == null;
 
         String getImageDimensionsLabel() {
-          return '${loadedAnimationInfo.width}x${loadedAnimationInfo.height}px';
+          return '${loadedAnimationInfo.width}×${loadedAnimationInfo.height} px';
         }
 
         final bytecount = loadedAnimationInfo.filesizeByteCount;
