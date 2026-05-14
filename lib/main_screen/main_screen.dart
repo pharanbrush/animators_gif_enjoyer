@@ -41,6 +41,7 @@ import 'package:undo/undo.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '../features/frame_marker.dart';
+import '../phlutter/phmaterial/hover_container.dart';
 import '../phlutter/widget/sized_box_fitted.dart';
 
 class MyApp extends StatelessWidget {
@@ -348,27 +349,31 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
 
         return Positioned(
           left: 0,
-          top: 0,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: 2,
-              horizontal: 2,
-            ),
-            child: TooltipTheme(
-              data: Theme.of(context).tooltipTheme.copyWith(
-                verticalOffset: 35,
-                waitDuration: delayedTooltipDelay,
+          top: 4,
+          child: HoverContainer(
+            hoverBackgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            borderRadius: .horizontal(right: app_theme.borderRadiusRadius),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                vertical: 5,
+                horizontal: 3,
               ),
-              child: TextButtonTheme(
-                data: textButtonTheme,
-                child: IconButtonTheme(
-                  data: iconButtonTheme,
-                  child: Column(
-                    children: [
-                      cycleThemeButton(),
-                      if (isImageLoaded) cyclePlaybackSpeedButton(),
-                      if (isImageLoaded) zoomButton(),
-                    ],
+              child: TooltipTheme(
+                data: Theme.of(context).tooltipTheme.copyWith(
+                  verticalOffset: 40,
+                  waitDuration: delayedTooltipDelay,
+                ),
+                child: TextButtonTheme(
+                  data: textButtonTheme,
+                  child: IconButtonTheme(
+                    data: iconButtonTheme,
+                    child: Column(
+                      children: [
+                        cycleThemeButton(),
+                        if (isImageLoaded) cyclePlaybackSpeedButton(),
+                        if (isImageLoaded) zoomButton(),
+                      ],
+                    ),
                   ),
                 ),
               ),

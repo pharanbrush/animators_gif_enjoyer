@@ -28,8 +28,9 @@ const Color markerColor = Colors.orange;
 
 const double borderRadius = 5;
 const Radius borderRadiusRadius = Radius.circular(borderRadius);
+const borderRadiusBorderRadius = BorderRadius.all(borderRadiusRadius);
 const OutlinedBorder appButtonShape = RoundedRectangleBorder(
-  borderRadius: BorderRadius.all(borderRadiusRadius),
+  borderRadius: borderRadiusBorderRadius,
 );
 
 const ButtonStyle buttonStyle = ButtonStyle(
