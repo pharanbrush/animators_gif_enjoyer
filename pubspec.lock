@@ -918,6 +918,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.0"
+  undo:
+    dependency: "direct main"
+    description:
+      name: undo
+      sha256: "5c30ec5f993549b3179a8ca1480e16c219e9c9cbccb7b3561752b043b4d439e0"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.6.0"
   universal_platform:
     dependency: transitive
     description:

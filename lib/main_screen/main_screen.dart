@@ -37,6 +37,7 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:nativeapi/nativeapi.dart' hide Image;
 import 'package:proper_filesize/proper_filesize.dart' as proper_filesize;
+import 'package:undo/undo.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '../features/frame_marker.dart';
@@ -104,6 +105,7 @@ const bool isPlayOnLoad = true;
 class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
     with
         SingleTickerProviderStateMixin,
+        Undoer,
         WindowListener,
         SnackbarShower,
         FrameBaseStorer,
@@ -192,7 +194,8 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
   @override
   void onFileLoadSuccess() {
     super.onFileLoadSuccess();
-    clearMarkers();
+    clearMarkers(undoable: false);
+    clearUndoHistory();
     zoomLevelNotifier.value = ScrollZoomContainer.defaultZoom;
     currentOpenFilename.value = loadedAnimationInfo.sourceName;
   }
@@ -770,7 +773,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                               tooltip: "Delete all markers",
                               icon: Icon(FluentIcons.delete_16_regular),
                               onPressed: isScrubModeValue
-                                  ? () => clearMarkers()
+                                  ? () => clearMarkers(undoable: true)
                                   : null,
                             ),
                           );
@@ -1356,6 +1359,26 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
       app_theme.getNextCycleTheme(currentValue);
 }
 
+mixin Undoer {
+  final changes = ChangeStack();
+
+  void undo() {
+    changes.undo();
+  }
+
+  void redo() {
+    changes.redo();
+  }
+
+  void doChange(Change change) {
+    changes.add(change);
+  }
+
+  void clearUndoHistory() {
+    changes.clearHistory();
+  }
+}
+
 class GifEnjoyerMainPageStateShortcuts {
   GifEnjoyerMainPageStateShortcuts(this.state);
 
@@ -1372,6 +1395,8 @@ class GifEnjoyerMainPageStateShortcuts {
     (EscapeIntent, (_) => state.handleEscapeIntent()),
     (FirstFrameIntent, (_) => state.setCurrentFrameToFirst()),
     (LastFrameIntent, (_) => state.setCurrentFrameToLast()),
+    (UndoIntent, (_) => state.undo()),
+    (RedoIntent, (_) => state.redo()),
     (
       MarkFrameIntent,
       (_) => state.toggleMarkerForFrame(state.currentFrame.value),

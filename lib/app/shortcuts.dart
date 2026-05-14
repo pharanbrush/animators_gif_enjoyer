@@ -30,6 +30,17 @@ class Phshortcuts {
   // static const openTextMenu2 =
   //     SingleActivator(LogicalKeyboardKey.keyT, control: true);
 
+  static const undo = SingleActivator(
+    LogicalKeyboardKey.keyZ,
+    control: true,
+    shift: false,
+  );
+  static const redo = SingleActivator(
+    LogicalKeyboardKey.keyZ,
+    control: true,
+    shift: true,
+  );
+
   static const copy = SingleActivator(LogicalKeyboardKey.keyC, control: true);
   static const pasteAndGo = SingleActivator(
     LogicalKeyboardKey.keyV,
@@ -104,6 +115,8 @@ class Phshortcuts {
     Phshortcuts.escape: EscapeIntent(),
     Phshortcuts.revealInExplorer: RevealInExplorerIntent(),
     // Phshortcuts.preferences: OpenPreferencesIntent(),
+    Phshortcuts.undo: UndoIntent(),
+    Phshortcuts.redo: RedoIntent(),
     Phshortcuts.copy: CopyIntent(),
     Phshortcuts.pasteAndGo: PasteAndGoIntent(),
     Phshortcuts.markFrame: MarkFrameIntent(),
@@ -185,4 +198,12 @@ class OpenPreferencesIntent extends Intent {
 
 class MarkFrameIntent extends Intent {
   const MarkFrameIntent();
+}
+
+class UndoIntent extends Intent {
+  const UndoIntent();
+}
+
+class RedoIntent extends Intent {
+  const RedoIntent();
 }
