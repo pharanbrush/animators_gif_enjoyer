@@ -55,6 +55,7 @@ dependencies:
   path: ^1.9.1
   nativeapi: ^0.1.1
   undo: ^1.6.0
+  just_tooltip: 0.2.5
 
 dev_dependencies:
   flutter_test:

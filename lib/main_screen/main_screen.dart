@@ -35,6 +35,7 @@ import 'package:animators_gif_enjoyer/features/reveal_file_source.dart';
 import 'package:animators_gif_enjoyer/features/save_image_as_png.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:just_tooltip/just_tooltip.dart';
 import 'package:nativeapi/nativeapi.dart' hide Image;
 import 'package:proper_filesize/proper_filesize.dart' as proper_filesize;
 import 'package:undo/undo.dart';
@@ -271,7 +272,9 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
         const Size size = Size(buttonSize, buttonSize);
         const buttonSizeProperty = WidgetStatePropertyAll(size);
 
-        final buttonContentColor = Theme.of(context).colorScheme.faintGrayColor;
+        final theme = Theme.of(context);
+        final colorScheme = theme.colorScheme;
+        final buttonContentColor = colorScheme.faintGrayColor;
         final contentColorProperty = hoverColors(
           idle: buttonContentColor,
           hover: buttonContentColor.withAlpha(0xFF),
@@ -285,7 +288,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
           iconColor: contentColorProperty,
           foregroundColor: contentColorProperty,
           textStyle: WidgetStatePropertyAll(
-            Theme.of(context).textTheme.labelSmall!.copyWith(
+            theme.textTheme.labelSmall!.copyWith(
               overflow: TextOverflow.visible,
             ),
           ),
@@ -293,7 +296,8 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
             EdgeInsets.symmetric(horizontal: 0),
           ),
         );
-        final activeColor = Theme.of(context).colorScheme.tertiary;
+
+        final activeColor = colorScheme.tertiary;
         final activeButtonStyle = ButtonStyle(
           foregroundColor: hoverColors(
             idle: activeColor.withValues(alpha: 0.75),
@@ -303,10 +307,21 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
         final iconButtonTheme = IconButtonThemeData(style: buttonStyle);
         final textButtonTheme = TextButtonThemeData(style: buttonStyle);
 
-        Widget cycleThemeButton() => IconButton(
-          icon: const Icon(Icons.lightbulb_outline),
-          tooltip: 'Cycle interface brightness',
-          onPressed: cycleTheme,
+        final tooltipTheme = JustTooltipTheme(
+          textStyle: .new(fontSize: 12, color: colorScheme.onSurfaceVariant),
+          backgroundColor: theme.scaffoldBackgroundColor,
+        );
+
+        Widget cycleThemeButton() => JustTooltip(
+          message: "Cycle interface brightness",
+          direction: .right,
+          theme: tooltipTheme,
+          animation: .none,
+          animationDuration: .zero,
+          child: IconButton(
+            icon: const Icon(Icons.lightbulb_outline),
+            onPressed: cycleTheme,
+          ),
         );
 
         Widget cyclePlaybackSpeedButton() => ListenableBuilder(
@@ -316,8 +331,12 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
               return const SizedBox.shrink();
             }
 
-            return Tooltip(
-              message: 'Change playback speed',
+            return JustTooltip(
+              message: "Change playback speed",
+              direction: .right,
+              theme: tooltipTheme,
+              animation: .none,
+              animationDuration: .zero,
               child: GestureDetector(
                 onTertiaryTapDown: (_) => playSpeedController.resetSpeed(),
                 child: TextButton(
@@ -335,15 +354,19 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
         Widget zoomButton() => ListenableBuilder(
           listenable: zoomLevelNotifier,
           builder: (_, _) {
-            if (zoomLevelNotifier.value != 1) {
-              return IconButton(
+            if (zoomLevelNotifier.value == 1) return const SizedBox.shrink();
+
+            return JustTooltip(
+              message: "Reset zoom",
+              direction: .right,
+              theme: tooltipTheme,
+              animation: .none,
+              animationDuration: .zero,
+              child: IconButton(
                 icon: const Icon(Icons.youtube_searched_for),
-                tooltip: 'Reset zoom',
                 onPressed: () => zoomLevelNotifier.value = 1.0,
-              );
-            } else {
-              return const SizedBox.shrink();
-            }
+              ),
+            );
           },
         );
 
@@ -351,29 +374,26 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
           left: 0,
           top: 4,
           child: HoverContainer(
-            hoverBackgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            hoverBackgroundColor: theme.scaffoldBackgroundColor,
             borderRadius: .horizontal(right: app_theme.borderRadiusRadius),
             child: Padding(
-              padding: const EdgeInsets.symmetric(
-                vertical: 5,
-                horizontal: 3,
+              padding: const .only(
+                top: 3,
+                bottom: 3,
+                left: 5,
+                right: 3,
               ),
-              child: TooltipTheme(
-                data: Theme.of(context).tooltipTheme.copyWith(
-                  verticalOffset: 40,
-                  waitDuration: delayedTooltipDelay,
-                ),
-                child: TextButtonTheme(
-                  data: textButtonTheme,
-                  child: IconButtonTheme(
-                    data: iconButtonTheme,
-                    child: Column(
-                      children: [
-                        cycleThemeButton(),
-                        if (isImageLoaded) cyclePlaybackSpeedButton(),
-                        if (isImageLoaded) zoomButton(),
-                      ],
-                    ),
+              child: TextButtonTheme(
+                data: textButtonTheme,
+                child: IconButtonTheme(
+                  data: iconButtonTheme,
+                  child: Column(
+                    crossAxisAlignment: .start,
+                    children: [
+                      cycleThemeButton(),
+                      if (isImageLoaded) cyclePlaybackSpeedButton(),
+                      if (isImageLoaded) zoomButton(),
+                    ],
                   ),
                 ),
               ),
