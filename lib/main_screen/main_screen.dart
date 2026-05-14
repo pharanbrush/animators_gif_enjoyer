@@ -761,13 +761,20 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                           );
                         },
                       ),
-                      SizedBoxFitted(
-                        height: 30,
-                        child: IconButton(
-                          tooltip: "Delete all markers",
-                          onPressed: () => clearMarkers(),
-                          icon: Icon(FluentIcons.delete_16_regular),
-                        ),
+                      ValueListenableBuilder(
+                        valueListenable: isScrubMode,
+                        builder: (_, isScrubModeValue, _) {
+                          return SizedBoxFitted(
+                            height: 30,
+                            child: IconButton(
+                              tooltip: "Delete all markers",
+                              icon: Icon(FluentIcons.delete_16_regular),
+                              onPressed: isScrubModeValue
+                                  ? () => clearMarkers()
+                                  : null,
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),
