@@ -9,15 +9,49 @@ Tests
   - [ ] Double-click file in File Explorer while associated in Windows.
     - [ ] Should reuse the same window when "Allow multiple windows" is disabled
     - [ ] Should create a new window when "Allow multiple windows" is enabled
-  - [ ] Download
-    - [ ] Ctrl+V to paste a link.
-    - [ ] Edit the text box link before sending
-    - [ ] F2 to open link bar.
-    - [ ] Loading indicator shows
-    - [ ] Surface-level reject links with incorrect format and show error.
-    - [ ] Right-click>Paste to address bar...
-      - [ ] Loaded
-      - [ ] Unloaded
+  - [ ] Download (deprecated function)
+    - [ ] Ctrl+V to paste a link. (deprecated function)
+    - [ ] Edit the text box link before sending (deprecated function)
+    - [ ] F2 to open link bar.(deprecated function)
+    - [ ] Loading indicator shows (deprecated function)
+    - [ ] Loading times out when no progress is made after some seconds. (deprecated function)
+    - [ ] Surface-level reject links with incorrect format and show error. (deprecated function)
+    - [ ] Right-click>Paste to address bar... (deprecated function)
+      - [ ] Loaded (deprecated function)
+      - [ ] Unloaded (deprecated function)
+- Frame slider, markers and snapping
+  - [ ] Scrubbing the slider updates the shown frame without lag
+  - [ ] Hide (continuous mode) and show (discrete mode) divisions when the number of frames increases or decreases.
+  - [ ] If looping is enabled, dragging beyond the slider loops the frames.
+  - [ ] Scroll on the slider to move up and down
+    - [ ] Should pull the playback when in play mode.
+  - [ ] Markers
+    - [ ] Editing
+      - [ ] Add and remove markers to the current frame by pressing M.
+      - [ ] Frame number shows indicator for when you are on a frame with a marker
+    - [ ] Markers in continuous mode
+      - [ ] Markers are visible as vertical lines when in continuous mode.
+      - [ ] Markers are reliably right-clickable without the cursor being pixel perfect on the marker in continuous mode. (Implicit right-click snapping).
+      - [ ] Markers can be added and removed from the context menu.
+    - [ ] Markers in discrete mode
+      - [ ] Markers are visible as colored boxes in discrete mode.
+      - [ ] Hovering over markers shows a hovered marker color instead of the normal hover color.
+      - [ ] Right-clicking a frame shows a context menu specific for that frame.
+        - [ ] Right-clicking on a marker that's not on the current frame shows options for that marker/frame.
+      - [ ] Markers can be added and removed from the context menu.
+    - [ ] Snapping
+      - [ ] In Snap mode, dragging near a frame snaps to the near the frame.
+      - [ ] Snapping allowance changes based on the width of the frame boxes.
+      - [ ] In Locked mode, dragging anywhere always snaps to the nearest frame.
+    - [ ] Play mode
+      - [ ] Play mode disables marker editing.
+    - [ ] Undo/Redo
+      - [ ] Ctrl+Z to undo adding markers, removing markers, and clearing markers.
+      - [ ] Ctrl+Shift+Z to redo adding markers, removing markers and clearing markers.
+    - [ ] Loading a new file
+      - [ ] Markers are all removed when loading a new file.
+      - [ ] Ctrl+Z does not restore markers that were cleared when loading a new file.
+    
 - Playback
   - [ ] Click on the viewport to play and pause
   - [ ] Click on the play button to play and pause.
@@ -25,19 +59,23 @@ Tests
   - [ ] Play button reacts to play/pause state.
   - [ ] Click on the playing slider to stop playing.
   - [ ] Middle-click slider toggles wide mode.
-  - [ ] Scroll on the slider to move up and down
-    - [ ] Should pull the playback when in play mode.
+  - [ ] Scrub with frame number
+    - [ ] Scroll on the frame number to change frame.
+    - [ ] Drag starting from the frame number to scrub/change frame.
   - [ ] Keyboard shortcuts
     - [ ] `,` and `.`
     - [ ] `left arrow` and `right arrow`
     - [ ] `home` and `end`
-  - [ ] Dragging slider updates shown frame without lag
   - [ ] Custom frame range
-    - [ ] Clicking start frame opens and closes frame range options
-    - [ ] Clicking end frame opens and closes frame range options
+    - [ ] Clicking start frame moves to the start frame based on the current range.
+    - [ ] Double-clicking the start frame when at the start frame opens and closes frame range options.
+    - [ ] Clicking end frame moves to the end frame based on the current range.
+    - [ ] Double-clicking on the end frame when at the end frame opens and closes frame range options.
     - [ ] Clicking X next to the frame range closes range options
     - [ ] Bottom shows number of frames in frame range
     - [ ] Bottom shows frame range in seconds based on framerate.
+    - [ ] Start and end frame on the top slider changes when you change frame range with the bottom slider
+    - [ ] Top slider adjusts its range (start, end and current positions) when you change the frame range with the bottom slider.
     - [ ] Dragging start and end previews the frame
     - [ ] Dragging start and end switches back to current frame when released
     - [ ] Return to frame range after moving slider outside of frame range. Should clamp.
@@ -51,7 +89,7 @@ Tests
     - [ ] Speed button should affect playback, while playing, and while paused.
     - [ ] Speed button should be highlighted when speed is not 1x.
     - [ ] Middle-click on speed button to reset to 1x.
-    - [ ] >30fps gifs should frameskip correctly at 4x.
+    - [ ] >30fps gifs should frameskip correctly at 4x and 8x.
 - Zooming
   - [ ] Zoom in and out works
   - [ ] Middle-click the viewport to reset
@@ -103,9 +141,10 @@ Tests
 - Formats
   - File info
     - Shows frame interval
+    - Shows image dimensions
     - Shows FPS conversion
     - Shows tooltip symbol when FPS is not a whole number
-    - Shows image dimensions
+    - Does not show tooltip when image is not a GIF.
   - [ ] Very slow GIFs should play normally.
     - [ ] above 300ms delays (eg, retro sprites)
     - [ ] above 1 second delays
@@ -117,8 +156,11 @@ Tests
     - [ ] Show "not animated" indicator.
     - [ ] Still show size
     - [ ] Still zoom
-  - [ ] WebP works fine (when opened or served alternatively by a host)
+  - [ ] WebP works fine (when opened or served alternatively by a host)  
   - [ ] APNG works fine
+  - [ ] AVIF works fine
+    - [ ] Malformed AVIF loading cancels correctly.
+    - [ ] Frame durations and framerates are displayed correctly as fractions of milliseconds. (flutter_avif from the repo has imprecision bug.)
   - [ ] Image sequence opens fine
     - [ ] Rejects folder when the images have different sizes
     - [ ] Rejects empty folder
