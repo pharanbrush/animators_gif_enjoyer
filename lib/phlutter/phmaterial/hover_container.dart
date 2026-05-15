@@ -13,7 +13,7 @@ class HoverContainer extends StatelessWidget {
   });
 
   final Color hoverBackgroundColor;
-  final int unhoveredAlpha;
+  final double unhoveredAlpha;
   final Widget child;
   final Duration fadeDuration;
   final BorderRadius borderRadius;
@@ -21,16 +21,19 @@ class HoverContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return HoverBuilder(
-      builder: (context, isHovering) {
-        return AnimatedContainer(
+      builder: (_, isHovering) {
+        return TweenAnimationBuilder<double>(
+          tween: Tween<double>(begin: 0, end: isHovering ? 1 : unhoveredAlpha),
           duration: fadeDuration,
-          decoration: BoxDecoration(
-            borderRadius: borderRadius,
-            color: isHovering
-                ? hoverBackgroundColor
-                : hoverBackgroundColor.withAlpha(unhoveredAlpha),
-          ),
-          child: child,
+          builder: (_, value, _) {
+            return Container(
+              decoration: BoxDecoration(
+                borderRadius: borderRadius,
+                color: hoverBackgroundColor.withValues(alpha: value),
+              ),
+              child: child,
+            );
+          },
         );
       },
     );
