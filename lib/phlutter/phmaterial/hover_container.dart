@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-const _defaultFadeDuration = Duration(milliseconds: 150);
+const _defaultFadeDuration = Duration(milliseconds: 100);
 
 class HoverContainer extends StatelessWidget {
   const HoverContainer({
@@ -8,7 +8,7 @@ class HoverContainer extends StatelessWidget {
     required this.hoverBackgroundColor,
     required this.child,
     this.fadeDuration = _defaultFadeDuration,
-    this.borderRadius = const BorderRadius.all(Radius.circular(25)),
+    this.borderRadius = const BorderRadius.all(Radius.circular(5)),
     this.unhoveredAlpha = 0,
   });
 
