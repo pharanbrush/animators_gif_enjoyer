@@ -208,26 +208,41 @@ class MainSlider extends StatelessWidget {
       },
     );
 
-    final firstFrame = primarySliderRange.startInt + displayedFrameOffset;
-    final lastFrame = primarySliderRange.endInt + displayedFrameOffset;
+    final firstFrame = primarySliderRange.startInt;
+    final firstFrameDisplay = firstFrame + displayedFrameOffset;
+
+    final lastFrame = primarySliderRange.endInt;
+    final lastFrameDisplay = lastFrame + displayedFrameOffset;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        StartEndFrameButton(
-          label: firstFrame.toString(),
-          onClick: () => currentFrame.value = firstFrame,
-          onTriggerCustomFrameRange: () => toggleUseFocus(),
-          isCustomFrameRangeEnabled: isUsingFocusRange.value,
-          enabled: enabled,
+        ListenableBuilder(
+          listenable: currentFrame,
+          builder: (context, child) {
+            return StartEndFrameButton(
+              label: firstFrameDisplay.toString(),
+              isCurrentFrame: currentFrame.value == firstFrame,
+              onClick: () => currentFrame.value = firstFrame,
+              onTriggerCustomFrameRange: () => toggleUseFocus(),
+              isCustomFrameRangeEnabled: isUsingFocusRange.value,
+              enabled: enabled,
+            );
+          },
         ),
         sliderPart(),
-        StartEndFrameButton(
-          label: lastFrame.toString(),
-          onClick: () => currentFrame.value = lastFrame,
-          onTriggerCustomFrameRange: () => toggleUseFocus(),
-          isCustomFrameRangeEnabled: isUsingFocusRange.value,
-          enabled: enabled,
+        ListenableBuilder(
+          listenable: currentFrame,
+          builder: (context, child) {
+            return StartEndFrameButton(
+              label: lastFrameDisplay.toString(),
+              isCurrentFrame: currentFrame.value == lastFrame,
+              onClick: () => currentFrame.value = lastFrame,
+              onTriggerCustomFrameRange: () => toggleUseFocus(),
+              isCustomFrameRangeEnabled: isUsingFocusRange.value,
+              enabled: enabled,
+            );
+          },
         ),
       ],
     );
@@ -241,10 +256,12 @@ class StartEndFrameButton extends StatelessWidget {
     required this.onClick,
     required this.onTriggerCustomFrameRange,
     required this.isCustomFrameRangeEnabled,
+    required this.isCurrentFrame,
     required this.enabled,
   });
 
   final String label;
+  final bool isCurrentFrame;
   final VoidCallback onClick;
   final VoidCallback onTriggerCustomFrameRange;
   final bool isCustomFrameRangeEnabled;
@@ -255,6 +272,7 @@ class StartEndFrameButton extends StatelessWidget {
     const customFocusStyle = TextStyle(color: focusRangeColor);
 
     return GestureDetector(
+      onDoubleTap: isCurrentFrame ? () => onTriggerCustomFrameRange() : null,
       onSecondaryTap: () {
         Menu()
           ..addMenuItem(
