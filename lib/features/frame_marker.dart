@@ -13,7 +13,7 @@ import '../phlutter/simple_notifier.dart';
 mixin FrameMarker {
   final frameMarkersChanged = SimpleNotifier();
   final frameMarkers = <int>{};
-  final snapMode = ValueNotifier(SnapMode.nearest);
+  final snapMode = ValueNotifier(SnapMode.none);
   final markersUnsaved = ValueNotifier(false);
   final askToSaveFrameMarkers = PreferencesStoredBool(
     preferenceKey: "ask to save frame markers",
