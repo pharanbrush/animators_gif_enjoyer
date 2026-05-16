@@ -6,7 +6,7 @@ import '../phlutter/phmaterial/material_desktop.dart';
 
 // Settings
 
-const bool _cacheThemes = false;
+const bool _cacheThemes = true;
 
 //
 // App
