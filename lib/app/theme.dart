@@ -56,7 +56,7 @@ Color markerBackgroundColor(Set<WidgetState> state) {
   return Colors.transparent;
 }
 
-const dialogTheme = DialogThemeData(
+DialogThemeData dialogTheme({Color? textColor}) => DialogThemeData(
   shape: appOutlinedBorder,
   insetPadding: .only(
     top: 10,
@@ -64,8 +64,12 @@ const dialogTheme = DialogThemeData(
     left: 30,
     right: 30,
   ),
-  titleTextStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-  contentTextStyle: TextStyle(fontSize: 14),
+  titleTextStyle: TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+    color: textColor,
+  ),
+  contentTextStyle: TextStyle(fontSize: 14, color: textColor),
   actionsPadding: .symmetric(horizontal: 12, vertical: 20),
 );
 
@@ -208,7 +212,7 @@ ThemeData getEnjoyerTheme() {
     textButtonTheme: const TextButtonThemeData(style: buttonStyle),
     iconButtonTheme: const IconButtonThemeData(style: buttonStyle),
     segmentedButtonTheme: segmentedButtonTheme,
-    dialogTheme: dialogTheme,
+    dialogTheme: dialogTheme(textColor: Colors.grey.shade800),
     buttonTheme: const ButtonThemeData(shape: appButtonShape),
     useMaterial3: true,
   );
@@ -258,7 +262,7 @@ ThemeData getPhriendsTheme() {
     textButtonTheme: const TextButtonThemeData(style: buttonStyle),
     iconButtonTheme: const IconButtonThemeData(style: buttonStyle),
     segmentedButtonTheme: segmentedButtonTheme,
-    dialogTheme: dialogTheme,
+    dialogTheme: dialogTheme(),
     buttonTheme: const ButtonThemeData(shape: appButtonShape),
     useMaterial3: true,
   );
@@ -287,7 +291,7 @@ ThemeData getEnjoyerThemeGray() {
     textButtonTheme: const TextButtonThemeData(style: buttonStyle),
     iconButtonTheme: const IconButtonThemeData(style: buttonStyle),
     segmentedButtonTheme: segmentedButtonTheme,
-    dialogTheme: dialogTheme,
+    dialogTheme: dialogTheme(textColor: Colors.grey.shade200),
     buttonTheme: const ButtonThemeData(shape: appButtonShape),
     useMaterial3: true,
   );
@@ -313,7 +317,7 @@ ThemeData getEnjoyerThemeBlack() {
     textButtonTheme: const TextButtonThemeData(style: buttonStyle),
     iconButtonTheme: const IconButtonThemeData(style: buttonStyle),
     segmentedButtonTheme: segmentedButtonTheme,
-    dialogTheme: dialogTheme,
+    dialogTheme: dialogTheme(),
     buttonTheme: const ButtonThemeData(shape: appButtonShape),
     useMaterial3: true,
   );
