@@ -53,7 +53,6 @@ Color markerBackgroundColor(Set<WidgetState> state) {
   return Colors.transparent;
 }
 
-// Methods while still styling.
 ButtonStyle markerSegmentedButtonStyle() => ButtonStyle(
   visualDensity: VisualDensity(horizontal: -3, vertical: -3),
   shape: WidgetStatePropertyAll(appButtonShape),
