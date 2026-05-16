@@ -248,7 +248,7 @@ ThemeData getPhriendsTheme() {
 }
 
 ThemeData getEnjoyerThemeGray() {
-  const Color interfaceColor = Color.fromARGB(255, 107, 152, 204);
+  const Color interfaceColor = Color.fromARGB(255, 113, 165, 224);
   const Color background = Color.fromARGB(255, 115, 115, 115);
 
   return ThemeData(
@@ -258,7 +258,10 @@ ThemeData getEnjoyerThemeGray() {
       seedColor: interfaceColor,
       primary: interfaceColor,
       tertiary: defaultActiveColor,
+      surfaceContainerHigh: Color(0xFF_505050),
+      surfaceContainerLow: Color(0xFF_606060),
       scrim: const Color(0xDD000000),
+      outlineVariant: Color(0xFF_777777),
     ),
     sliderTheme: const SliderThemeData(
       thumbShape: VerticalPillSliderThumbShape(),
