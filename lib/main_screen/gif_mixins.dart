@@ -336,9 +336,9 @@ mixin AnimationLoader on AnimationPlayer<GifEnjoyerMainPage> {
       frameController.load(frames);
       frameAdvancer.setFrames(frames);
       inProgressLoadingProcess = null;
-      onFileLoadSuccess();
 
       resetViewerStateAfterLoad();
+      onFileLoadSuccess();
       if (imageProvider is NetworkImage) {
         onImageDownloadSuccess();
       }
