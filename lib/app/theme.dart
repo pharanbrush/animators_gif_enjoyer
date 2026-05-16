@@ -6,7 +6,7 @@ import '../phlutter/phmaterial/material_desktop.dart';
 
 // Settings
 
-const bool _cacheThemes = true;
+const bool _cacheThemes = false;
 
 //
 // App
@@ -29,6 +29,9 @@ const Color markerColor = Colors.orange;
 const double borderRadius = 5;
 const Radius borderRadiusRadius = Radius.circular(borderRadius);
 const borderRadiusBorderRadius = BorderRadius.all(borderRadiusRadius);
+const appOutlinedBorder = RoundedRectangleBorder(
+  borderRadius: borderRadiusBorderRadius,
+);
 const OutlinedBorder appButtonShape = RoundedRectangleBorder(
   borderRadius: borderRadiusBorderRadius,
 );
@@ -52,6 +55,19 @@ Color markerBackgroundColor(Set<WidgetState> state) {
 
   return Colors.transparent;
 }
+
+const dialogTheme = DialogThemeData(
+  shape: appOutlinedBorder,
+  insetPadding: .only(
+    top: 10,
+    bottom: 40,
+    left: 30,
+    right: 30,
+  ),
+  titleTextStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+  contentTextStyle: TextStyle(fontSize: 14),
+  actionsPadding: .symmetric(horizontal: 12, vertical: 20),
+);
 
 ButtonStyle markerSegmentedButtonStyle() => ButtonStyle(
   visualDensity: VisualDensity(horizontal: -3, vertical: -3),
@@ -192,6 +208,7 @@ ThemeData getEnjoyerTheme() {
     textButtonTheme: const TextButtonThemeData(style: buttonStyle),
     iconButtonTheme: const IconButtonThemeData(style: buttonStyle),
     segmentedButtonTheme: segmentedButtonTheme,
+    dialogTheme: dialogTheme,
     buttonTheme: const ButtonThemeData(shape: appButtonShape),
     useMaterial3: true,
   );
@@ -241,6 +258,7 @@ ThemeData getPhriendsTheme() {
     textButtonTheme: const TextButtonThemeData(style: buttonStyle),
     iconButtonTheme: const IconButtonThemeData(style: buttonStyle),
     segmentedButtonTheme: segmentedButtonTheme,
+    dialogTheme: dialogTheme,
     buttonTheme: const ButtonThemeData(shape: appButtonShape),
     useMaterial3: true,
   );
@@ -269,6 +287,7 @@ ThemeData getEnjoyerThemeGray() {
     textButtonTheme: const TextButtonThemeData(style: buttonStyle),
     iconButtonTheme: const IconButtonThemeData(style: buttonStyle),
     segmentedButtonTheme: segmentedButtonTheme,
+    dialogTheme: dialogTheme,
     buttonTheme: const ButtonThemeData(shape: appButtonShape),
     useMaterial3: true,
   );
@@ -294,6 +313,7 @@ ThemeData getEnjoyerThemeBlack() {
     textButtonTheme: const TextButtonThemeData(style: buttonStyle),
     iconButtonTheme: const IconButtonThemeData(style: buttonStyle),
     segmentedButtonTheme: segmentedButtonTheme,
+    dialogTheme: dialogTheme,
     buttonTheme: const ButtonThemeData(shape: appButtonShape),
     useMaterial3: true,
   );

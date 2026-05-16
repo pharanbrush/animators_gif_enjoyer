@@ -260,6 +260,7 @@ mixin AnimationLoader on AnimationPlayer<GifEnjoyerMainPage> {
       // Reset sensible values for new file.
       imageProvider = null;
       resetViewerStateAfterLoad();
+      onFileLoadSuccess();
       setState(() {});
     } catch (e) {
       onImageLoadError(e.toString());
@@ -275,7 +276,6 @@ mixin AnimationLoader on AnimationPlayer<GifEnjoyerMainPage> {
     playSpeedController.resetSpeed();
     isImageLoading.value = false;
     inProgressLoadingProcess = null;
-    onFileLoadSuccess();
     setState(() {});
   }
 
@@ -336,6 +336,7 @@ mixin AnimationLoader on AnimationPlayer<GifEnjoyerMainPage> {
       frameController.load(frames);
       frameAdvancer.setFrames(frames);
       inProgressLoadingProcess = null;
+      onFileLoadSuccess();
 
       resetViewerStateAfterLoad();
       if (imageProvider is NetworkImage) {

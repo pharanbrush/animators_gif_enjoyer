@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:animators_gif_enjoyer/features/frame_sliders.dart';
@@ -35,6 +36,7 @@ import 'package:animators_gif_enjoyer/features/reveal_file_source.dart';
 import 'package:animators_gif_enjoyer/features/save_image_as_png.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:just_tooltip/just_tooltip.dart';
 import 'package:nativeapi/nativeapi.dart' hide Image;
 import 'package:proper_filesize/proper_filesize.dart' as proper_filesize;
@@ -181,6 +183,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
       }
     }
 
+    askToSaveFrameMarkers.loadFromPreferences();
     tryLoadFromWindowsOpenWith();
     onSecondWindow = () => tryLoadFromWindowsOpenWith();
 
@@ -198,6 +201,8 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
     super.onFileLoadSuccess();
     clearMarkersInternal();
     clearUndoHistory();
+    tryDetectAndLoadMarkerFile();
+    windowManager.setPreventClose(true);
     zoomLevelNotifier.value = ScrollZoomContainer.defaultZoom;
     currentOpenFilename.value = loadedAnimationInfo.sourceName;
   }
@@ -225,6 +230,25 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
 
   void _exitApplication() {
     windowManager.close();
+  }
+
+  @override
+  Future<void> onWindowClose() async {
+    Future<void> closeApp() async {
+      await windowManager.setPreventClose(false);
+      await windowManager.close();
+    }
+
+    final result = await detectAndConfirmUserUnsavedMarkers();
+
+    switch (result) {
+      case null: // Cancel (Don't close)
+        return;
+      case true: // Save
+        closeApp();
+      case false: // Don't save
+        closeApp();
+    }
   }
 
   //
@@ -448,7 +472,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
       addMenuItem(
         label: openGifLabel,
         menu: menu,
-        onClick: () => openNewFile(),
+        onClick: () => userOpenNewFile(),
       );
       menu.addSeparator();
 
@@ -463,6 +487,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
       advancedSubmenu.addSeparator();
       addAllowMultipleWindowsMenuItem(advancedSubmenu);
       addRememberWindowSizeMenuItem(advancedSubmenu);
+      addAskToSaveFrameMarkers(advancedSubmenu);
 
       tryAddAboutItemsTo(menu);
 
@@ -473,7 +498,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
       builder: (context) {
         return GestureDetector(
           onSecondaryTap: () => unloadedMenu().open(.cursorPosition()),
-          onDoubleTap: () => openNewFile(),
+          onDoubleTap: () => userOpenNewFile(),
           child: Container(
             decoration: BoxDecoration(
               color: Theme.of(context).scaffoldBackgroundColor,
@@ -546,7 +571,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
     addMenuItem(
       label: openGifLabel,
       menu: menu,
-      onClick: () => openNewFile(),
+      onClick: () => userOpenNewFile(),
     ).enabled = !isAppBusy;
 
     // MenuItem(
@@ -572,6 +597,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
     advancedSubmenu.addSeparator();
     addAllowMultipleWindowsMenuItem(advancedSubmenu);
     addRememberWindowSizeMenuItem(advancedSubmenu);
+    addAskToSaveFrameMarkers(advancedSubmenu);
 
     tryAddAboutItemsTo(menu);
 
@@ -744,6 +770,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                     mainAxisAlignment: .center,
                     spacing: 10,
                     children: [
+                      SizedBox(width: 30),
                       Tooltip(
                         preferBelow: false,
                         message:
@@ -792,15 +819,75 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                       ValueListenableBuilder(
                         valueListenable: isScrubMode,
                         builder: (_, isScrubModeValue, _) {
-                          return SizedBoxFitted(
-                            height: 30,
-                            child: IconButton(
-                              tooltip: "Delete all markers",
-                              icon: Icon(FluentIcons.delete_16_regular),
-                              onPressed: isScrubModeValue
-                                  ? () => userClearMarkers()
-                                  : null,
-                            ),
+                          return Wrap(
+                            direction: .horizontal,
+                            spacing: 3,
+                            children: [
+                              SizedBoxFitted(
+                                height: 30,
+                                child: IconButton(
+                                  tooltip: "Clear all markers",
+                                  icon: Icon(Icons.close),
+                                  onPressed: isScrubModeValue
+                                      ? () => userClearMarkers()
+                                      : null,
+                                ),
+                              ),
+                              ListenableBuilder(
+                                listenable: Listenable.merge([
+                                  markersUnsaved,
+                                  frameMarkersChanged,
+                                ]),
+                                builder: (context, child) {
+                                  return SizedBoxFitted(
+                                    height: 30,
+                                    child: IconButton(
+                                      tooltip: "Save markers for this file",
+                                      icon: Icon(
+                                        FluentIcons.more_vertical_20_regular,
+                                      ),
+                                      onPressed: () async {
+                                        final menu = Menu();
+                                        if (frameMarkers.isNotEmpty) {
+                                          menu.addMenuItem(
+                                            "Save markers for file",
+                                            onClick: () =>
+                                                userSaveCurrentMarkers(),
+                                          );
+                                        }
+
+                                        final markerFilePath =
+                                            await getMarkerFilePathForPath(
+                                              loadedAnimationInfo.fileSource,
+                                            );
+                                        if (markerFilePath != null) {
+                                          final file = File(markerFilePath);
+                                          final exists = await file.exists();
+                                          if (exists) {
+                                            menu.addSeparator();
+                                            menu.addMenuItem(
+                                              "Delete markers file for this file",
+                                              onClick: () =>
+                                                  userDeleteMarkerFile(
+                                                    markerFilePath,
+                                                  ),
+                                            );
+                                            menu.addMenuItem(
+                                              "Reveal markers file",
+                                              onClick: () => revealInExplorer(
+                                                markerFilePath,
+                                              ),
+                                            );
+                                          }
+                                        }
+
+                                        menu.open(.cursorPosition(), .topEnd);
+                                      },
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
                           );
                         },
                       ),
@@ -1001,7 +1088,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                   child: SizedBoxFitted(
                     height: 32,
                     child: IconButton(
-                      onPressed: () => openNewFile(),
+                      onPressed: () => userOpenNewFile(),
                       color: Theme.of(context).colorScheme.mutedSurfaceColor,
                       icon: const Icon(FluentIcons.folder_open_24_regular),
                     ),
@@ -1066,13 +1153,272 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
     );
   }
 
+  Future<void> tryDetectAndLoadMarkerFile({
+    bool askForConfirmation = false,
+  }) async {
+    final markerFilePath = await getMarkerFilePathForPath(
+      loadedAnimationInfo.fileSource,
+    );
+    if (markerFilePath == null) return;
+
+    final file = File(markerFilePath);
+    if (!await file.exists()) return;
+
+    if (askForConfirmation) {
+      if (isPlaying) {
+        togglePlayPause();
+      }
+      await showFrameMarkersDetectedLoadConfirmation(markerFilePath);
+      if (!isPlaying) {
+        togglePlayPause();
+      }
+    } else {
+      await doLoadMarkers(markerFilePath);
+    }
+  }
+
+  Future<bool> userDeleteMarkerFile(String markerFilePath) async {
+    final file = File(markerFilePath);
+    if (!await file.exists()) return false;
+
+    try {
+      final context = this.context;
+      if (context.mounted) {
+        final result = await showDialog<bool>(
+          context: context,
+          builder: (context) {
+            return AlertDialog.adaptive(
+              title: const Text("Delete markers"),
+              content: const Text("Do you want to delete markers?"),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: const Text("Delete"),
+                ),
+                Focus(
+                  //
+                  // Muscle memory shortcuts
+                  //
+                  onKeyEvent: (node, event) {
+                    if (event is KeyDownEvent) {
+                      final key = event.logicalKey;
+                      if (key == .keyY) {
+                        Navigator.of(context).pop(true);
+                        return .handled;
+                      } else if (key == .keyN) {
+                        Navigator.of(context).pop(false);
+                        return .handled;
+                      }
+                    }
+
+                    return .ignored;
+                  },
+                  child: TextButton(
+                    autofocus: true,
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: const Text("Cancel"),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+
+        if (result == true) {
+          await file.delete();
+          showSnackBarMessage(label: "Marker file was deleted");
+          return true;
+        }
+
+        return result ?? false;
+      }
+
+      return false;
+    } on FileSystemException {
+      return false;
+    }
+  }
+
+  Future<bool> showFrameMarkersDetectedLoadConfirmation(
+    String markerFilePath,
+  ) async {
+    if (context.mounted) {
+      final result = await showDialog<bool>(
+        context: context,
+        builder: (context) {
+          return AlertDialog.adaptive(
+            title: const Text("Markers file found"),
+            content: const Text("Do you want to load markers?"),
+            actions: [
+              Focus(
+                //
+                // Muscle memory shortcuts
+                //
+                onKeyEvent: (node, event) {
+                  if (event is KeyDownEvent) {
+                    final key = event.logicalKey;
+                    if (key == .keyY) {
+                      Navigator.of(context).pop(true);
+                      return .handled;
+                    } else if (key == .keyN) {
+                      Navigator.of(context).pop(false);
+                      return .handled;
+                    }
+                  }
+
+                  return .ignored;
+                },
+                child: TextButton(
+                  autofocus: true,
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: const Text("Load"),
+                ),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text("Don't Load"),
+              ),
+            ],
+          );
+        },
+      );
+
+      if (result == true) {
+        doLoadMarkers(markerFilePath);
+      }
+
+      return result ?? false;
+    }
+
+    return false;
+  }
+
+  Future<void> doLoadMarkers(String markerFilePath) async {
+    final loadedMarkers = await loadMarkers(markerFilePath);
+    if (loadedMarkers != null && loadedMarkers.isNotEmpty) {
+      frameMarkers.clear();
+      frameMarkers.addAll(loadedMarkers);
+      showSnackBarMessage(label: "Markers loaded.");
+    }
+  }
+
+  Future<bool?> detectAndConfirmUserUnsavedMarkers() async {
+    if (!askToSaveFrameMarkers.value) return false;
+    if (markersUnsaved.value == false) return false;
+
+    if (isPlaying) {
+      togglePlayPause();
+    }
+
+    // Confirmation Dialog
+    if (context.mounted) {
+      final result = await showDialog<bool>(
+        context: context,
+        builder: (context) {
+          return AlertDialog.adaptive(
+            title: const Text("Unsaved markers"),
+            content: const Text("Do you want to save markers?"),
+            actions: [
+              Focus(
+                //
+                // Muscle memory shortcuts
+                //
+                onKeyEvent: (node, event) {
+                  if (event is KeyDownEvent) {
+                    final key = event.logicalKey;
+                    if (key == .keyN || key == .keyD) {
+                      Navigator.of(context).pop(false);
+                      return .handled;
+                    } else if (key == .keyY || key == .keyS) {
+                      Navigator.of(context).pop(true);
+                      return .handled;
+                    }
+                  }
+
+                  return .ignored;
+                },
+                child: TextButton(
+                  autofocus: true,
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: const Text("Save"),
+                ),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text("Don't Save"),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(null),
+                child: const Text("Cancel"),
+              ),
+            ],
+          );
+        },
+      );
+
+      switch (result) {
+        case true:
+          try {
+            await saveCurrentFrameMarkers();
+            return true;
+          } catch (e) {
+            debugPrint("[main_screen] Exception from saving.");
+            debugPrint(e.toString());
+            return false;
+          }
+        case false:
+          return false;
+        case null:
+          return null;
+      }
+    }
+
+    return false;
+  }
+
+  Future<void> userSaveCurrentMarkers() async {
+    final wasSaved = await saveCurrentFrameMarkers();
+    if (wasSaved) {
+      showSnackBar(const SnackBar(content: Text("Markers saved.")));
+    } else {
+      showSnackBar(const SnackBar(content: Text("Saving failed.")));
+    }
+  }
+
+  /// Returns true if markers were saved.
+  Future<bool> saveCurrentFrameMarkers() async {
+    final source = loadedAnimationInfo.fileSource;
+    if (source.isEmpty) {
+      return false; //REVIEW: ask for filename to save. Won't be auto-loaded.
+    }
+
+    final markerFilePath = await getMarkerFilePathForPath(source);
+    if (markerFilePath == null) return false;
+
+    final file = await saveMarkers(
+      frameMarkers,
+      outputFilePath: markerFilePath,
+    );
+
+    final saved = await file?.exists() ?? false;
+
+    markersUnsaved.value = !saved;
+    return saved;
+  }
+
   Widget fileDropTarget() {
     return ImageDropTarget(
-      dragImagesHandler: (details) {
+      dragImagesHandler: (details) async {
         if (details.files.isEmpty) return;
         final file = details.files[0];
 
         final mimeType = file.mimeType;
+
+        if (askToSaveFrameMarkers.value) {
+          final result = await detectAndConfirmUserUnsavedMarkers();
+          if (result == null) return;
+        }
+
         if (mimeType == null && open_file.isFolder(file.path)) {
           openImageSequenceFolder(file.path);
           return;
@@ -1150,8 +1496,13 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
   // Load Operations
   //
 
-  Future<void> openNewFile() async {
+  Future<void> userOpenNewFile() async {
     if (isAppBusy) return;
+
+    if (askToSaveFrameMarkers.value) {
+      final result = await detectAndConfirmUserUnsavedMarkers();
+      if (result == null) return;
+    }
 
     var (gifImage, name) = await open_file.userOpenFilePickerForImages();
     if (gifImage == null || name == null) return;
