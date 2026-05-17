@@ -56,6 +56,11 @@ Color markerBackgroundColor(Set<WidgetState> state) {
   return Colors.transparent;
 }
 
+const snackBarTheme = SnackBarThemeData(
+  backgroundColor: Color(0xFF_111111),
+  contentTextStyle: TextStyle(color: Color(0xFF_EEEEEE)),
+);
+
 DialogThemeData dialogTheme({Color? textColor}) => DialogThemeData(
   shape: appOutlinedBorder,
   insetPadding: .only(
@@ -208,7 +213,7 @@ ThemeData getEnjoyerTheme() {
       thumbShape: VerticalPillSliderThumbShape(),
       rangeThumbShape: VerticalPillRangeSliderThumbShape(),
     ),
-
+    snackBarTheme: snackBarTheme,
     textButtonTheme: const TextButtonThemeData(style: buttonStyle),
     iconButtonTheme: const IconButtonThemeData(style: buttonStyle),
     segmentedButtonTheme: segmentedButtonTheme,
@@ -259,6 +264,7 @@ ThemeData getPhriendsTheme() {
       thumbShape: VerticalPillSliderThumbShape(),
       rangeThumbShape: VerticalPillRangeSliderThumbShape(),
     ),
+    snackBarTheme: snackBarTheme,
     textButtonTheme: const TextButtonThemeData(style: buttonStyle),
     iconButtonTheme: const IconButtonThemeData(style: buttonStyle),
     segmentedButtonTheme: segmentedButtonTheme,
@@ -288,6 +294,7 @@ ThemeData getEnjoyerThemeGray() {
       thumbShape: VerticalPillSliderThumbShape(),
       rangeThumbShape: VerticalPillRangeSliderThumbShape(),
     ),
+    snackBarTheme: snackBarTheme,
     textButtonTheme: const TextButtonThemeData(style: buttonStyle),
     iconButtonTheme: const IconButtonThemeData(style: buttonStyle),
     segmentedButtonTheme: segmentedButtonTheme,
@@ -314,6 +321,7 @@ ThemeData getEnjoyerThemeBlack() {
       thumbShape: VerticalPillSliderThumbShape(),
       rangeThumbShape: VerticalPillRangeSliderThumbShape(),
     ),
+    snackBarTheme: snackBarTheme,
     textButtonTheme: const TextButtonThemeData(style: buttonStyle),
     iconButtonTheme: const IconButtonThemeData(style: buttonStyle),
     segmentedButtonTheme: segmentedButtonTheme,
