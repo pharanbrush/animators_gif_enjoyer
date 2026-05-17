@@ -44,6 +44,7 @@ import 'package:undo/undo.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '../features/frame_marker.dart';
+import '../phlutter/phdart/user_confirmation.dart';
 import '../phlutter/phmaterial/hover_container.dart';
 import '../phlutter/widget/sized_box_fitted.dart';
 
@@ -240,13 +241,14 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
     }
 
     final result = await detectAndConfirmUserUnsavedMarkers();
-
     switch (result) {
-      case null: // Cancel (Don't close)
+      case .userCanceled:
+      case .error:
         return;
-      case true: // Save
-        closeApp();
-      case false: // Don't save
+
+      case .success:
+      case .userRejected:
+      default:
         closeApp();
     }
   }
@@ -1177,14 +1179,14 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
     }
   }
 
-  Future<bool> userDeleteMarkerFile(String markerFilePath) async {
+  Future<ConfirmedOperationResult> userDeleteMarkerFile(String markerFilePath) async {
     final file = File(markerFilePath);
-    if (!await file.exists()) return false;
+    if (!await file.exists()) return .nothingChanged;
 
     try {
       final context = this.context;
       if (context.mounted) {
-        final result = await showDialog<bool>(
+        final choice = await showDialog<UserConfirmationChoice>(
           context: context,
           builder: (context) {
             return AlertDialog.adaptive(
@@ -1192,7 +1194,8 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
               content: const Text("Do you want to delete markers?"),
               actions: [
                 TextButton(
-                  onPressed: () => Navigator.of(context).pop(true),
+                  onPressed: () =>
+                      Navigator.of(context).pop(UserConfirmationChoice.confirm),
                   child: const Text("Delete"),
                 ),
                 Focus(
@@ -1203,10 +1206,14 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                     if (event is KeyDownEvent) {
                       final key = event.logicalKey;
                       if (key == .keyY) {
-                        Navigator.of(context).pop(true);
+                        Navigator.of(
+                          context,
+                        ).pop(UserConfirmationChoice.confirm);
                         return .handled;
                       } else if (key == .keyN) {
-                        Navigator.of(context).pop(false);
+                        Navigator.of(
+                          context,
+                        ).pop(UserConfirmationChoice.reject);
                         return .handled;
                       }
                     }
@@ -1215,7 +1222,9 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                   },
                   child: TextButton(
                     autofocus: true,
-                    onPressed: () => Navigator.of(context).pop(false),
+                    onPressed: () => Navigator.of(
+                      context,
+                    ).pop(UserConfirmationChoice.cancel),
                     child: const Text("Cancel"),
                   ),
                 ),
@@ -1224,26 +1233,30 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
           },
         );
 
-        if (result == true) {
-          await file.delete();
-          showSnackBarMessage(label: "Marker file was deleted");
-          return true;
+        if (choice == .confirm) {
+          try {
+            await file.delete();
+            showSnackBarMessage(label: "Markers file was deleted");
+            return .success;
+          } catch (e) {
+            return .error;
+          }
         }
 
-        return result ?? false;
+        return .userCanceled;
       }
 
-      return false;
+      return .error;
     } on FileSystemException {
-      return false;
+      return .error;
     }
   }
 
-  Future<bool> showFrameMarkersDetectedLoadConfirmation(
+  Future<ConfirmedOperationResult> showFrameMarkersDetectedLoadConfirmation(
     String markerFilePath,
   ) async {
     if (context.mounted) {
-      final result = await showDialog<bool>(
+      final choice = await showDialog<UserConfirmationChoice>(
         context: context,
         builder: (context) {
           return AlertDialog.adaptive(
@@ -1258,10 +1271,10 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                   if (event is KeyDownEvent) {
                     final key = event.logicalKey;
                     if (key == .keyY) {
-                      Navigator.of(context).pop(true);
+                      Navigator.of(context).pop(UserConfirmationChoice.confirm);
                       return .handled;
                     } else if (key == .keyN) {
-                      Navigator.of(context).pop(false);
+                      Navigator.of(context).pop(UserConfirmationChoice.reject);
                       return .handled;
                     }
                   }
@@ -1270,12 +1283,14 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                 },
                 child: TextButton(
                   autofocus: true,
-                  onPressed: () => Navigator.of(context).pop(true),
+                  onPressed: () =>
+                      Navigator.of(context).pop(UserConfirmationChoice.confirm),
                   child: const Text("Load"),
                 ),
               ),
               TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
+                onPressed: () =>
+                    Navigator.of(context).pop(UserConfirmationChoice.reject),
                 child: const Text("Don't Load"),
               ),
             ],
@@ -1283,14 +1298,19 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
         },
       );
 
-      if (result == true) {
-        doLoadMarkers(markerFilePath);
+      if (choice == .confirm) {
+        try {
+          await doLoadMarkers(markerFilePath);
+          return .success;
+        } catch (e) {
+          return .error;
+        }
       }
 
-      return result ?? false;
+      return .nothingChanged;
     }
 
-    return false;
+    return .nothingChanged;
   }
 
   Future<void> doLoadMarkers(String markerFilePath) async {
@@ -1302,9 +1322,9 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
     }
   }
 
-  Future<bool?> detectAndConfirmUserUnsavedMarkers() async {
-    if (!askToSaveFrameMarkers.value) return false;
-    if (markersUnsaved.value == false) return false;
+  Future<ConfirmedOperationResult> detectAndConfirmUserUnsavedMarkers() async {
+    if (!askToSaveFrameMarkers.value) return .nothingChanged;
+    if (markersUnsaved.value == false) return .nothingChanged;
 
     if (isPlaying) {
       togglePlayPause();
@@ -1312,7 +1332,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
 
     // Confirmation Dialog
     if (context.mounted) {
-      final result = await showDialog<bool>(
+      final result = await showDialog<UserConfirmationChoice>(
         context: context,
         builder: (context) {
           return AlertDialog.adaptive(
@@ -1327,10 +1347,10 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                   if (event is KeyDownEvent) {
                     final key = event.logicalKey;
                     if (key == .keyN || key == .keyD) {
-                      Navigator.of(context).pop(false);
+                      Navigator.of(context).pop(UserConfirmationChoice.reject);
                       return .handled;
                     } else if (key == .keyY || key == .keyS) {
-                      Navigator.of(context).pop(true);
+                      Navigator.of(context).pop(UserConfirmationChoice.confirm);
                       return .handled;
                     }
                   }
@@ -1339,16 +1359,19 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
                 },
                 child: TextButton(
                   autofocus: true,
-                  onPressed: () => Navigator.of(context).pop(true),
+                  onPressed: () =>
+                      Navigator.of(context).pop(UserConfirmationChoice.confirm),
                   child: const Text("Save"),
                 ),
               ),
               TextButton(
-                onPressed: () => Navigator.of(context).pop(true),
+                onPressed: () =>
+                    Navigator.of(context).pop(UserConfirmationChoice.reject),
                 child: const Text("Don't Save"),
               ),
               TextButton(
-                onPressed: () => Navigator.of(context).pop(null),
+                onPressed: () =>
+                    Navigator.of(context).pop(UserConfirmationChoice.cancel),
                 child: const Text("Cancel"),
               ),
             ],
@@ -1357,23 +1380,24 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
       );
 
       switch (result) {
-        case true:
+        case UserConfirmationChoice.confirm:
           try {
             await saveCurrentFrameMarkers();
-            return true;
+            return .success;
           } catch (e) {
             debugPrint("[main_screen] Exception from saving.");
             debugPrint(e.toString());
-            return false;
+            return .error;
           }
-        case false:
-          return false;
-        case null:
-          return null;
+        case UserConfirmationChoice.reject:
+          return .userRejected;
+
+        default:
+          return .userCanceled;
       }
     }
 
-    return false;
+    return .nothingChanged;
   }
 
   Future<void> userSaveCurrentMarkers() async {
@@ -1416,7 +1440,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
 
         if (askToSaveFrameMarkers.value) {
           final result = await detectAndConfirmUserUnsavedMarkers();
-          if (result == null) return;
+          if (result == .userCanceled || result == .error) return;
         }
 
         if (mimeType == null && open_file.isFolder(file.path)) {
@@ -1501,7 +1525,7 @@ class GifEnjoyerMainPageState extends State<GifEnjoyerMainPage>
 
     if (askToSaveFrameMarkers.value) {
       final result = await detectAndConfirmUserUnsavedMarkers();
-      if (result == null) return;
+      if (result == .userCanceled || result == .error) return;
     }
 
     var (gifImage, name) = await open_file.userOpenFilePickerForImages();
