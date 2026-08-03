@@ -22,6 +22,18 @@ See LICENSE file for more info.
 - Paste GIF links to download it. (Embed links like from Tenor are not supported)
 - Quickly switch the interface brightness to check what the GIF looks like on different backgrounds.
 
+### 1.1.0 (2026 May 13)
+- Added support for animated AVIF (decoding/loading can be slow).
+- Fixed a problem where it was internally reloading the image and causing a visible hitch whenever a large file was loaded.
+- Updated frame slider to better represent frames and support future features.
+- Scrubbing the frame slider beyond its width can now loop around. (optional)
+- Added frame markers. (Shortcut: M)
+- Added 8x playback speed option.
+- Now shows file size at the bottom.
+- Removed ablity to get gifs from a URL.
+- Updated underlying framework for better Windows compatibility, and removed some UI rebuilds for better performance.
+- ... more detailed changes in [CHANGELOG.md](/CHANGELOG.md)
+
 ### 1.0.14 (2025 Mar 8)
 - Added support for non-zero-padded sequence numbers to the image sequence importer.
 
