@@ -54,4 +54,10 @@ See [CHANGELOG.md](/CHANGELOG.md) for more detailed changes and bug fixes.
 ---
   
 If you find this app useful in your work, please consider a contribution!  
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/U7U5ADA8W)
+
+Animator's GIF Enjoyer Deluxe is available on itch.io!
+https://pharanbrush.itch.io/animators-gif-enjoyer
+![](https://static.itch.io/images/badge.svg)
+
+or support me on 
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/pharanbrush)
