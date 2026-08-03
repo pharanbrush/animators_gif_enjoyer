@@ -19,7 +19,6 @@ See LICENSE file for more info.
 - Copy a GIF frame to clipboard. (copies as PNG, which will preserve transparency in applications that support it, like Clip Studio Paint and Discord.)
 - Pronounce GIF correctly!
 - Drag and drop GIF files into the window.
-- Paste GIF links to download it. (Embed links like from Tenor are not supported)
 - Quickly switch the interface brightness to check what the GIF looks like on different backgrounds.
 
 ### 1.1.0 (2026 May 13)
