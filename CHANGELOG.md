@@ -1,5 +1,28 @@
 Animator's GIF Enjoyer Deluxe Changelog
 ===
+### 1.1.0 (2026 May 13) (not released yet)
+- Updated underlying framework for better Windows compatibility.
+- Frame slider now shows individual frame blocks if they fit in the width.
+- Scrubbing the frame slider beyond its width can now loop around. (optional)
+- Scrubbing the frame number uses a fixed frame-based increment to provide an alternate scrubbing mode.
+- Added frame markers. (Shortcut: M)
+- Some context menus were updated.
+- Clicking start and end frame buttons now set the current frame to the start and end.
+- Custom frame range can be toggled by middle-clicking or accessing the context menu of start and end frame buttons.
+    - This can also be triggered by double-clicking on the start or end frame buttons when the current frame is already the start or end.
+- Window will now show the currently open file's name on top.
+- Allowed incrementing the frame (via scrolling or keyboard) to loop around.
+- Added 8x playback speed option.
+- Now shows file size at the bottom.
+- Removed ablity to get gifs from a URL.
+- Removed some unnecessary interface rebuilding which should improve performance.
+
+### 1.0.15 (2026 Jan 10) (release skipped)
+- Added support for animated AVIF.
+- Changed the titlebar "always on top" button to use a more recognizable pin icon.
+- GIF frame format warnings are now hidden when animation is not loaded from a GIF.
+- Fixed a problem where it was internally reloading the image and causing a visible hitch whenever a large file was loaded.
+
 ### 1.0.14 (2025 Mar 8)
 - Allow the image sequence import to parse non-padded number sequences. It will still fall back to alphabetical when it fails to find a number sequence.
 
