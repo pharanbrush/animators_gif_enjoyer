@@ -1,6 +1,6 @@
 Animator's GIF Enjoyer Deluxe Changelog
 ===
-### 1.1.0 (2026 May 13) (not released yet)
+### 1.1.0 (2026 May 13)
 - Updated underlying framework for better Windows compatibility.
 - Frame slider now shows individual frame blocks if they fit in the width.
 - Scrubbing the frame slider beyond its width can now loop around. (optional)
