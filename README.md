@@ -57,7 +57,7 @@ If you find this app useful in your work, please consider a contribution!
 
 Animator's GIF Enjoyer Deluxe is available on itch.io!
 https://pharanbrush.itch.io/animators-gif-enjoyer
-![](https://static.itch.io/images/badge.svg)
+<a href="https://pharanbrush.itch.io/animators-gif-enjoyer"><img src="/_readmeassets/itchio-badge.svg" height="48"></a>
 
 or support me on 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/pharanbrush)
