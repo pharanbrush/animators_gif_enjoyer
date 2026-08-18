@@ -1,5 +1,8 @@
 Animator's GIF Enjoyer Deluxe Changelog
 ===
+### 1.1.1 (2026 Aug 4)
+- Fixed mouse cursor not showing a pointer when hovering over the frame slider.
+
 ### 1.1.0 (2026 May 13)
 - Updated underlying framework for better Windows compatibility.
 - Frame slider now shows individual frame blocks if they fit in the width.
