@@ -235,6 +235,9 @@ class _FrameSliderState extends State<FrameSlider> {
             child: SizedBox(
               height: widget.hitHeight,
               child: MouseRegion(
+                cursor: _hoveredIndex == null
+                    ? .defer
+                    : SystemMouseCursors.click,
                 onEnter: (event) =>
                     _updateHoveredIndex(event.localPosition, squareWidth),
                 onHover: (event) =>
